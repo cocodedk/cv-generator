@@ -15,7 +15,7 @@ interface CVFormProps {
 
 export default function CVForm({ onSuccess, onError, setLoading }: CVFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const { register, handleSubmit, control, formState: { errors } } = useForm<CVData>({
+  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<CVData>({
     defaultValues: {
       personal_info: {
         name: '',
@@ -92,6 +92,7 @@ export default function CVForm({ onSuccess, onError, setLoading }: CVFormProps) 
         <div className="flex justify-end space-x-4">
           <button
             type="button"
+            onClick={() => reset()}
             className="px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
           >
             Cancel
