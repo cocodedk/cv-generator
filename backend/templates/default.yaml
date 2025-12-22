@@ -1,0 +1,60 @@
+# Default CV Template Structure
+# This file serves as a reference for the CV data structure
+
+personal_info:
+  name: "John Doe"
+  email: "john.doe@example.com"
+  phone: "+1 234 567 8900"
+  address: "123 Main St, City, State 12345"
+  linkedin: "https://linkedin.com/in/johndoe"
+  github: "https://github.com/johndoe"
+  website: "https://johndoe.com"
+  summary: "Experienced software developer with expertise in full-stack development."
+
+experience:
+  - title: "Senior Software Engineer"
+    company: "Tech Company Inc."
+    start_date: "2020-01"
+    end_date: "Present"
+    location: "San Francisco, CA"
+    description: "Led development of microservices architecture. Mentored junior developers."
+
+  - title: "Software Engineer"
+    company: "Startup Co."
+    start_date: "2018-06"
+    end_date: "2019-12"
+    location: "Remote"
+    description: "Developed RESTful APIs and React frontend applications."
+
+education:
+  - degree: "Bachelor of Science"
+    institution: "University of Technology"
+    year: "2018"
+    field: "Computer Science"
+    gpa: "3.8/4.0"
+
+  - degree: "Master of Science"
+    institution: "Tech University"
+    year: "2020"
+    field: "Software Engineering"
+
+skills:
+  - name: "Python"
+    category: "Programming Languages"
+    level: "Expert"
+
+  - name: "JavaScript"
+    category: "Programming Languages"
+    level: "Advanced"
+
+  - name: "React"
+    category: "Frameworks"
+    level: "Advanced"
+
+  - name: "FastAPI"
+    category: "Frameworks"
+    level: "Advanced"
+
+  - name: "Neo4j"
+    category: "Databases"
+    level: "Intermediate"
