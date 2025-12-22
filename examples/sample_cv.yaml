@@ -1,0 +1,104 @@
+# Sample CV Data
+# This is an example CV data structure that can be used for testing
+
+personal_info:
+  name: "Jane Smith"
+  email: "jane.smith@example.com"
+  phone: "+1 555 123 4567"
+  address: "456 Oak Avenue, New York, NY 10001"
+  linkedin: "https://linkedin.com/in/janesmith"
+  github: "https://github.com/janesmith"
+  website: "https://janesmith.dev"
+  summary: "Full-stack developer passionate about creating scalable web applications and clean code."
+
+experience:
+  - title: "Lead Full-Stack Developer"
+    company: "Innovation Labs"
+    start_date: "2021-03"
+    end_date: "Present"
+    location: "New York, NY"
+    description: |
+      Lead a team of 5 developers in building cloud-native applications.
+      Architected microservices using Docker and Kubernetes.
+      Implemented CI/CD pipelines reducing deployment time by 60%.
+
+  - title: "Full-Stack Developer"
+    company: "Digital Solutions"
+    start_date: "2019-01"
+    end_date: "2021-02"
+    location: "Boston, MA"
+    description: |
+      Developed RESTful APIs using Node.js and Express.
+      Built responsive React applications with TypeScript.
+      Collaborated with design team to implement pixel-perfect UIs.
+
+  - title: "Junior Developer"
+    company: "WebTech Startup"
+    start_date: "2017-06"
+    end_date: "2018-12"
+    location: "Remote"
+    description: |
+      Maintained and enhanced existing web applications.
+      Fixed bugs and implemented new features.
+      Participated in code reviews and agile ceremonies.
+
+education:
+  - degree: "Bachelor of Science"
+    institution: "State University"
+    year: "2017"
+    field: "Computer Science"
+    gpa: "3.9/4.0"
+
+  - degree: "Associate Degree"
+    institution: "Community College"
+    year: "2015"
+    field: "Information Technology"
+
+skills:
+  - name: "Python"
+    category: "Programming Languages"
+    level: "Expert"
+
+  - name: "JavaScript"
+    category: "Programming Languages"
+    level: "Expert"
+
+  - name: "TypeScript"
+    category: "Programming Languages"
+    level: "Advanced"
+
+  - name: "React"
+    category: "Frontend Frameworks"
+    level: "Expert"
+
+  - name: "Node.js"
+    category: "Backend Frameworks"
+    level: "Advanced"
+
+  - name: "FastAPI"
+    category: "Backend Frameworks"
+    level: "Advanced"
+
+  - name: "PostgreSQL"
+    category: "Databases"
+    level: "Advanced"
+
+  - name: "Neo4j"
+    category: "Databases"
+    level: "Intermediate"
+
+  - name: "Docker"
+    category: "DevOps"
+    level: "Advanced"
+
+  - name: "Kubernetes"
+    category: "DevOps"
+    level: "Intermediate"
+
+  - name: "AWS"
+    category: "Cloud Platforms"
+    level: "Intermediate"
+
+  - name: "Git"
+    category: "Tools"
+    level: "Expert"
