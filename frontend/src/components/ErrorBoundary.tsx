@@ -26,11 +26,11 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-          <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
-            <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 dark:bg-gray-950">
+          <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6 dark:bg-gray-900 dark:border dark:border-gray-800">
+            <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4 dark:bg-red-900/40">
               <svg
-                className="w-6 h-6 text-red-600"
+                className="w-6 h-6 text-red-600 dark:text-red-300"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -43,24 +43,24 @@ export class ErrorBoundary extends Component<Props, State> {
                 />
               </svg>
             </div>
-            <h2 className="text-xl font-bold text-gray-900 text-center mb-2">
+            <h2 className="text-xl font-bold text-gray-900 text-center mb-2 dark:text-gray-100">
               Something went wrong
             </h2>
-            <p className="text-gray-600 text-center mb-4">
+            <p className="text-gray-600 text-center mb-4 dark:text-gray-300">
               An unexpected error occurred. Please refresh the page or contact support if the problem persists.
             </p>
             <button
               onClick={() => window.location.reload()}
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-500"
             >
               Refresh Page
             </button>
             {this.state.error && (
               <details className="mt-4">
-                <summary className="text-sm text-gray-500 cursor-pointer">
+                <summary className="text-sm text-gray-500 cursor-pointer dark:text-gray-400">
                   Error details
                 </summary>
-                <pre className="mt-2 text-xs text-gray-600 bg-gray-100 p-2 rounded overflow-auto">
+                <pre className="mt-2 text-xs text-gray-600 bg-gray-100 p-2 rounded overflow-auto dark:text-gray-300 dark:bg-gray-800">
                   {this.state.error.toString()}
                 </pre>
               </details>

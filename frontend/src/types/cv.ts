@@ -1,10 +1,19 @@
 /** TypeScript types for CV data structure */
 
+export interface Address {
+  street?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  country?: string;
+}
+
 export interface PersonalInfo {
   name: string;
+  title?: string;
   email?: string;
   phone?: string;
-  address?: string;
+  address?: Address;
   linkedin?: string;
   github?: string;
   website?: string;
@@ -39,6 +48,7 @@ export interface CVData {
   experience: Experience[];
   education: Education[];
   skills: Skill[];
+  theme?: 'classic' | 'modern' | 'minimal' | 'elegant' | 'accented';
 }
 
 export interface CVResponse {
@@ -52,6 +62,7 @@ export interface CVListItem {
   created_at: string;
   updated_at: string;
   person_name?: string;
+  filename?: string;
 }
 
 export interface CVListResponse {

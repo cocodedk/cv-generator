@@ -49,16 +49,18 @@ export default function CVList({ onError }: CVListProps) {
     }
   }
 
-  const handleDownload = (cvId: string) => {
-    const filename = `cv_${cvId.substring(0, 8)}.odt`
+  const handleDownload = (filename?: string) => {
+    if (!filename) {
+      return
+    }
     window.open(`/api/download/${filename}`, '_blank')
   }
 
   return (
-    <div className="bg-white shadow rounded-lg">
-      <div className="px-6 py-4 border-b border-gray-200">
+    <div className="bg-white shadow rounded-lg dark:bg-gray-900 dark:border dark:border-gray-800">
+      <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-gray-900">My CVs ({total})</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">My CVs ({total})</h2>
           <div className="flex space-x-2">
             <input
               type="text"
@@ -66,11 +68,11 @@ export default function CVList({ onError }: CVListProps) {
               onChange={(e) => setSearch(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               placeholder="Search CVs..."
-              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500"
+              className="px-4 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-900 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-blue-400 dark:focus:ring-blue-400"
             />
             <button
               onClick={handleSearch}
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-500"
             >
               Search
             </button>
@@ -81,41 +83,43 @@ export default function CVList({ onError }: CVListProps) {
       <div className="p-6">
         {loading ? (
           <div className="text-center py-8">
-            <p className="text-gray-500">Loading CVs...</p>
+            <p className="text-gray-500 dark:text-gray-400">Loading CVs...</p>
           </div>
         ) : cvs.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-gray-500">No CVs found.</p>
+            <p className="text-gray-500 dark:text-gray-400">No CVs found.</p>
           </div>
         ) : (
           <div className="space-y-4">
             {cvs.map((cv) => (
               <div
                 key={cv.cv_id}
-                className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50"
+                className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/60"
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                       {cv.person_name || 'Unnamed CV'}
                     </h3>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-sm text-gray-500 mt-1 dark:text-gray-400">
                       Created: {new Date(cv.created_at).toLocaleDateString()}
                     </p>
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="text-xs text-gray-400 mt-1 dark:text-gray-500">
                       ID: {cv.cv_id}
                     </p>
                   </div>
                   <div className="flex space-x-2">
-                    <button
-                      onClick={() => handleDownload(cv.cv_id)}
-                      className="px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-700"
-                    >
-                      Download
-                    </button>
+                    {cv.filename && (
+                      <button
+                        onClick={() => handleDownload(cv.filename)}
+                        className="px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                      >
+                        Download
+                      </button>
+                    )}
                     <button
                       onClick={() => handleDelete(cv.cv_id)}
-                      className="px-3 py-1 text-sm font-medium text-red-600 hover:text-red-700"
+                      className="px-3 py-1 text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                     >
                       Delete
                     </button>

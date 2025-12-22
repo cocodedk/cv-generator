@@ -24,7 +24,11 @@ def create_cv(cv_data: Dict[str, Any]) -> str:
         name: $name,
         email: $email,
         phone: $phone,
-        address: $address,
+        address_street: $address_street,
+        address_city: $address_city,
+        address_state: $address_state,
+        address_zip: $address_zip,
+        address_country: $address_country,
         linkedin: $linkedin,
         github: $github,
         website: $website,
@@ -59,11 +63,14 @@ def create_cv(cv_data: Dict[str, Any]) -> str:
     CREATE (person)-[:HAS_EDUCATION]->(education)
     CREATE (education)-[:BELONGS_TO_CV]->(cv)
 
-    // Create Skill nodes
+    // Create Skill nodes (per-CV to avoid cross-CV deletes and metadata bleed)
     WITH cv, person
     UNWIND $skills AS skill
-    MERGE (s:Skill {name: skill.name})
-    ON CREATE SET s.category = skill.category, s.level = skill.level
+    CREATE (s:Skill {
+        name: skill.name,
+        category: skill.category,
+        level: skill.level
+    })
     CREATE (person)-[:HAS_SKILL]->(s)
     CREATE (s)-[:BELONGS_TO_CV]->(cv)
 
@@ -71,20 +78,27 @@ def create_cv(cv_data: Dict[str, Any]) -> str:
     """
 
     database = Neo4jConnection.get_database()
+    personal_info = cv_data.get("personal_info", {})
+    address = personal_info.get("address") or {}
+
     with driver.session(database=database) as session:
         result = session.write_transaction(
             lambda tx: tx.run(
                 query,
                 cv_id=cv_id,
                 created_at=created_at,
-                name=cv_data.get("personal_info", {}).get("name", ""),
-                email=cv_data.get("personal_info", {}).get("email"),
-                phone=cv_data.get("personal_info", {}).get("phone"),
-                address=cv_data.get("personal_info", {}).get("address"),
-                linkedin=cv_data.get("personal_info", {}).get("linkedin"),
-                github=cv_data.get("personal_info", {}).get("github"),
-                website=cv_data.get("personal_info", {}).get("website"),
-                summary=cv_data.get("personal_info", {}).get("summary"),
+                name=personal_info.get("name", ""),
+                email=personal_info.get("email"),
+                phone=personal_info.get("phone"),
+                address_street=address.get("street"),
+                address_city=address.get("city"),
+                address_state=address.get("state"),
+                address_zip=address.get("zip"),
+                address_country=address.get("country"),
+                linkedin=personal_info.get("linkedin"),
+                github=personal_info.get("github"),
+                website=personal_info.get("website"),
+                summary=personal_info.get("summary"),
                 experiences=cv_data.get("experience", []),
                 educations=cv_data.get("education", []),
                 skills=cv_data.get("skills", [])

@@ -4,7 +4,10 @@
   "description": "CV Generator with React frontend and Python backend",
   "scripts": {
     "dev": "vite",
+    "dev:full": "./scripts/run-dev.sh",
+    "start": "./scripts/run-dev.sh",
     "build": "vite build",
+    "build:watch": "vite build --watch",
     "preview": "vite preview",
     "type-check": "tsc --noEmit"
   },

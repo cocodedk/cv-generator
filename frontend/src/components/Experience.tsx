@@ -26,28 +26,28 @@ export default function Experience({ control, register }: ExperienceProps) {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900">Work Experience</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Work Experience</h3>
         <button
           type="button"
           onClick={addExperience}
-          className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700"
+          className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
         >
           + Add Experience
         </button>
       </div>
 
       {fields.length === 0 && (
-        <p className="text-sm text-gray-500">No experience added. Click "Add Experience" to add one.</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">No experience added. Click "Add Experience" to add one.</p>
       )}
 
       {fields.map((field, index) => (
-        <div key={field.id} className="border border-gray-200 rounded-lg p-4 space-y-4">
+        <div key={field.id} className="border border-gray-200 rounded-lg p-4 space-y-4 dark:border-gray-800 dark:bg-gray-900/40">
           <div className="flex justify-between items-center">
-            <h4 className="text-md font-medium text-gray-900">Experience {index + 1}</h4>
+            <h4 className="text-md font-medium text-gray-900 dark:text-gray-100">Experience {index + 1}</h4>
             <button
               type="button"
               onClick={() => remove(index)}
-              className="text-sm text-red-600 hover:text-red-700"
+              className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
             >
               Remove
             </button>
@@ -55,71 +55,71 @@ export default function Experience({ control, register }: ExperienceProps) {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Job Title *
               </label>
               <input
                 type="text"
                 {...register(`experience.${index}.title` as const, { required: 'Title is required' })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Company *
               </label>
               <input
                 type="text"
                 {...register(`experience.${index}.company` as const, { required: 'Company is required' })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Start Date (YYYY-MM) *
               </label>
               <input
                 type="text"
                 {...register(`experience.${index}.start_date` as const, { required: 'Start date is required' })}
                 placeholder="2020-01"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-blue-400 dark:focus:ring-blue-400"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 End Date (YYYY-MM or "Present")
               </label>
               <input
                 type="text"
                 {...register(`experience.${index}.end_date` as const)}
                 placeholder="2023-12 or Present"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-blue-400 dark:focus:ring-blue-400"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Location
               </label>
               <input
                 type="text"
                 {...register(`experience.${index}.location` as const)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Description
             </label>
             <textarea
               rows={3}
               {...register(`experience.${index}.description` as const)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
             />
           </div>
         </div>

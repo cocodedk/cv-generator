@@ -24,6 +24,9 @@ services:
       - cv-network
 
   app:
+    # Backend service (FastAPI with auto-reload enabled)
+    # Note: For development, frontend runs separately with `npm run dev` (Vite HMR)
+    # In production, backend serves the built frontend from /app/frontend/dist
     build:
       context: .
       dockerfile: Dockerfile
@@ -37,6 +40,7 @@ services:
       - NEO4J_DATABASE=${NEO4J_DATABASE:-neo4j}
       - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:5173,http://localhost:8000}
     volumes:
+      - ./backend:/app/backend  # Mount backend for auto-reload on code changes
       - ./backend/output:/app/backend/output
     depends_on:
       neo4j:
