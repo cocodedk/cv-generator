@@ -1,15 +1,13 @@
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
 import CVForm from './components/CVForm'
 import CVList from './components/CVList'
-import { CVData } from './types/cv'
 import './index.css'
 
 type ViewMode = 'form' | 'list'
 
 function App() {
   const [viewMode, setViewMode] = useState<ViewMode>('form')
-  const [loading, setLoading] = useState(false)
+  const [_loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
   const showMessage = (type: 'success' | 'error', text: string) => {

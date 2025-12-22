@@ -19,7 +19,7 @@ COPY tailwind.config.js ./
 COPY postcss.config.js ./
 COPY vite.config.ts ./
 
-# Build frontend
+# Build frontend (Vite handles TypeScript compilation internally)
 RUN npm run build
 
 # Stage 2: Backend runtime

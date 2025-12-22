@@ -1,5 +1,5 @@
 import { useFieldArray, Control, UseFormRegister } from 'react-hook-form'
-import { CVData, Experience as ExperienceType } from '../types/cv'
+import { CVData } from '../types/cv'
 
 interface ExperienceProps {
   control: Control<CVData>
