@@ -93,29 +93,100 @@ NEO4J_DATABASE=neo4j
 
 ## Development
 
-### Using Docker (Recommended)
+### Quick Start (Recommended)
 
-All dependencies are installed automatically in containers. No local installation needed.
+**Easiest way to run the app:**
 
-### Local Development (Optional)
+```bash
+# Option 1: Using the script
+./scripts/run-dev.sh
 
-If you want to develop locally without Docker:
+# Option 2: Using npm
+npm run dev:full
+# or
+npm start
+```
 
-1. **Backend:**
+This single command will:
+- Start Docker services (backend + Neo4j)
+- Install frontend dependencies if needed
+- Start the frontend dev server with HMR
+
+**To stop everything:**
+```bash
+./scripts/stop-dev.sh
+# or press Ctrl+C in the terminal running the script
+```
+
+### Manual Setup
+
+For the best development experience with hot module replacement (HMR) and auto-reload:
+
+**Architecture:**
+- **Frontend**: Run locally with Vite dev server (port 5173) - provides instant HMR/livereload
+- **Backend**: Run in Docker with auto-reload enabled (port 8000)
+- **Neo4j**: Run in Docker (ports 7474, 7687)
+
+**Manual Setup Steps:**
+
+1. **Start backend and database services:**
+   ```bash
+   docker-compose up -d
+   ```
+   This starts Neo4j and the FastAPI backend with auto-reload enabled.
+
+2. **Install frontend dependencies (one-time):**
+   ```bash
+   npm install
+   ```
+
+3. **Start frontend dev server:**
+   ```bash
+   npm run dev
+   ```
+   The Vite dev server will start on http://localhost:5173 with HMR enabled.
+
+4. **Access the application:**
+   - Frontend (with HMR): http://localhost:5173
+   - API Documentation: http://localhost:8000/docs
+   - Neo4j Browser: http://localhost:7474
+
+**Benefits:**
+- Frontend changes reload instantly with Vite HMR
+- Backend Python changes auto-reload in Docker
+- Better IDE integration and debugging
+- Faster development cycle
+
+### Alternative: Full Docker Development
+
+If you prefer everything in Docker (slower HMR, but no local Node.js needed):
+
+1. Start all services:
+   ```bash
+   docker-compose up -d
+   ```
+
+2. Access at http://localhost:8000 (backend serves built frontend)
+
+### Local Development (No Docker)
+
+If you want to run everything locally:
+
+1. **Neo4j** (still in Docker):
+   ```bash
+   docker run -p 7474:7474 -p 7687:7687 neo4j:5.15-community
+   ```
+
+2. **Backend:**
    ```bash
    pip install -r requirements.txt
    uvicorn backend.app:app --reload --port 8000
    ```
 
-2. **Frontend:**
+3. **Frontend:**
    ```bash
    npm install
    npm run dev
-   ```
-
-3. **Neo4j:**
-   ```bash
-   docker run -p 7474:7474 -p 7687:7687 neo4j:5.15-community
    ```
 
 ## Building for Production

@@ -33,15 +33,33 @@ def get_cv_by_id(cv_id: str) -> Optional[Dict[str, Any]]:
         educations = [dict(edu) for edu in record["educations"] if edu]
         skills = [dict(skill) for skill in record["skills"] if skill]
 
+        # Build address object from separate properties
+        address = None
+        if any([
+            person.get("address_street"),
+            person.get("address_city"),
+            person.get("address_state"),
+            person.get("address_zip"),
+            person.get("address_country")
+        ]):
+            address = {
+                "street": person.get("address_street"),
+                "city": person.get("address_city"),
+                "state": person.get("address_state"),
+                "zip": person.get("address_zip"),
+                "country": person.get("address_country")
+            }
+
         return {
             "cv_id": record["cv"]["id"],
             "created_at": record["cv"]["created_at"],
             "updated_at": record["cv"]["updated_at"],
+            "filename": record["cv"].get("filename"),
             "personal_info": {
                 "name": person.get("name"),
                 "email": person.get("email"),
                 "phone": person.get("phone"),
-                "address": person.get("address"),
+                "address": address,
                 "linkedin": person.get("linkedin"),
                 "github": person.get("github"),
                 "website": person.get("website"),

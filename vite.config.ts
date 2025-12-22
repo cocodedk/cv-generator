@@ -7,6 +7,10 @@ export default defineConfig({
   root: './frontend',
   server: {
     port: 5173,
+    hmr: {
+      // Enable HMR for better development experience
+      overlay: true,
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:8000',

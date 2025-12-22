@@ -4,12 +4,21 @@ from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
 
 
+class Address(BaseModel):
+    """Address model with components."""
+    street: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    zip: Optional[str] = None
+    country: Optional[str] = None
+
+
 class PersonalInfo(BaseModel):
     """Personal information model."""
     name: str = Field(..., min_length=1, max_length=200)
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
-    address: Optional[str] = None
+    address: Optional[Address] = None
     linkedin: Optional[str] = None
     github: Optional[str] = None
     website: Optional[str] = None
@@ -63,6 +72,7 @@ class CVListItem(BaseModel):
     created_at: str
     updated_at: str
     person_name: Optional[str] = None
+    filename: Optional[str] = None
 
 
 class CVListResponse(BaseModel):

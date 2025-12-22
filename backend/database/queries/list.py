@@ -13,7 +13,7 @@ def list_cvs(limit: int = 50, offset: int = 0, search: Optional[str] = None) -> 
         OPTIONAL MATCH (person:Person)-[:BELONGS_TO_CV]->(cv)
         WHERE person.name CONTAINS $search
            OR person.email CONTAINS $search
-        RETURN cv, person.name AS person_name
+        RETURN cv, person.name AS person_name, cv.filename AS filename
         ORDER BY cv.created_at DESC
         SKIP $offset
         LIMIT $limit
@@ -29,7 +29,7 @@ def list_cvs(limit: int = 50, offset: int = 0, search: Optional[str] = None) -> 
         query = """
         MATCH (cv:CV)
         OPTIONAL MATCH (person:Person)-[:BELONGS_TO_CV]->(cv)
-        RETURN cv, person.name AS person_name
+        RETURN cv, person.name AS person_name, cv.filename AS filename
         ORDER BY cv.created_at DESC
         SKIP $offset
         LIMIT $limit
@@ -51,7 +51,8 @@ def list_cvs(limit: int = 50, offset: int = 0, search: Optional[str] = None) -> 
                 "cv_id": record["cv"]["id"],
                 "created_at": record["cv"]["created_at"],
                 "updated_at": record["cv"]["updated_at"],
-                "person_name": record["person_name"]
+                "person_name": record["person_name"],
+                "filename": record["filename"]
             }
             for record in results
         ]

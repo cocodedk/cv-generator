@@ -90,13 +90,17 @@ async def generate_cv(cv_data: CVData):
         output_path = output_dir / filename
         generator.generate(cv_dict, str(output_path))
 
+        # Persist generated filename for download listing
+        queries.set_cv_filename(cv_id, filename)
+
         return CVResponse(
             cv_id=cv_id,
             filename=filename,
             status="success"
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to generate CV", exc_info=e)
+        raise HTTPException(status_code=500, detail="Failed to generate CV")
 
 # Save CV endpoint (without generating file)
 @app.post("/api/save-cv", response_model=CVResponse)
@@ -107,7 +111,8 @@ async def save_cv(cv_data: CVData):
         cv_id = queries.create_cv(cv_dict)
         return CVResponse(cv_id=cv_id, status="success")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to save CV", exc_info=e)
+        raise HTTPException(status_code=500, detail="Failed to save CV")
 
 # Get CV by ID
 @app.get("/api/cv/{cv_id}")
@@ -180,8 +185,8 @@ async def update_cv_endpoint(cv_id: str, cv_data: CVData):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error updating CV {cv_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to update CV %s", cv_id, exc_info=e)
+        raise HTTPException(status_code=500, detail="Failed to update CV")
 
 if __name__ == "__main__":
     import uvicorn
