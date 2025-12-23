@@ -80,6 +80,9 @@ describe('CVForm - Edit Mode', () => {
   it('uses PUT request to update CV in edit mode', async () => {
     mockedAxios.get.mockResolvedValue({ data: mockCvDataForUpdate })
     mockedAxios.put.mockResolvedValue({ data: mockUpdateResponse })
+    mockedAxios.post.mockResolvedValue({
+      data: { filename: 'cv_test.docx', status: 'success' },
+    })
 
     renderCVForm({
       onSuccess: mockOnSuccess,
@@ -105,7 +108,9 @@ describe('CVForm - Edit Mode', () => {
       )
     })
 
-    expect(mockOnSuccess).toHaveBeenCalledWith('CV updated successfully!')
+    await waitFor(() => {
+      expect(mockOnSuccess).toHaveBeenCalledWith('CV updated and downloaded successfully!')
+    })
   })
 
   it('shows Update CV button text in edit mode', async () => {

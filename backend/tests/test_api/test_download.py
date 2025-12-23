@@ -1,4 +1,4 @@
-"""Tests for file download endpoint."""
+"""Tests for DOCX download endpoint."""
 import pytest
 from unittest.mock import patch
 from backend.app import app
@@ -7,14 +7,14 @@ from backend.app import app
 @pytest.mark.asyncio
 @pytest.mark.api
 class TestDownloadCV:
-    """Test GET /api/download/{filename} endpoint."""
+    """Test GET /api/download-docx/{filename} endpoint."""
 
     async def test_download_cv_success(
         self, client, temp_output_dir, mock_neo4j_connection
     ):
         """Test successful file download with regeneration."""
         # Create a test file (will be regenerated)
-        test_file = temp_output_dir / "test_cv.odt"
+        test_file = temp_output_dir / "test_cv.docx"
         test_file.write_text("test content")
 
         cv_data = {
@@ -24,7 +24,7 @@ class TestDownloadCV:
             "education": [],
             "skills": [],
             "theme": "classic",
-            "filename": "test_cv.odt",
+            "filename": "test_cv.docx",
         }
 
         original_output_dir = getattr(app.state, "output_dir", None)
@@ -35,13 +35,15 @@ class TestDownloadCV:
             ):
                 with patch(
                     "backend.services.cv_file_service.CVFileService.generate_file_for_cv",
-                    return_value="test_cv.odt",
+                    return_value="test_cv.docx",
                 ):
-                    response = await client.get("/api/download/test_cv.odt")
+                    response = await client.get(
+                        "/api/download-docx/test_cv.docx"
+                    )
                     assert response.status_code == 200
                     assert (
                         response.headers["content-type"]
-                        == "application/vnd.oasis.opendocument.text"
+                        == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                     )
         finally:
             app.state.output_dir = original_output_dir
@@ -56,7 +58,9 @@ class TestDownloadCV:
             with patch(
                 "backend.database.queries.get_cv_by_filename", return_value=None
             ):
-                response = await client.get("/api/download/non_existent.odt")
+                response = await client.get(
+                    "/api/download-docx/non_existent.docx"
+                )
                 assert response.status_code == 404
         finally:
             app.state.output_dir = original_output_dir
@@ -71,15 +75,15 @@ class TestDownloadCV:
             # get normalized and don't match the route, returning 404 (which is secure).
             # Paths that do match the route are validated by the endpoint logic.
             malicious_paths = [
-                "../test.odt",
-                "../../test.odt",
-                "..\\test.odt",
+                "../test.docx",
+                "../../test.docx",
+                "..\\test.docx",
                 "/etc/passwd",
-                "test/../test.odt",
+                "test/../test.docx",
             ]
 
             for path in malicious_paths:
-                response = await client.get(f"/api/download/{path}")
+                response = await client.get(f"/api/download-docx/{path}")
                 # FastAPI normalizes paths before route matching, so these return 404
                 # which is still secure - they cannot access files outside the directory.
                 # The endpoint validation would catch any that make it through.
@@ -95,16 +99,16 @@ class TestDownloadCV:
         original_output_dir = getattr(app.state, "output_dir", None)
         app.state.output_dir = temp_output_dir
         try:
-            response = await client.get("/api/download/test.txt")
+            response = await client.get("/api/download-docx/test.txt")
             assert response.status_code == 400
         finally:
             app.state.output_dir = original_output_dir
 
-    async def test_download_cv_only_odt_allowed(
+    async def test_download_cv_only_docx_allowed(
         self, client, temp_output_dir, mock_neo4j_connection
     ):
-        """Test that only .odt files are allowed."""
-        test_file = temp_output_dir / "test_cv.odt"
+        """Test that only .docx files are allowed."""
+        test_file = temp_output_dir / "test_cv.docx"
         test_file.write_text("test")
 
         cv_data = {
@@ -114,7 +118,7 @@ class TestDownloadCV:
             "education": [],
             "skills": [],
             "theme": "classic",
-            "filename": "test_cv.odt",
+            "filename": "test_cv.docx",
         }
 
         original_output_dir = getattr(app.state, "output_dir", None)
@@ -125,9 +129,11 @@ class TestDownloadCV:
             ):
                 with patch(
                     "backend.services.cv_file_service.CVFileService.generate_file_for_cv",
-                    return_value="test_cv.odt",
+                    return_value="test_cv.docx",
                 ):
-                    response = await client.get("/api/download/test_cv.odt")
+                    response = await client.get(
+                        "/api/download-docx/test_cv.docx"
+                    )
                     assert response.status_code == 200
         finally:
             app.state.output_dir = original_output_dir

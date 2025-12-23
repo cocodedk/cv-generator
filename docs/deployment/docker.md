@@ -13,7 +13,7 @@ The application uses Docker Compose with two services:
 - **Port**: 8000 (mapped to host)
 - **Volumes**:
   - `./backend:/app/backend`: Backend code (for development)
-  - `./backend/output:/app/backend/output`: Generated ODT files
+  - `./backend/output:/app/backend/output`: Generated DOCX files
 - **Environment variables**: From `.env` file or docker-compose.yml
 - **Depends on**: `neo4j` service
 

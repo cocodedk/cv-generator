@@ -9,8 +9,8 @@ graph TB
     User[User Browser] --> Frontend[React Frontend<br/>Port 5173]
     Frontend --> API[FastAPI Backend<br/>Port 8000]
     API --> Neo4j[Neo4j Database<br/>Ports 7474/7687]
-    API --> Generator[CV Generator<br/>ODT Creation]
-    Generator --> Files[ODT Files<br/>backend/output/]
+    API --> Generator[CV Generator<br/>DOCX Creation]
+    Generator --> Files[DOCX Files<br/>backend/output/]
 ```
 
 ## Components
@@ -40,7 +40,7 @@ graph TB
 - Request validation using Pydantic models
 - Business logic orchestration
 - Database operations
-- ODT document generation
+- DOCX document generation
 
 ### Data Layer
 
@@ -55,10 +55,10 @@ graph TB
 ## Data Flow
 
 1. User enters CV data in React form
-2. Frontend validates and sends POST request to `/api/generate-cv`
+2. Frontend validates and sends POST request to `/api/generate-cv-docx`
 3. Backend validates data with Pydantic models
 4. Backend saves data to Neo4j database
-5. Backend generates ODT file using CVGenerator
+5. Backend generates DOCX file using the DOCX generator
 6. Backend returns CV ID and filename
 7. Frontend downloads generated file
 

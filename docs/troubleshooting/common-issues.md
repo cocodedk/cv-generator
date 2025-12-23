@@ -32,7 +32,7 @@ Common problems and their solutions when working with the CV Generator.
 
 ## File Generation Issues
 
-**ODT Not Generated**: Check `backend/output/` exists, verify permissions, check logs, verify CV data.
+**DOCX Not Generated**: Check `backend/output/` exists, verify permissions, check logs, verify CV data.
 
 **Download Fails**: Verify file exists, check filename validation, verify permissions, check console.
 

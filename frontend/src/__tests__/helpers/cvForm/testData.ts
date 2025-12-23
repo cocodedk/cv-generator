@@ -50,7 +50,7 @@ export const mockCvDataForUpdate = {
 
 export const mockCvResponse = {
   cv_id: 'test-id',
-  filename: 'cv_test.odt',
+  filename: 'cv_test.docx',
   status: 'success',
 }
 

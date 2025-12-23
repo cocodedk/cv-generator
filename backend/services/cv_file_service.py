@@ -2,7 +2,7 @@
 import logging
 from pathlib import Path
 from typing import Dict, Any
-from backend.cv_generator.generator import CVGenerator
+from backend.cv_generator_docx.generator import DocxCVGenerator
 from backend.database import queries
 
 logger = logging.getLogger(__name__)
@@ -14,10 +14,17 @@ class CVFileService:
     def __init__(self, output_dir: Path):
         """Initialize service with output directory."""
         self.output_dir = output_dir
-        self.generator = CVGenerator()
+        self.docx_generator = DocxCVGenerator()
+
+    def _build_output_path(self, cv_id: str) -> tuple[str, Path]:
+        filename = f"cv_{cv_id[:8]}.docx"
+        output_path = self.output_dir / filename
+        if output_path.exists():
+            output_path.unlink()
+        return filename, output_path
 
     def generate_file_for_cv(self, cv_id: str, cv_dict: Dict[str, Any]) -> str:
-        """Generate ODT file for a CV and return filename."""
+        """Generate DOCX file for a CV and return filename."""
         # Ensure theme is always present in cv_dict
         if "theme" not in cv_dict or cv_dict["theme"] is None:
             cv_dict["theme"] = "classic"
@@ -29,15 +36,8 @@ class CVFileService:
             list(cv_dict.keys()),
         )
 
-        filename = f"cv_{cv_id[:8]}.odt"
-        output_path = self.output_dir / filename
-
-        # Delete old file if it exists (in case regenerating)
-        if output_path.exists():
-            output_path.unlink()
-
-        # Generate ODT file
-        self.generator.generate(cv_dict, str(output_path))
+        filename, output_path = self._build_output_path(cv_id)
+        self.docx_generator.generate(cv_dict, str(output_path))
 
         # Persist generated filename
         queries.set_cv_filename(cv_id, filename)

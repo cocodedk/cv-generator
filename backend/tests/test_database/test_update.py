@@ -193,7 +193,7 @@ class TestSetCVFilename:
 
         mock_session.write_transaction.side_effect = write_transaction_side_effect
 
-        success = queries.set_cv_filename("test-id", "cv_test.odt")
+        success = queries.set_cv_filename("test-id", "cv_test.docx")
 
         assert success is True
         mock_session.write_transaction.assert_called_once()
@@ -212,6 +212,6 @@ class TestSetCVFilename:
 
         mock_session.write_transaction.side_effect = write_transaction_side_effect
 
-        success = queries.set_cv_filename("non-existent", "cv_test.odt")
+        success = queries.set_cv_filename("non-existent", "cv_test.docx")
 
         assert success is False

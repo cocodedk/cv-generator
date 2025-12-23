@@ -41,7 +41,7 @@ docker-compose exec app python -c "from backend.database.connection import Neo4j
 curl http://localhost:8000/api/health
 
 # Create CV
-curl -X POST http://localhost:8000/api/generate-cv \
+curl -X POST http://localhost:8000/api/generate-cv-docx \
   -H "Content-Type: application/json" \
   -d '{"personal_info": {"name": "Test"}}'
 ```

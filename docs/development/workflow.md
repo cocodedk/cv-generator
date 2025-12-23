@@ -67,7 +67,7 @@ npm run format:frontend  # Frontend formatting
 - `backend/app.py`: Main FastAPI application
 - `backend/models.py`: Pydantic data models
 - `backend/database/`: Database operations
-- `backend/cv_generator/`: ODT generation logic
+- `backend/cv_generator_docx/`: DOCX generation logic
 - `backend/tests/`: Test files
 
 ### Frontend Structure

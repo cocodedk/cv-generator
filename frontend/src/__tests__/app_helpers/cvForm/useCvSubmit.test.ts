@@ -25,7 +25,7 @@ describe('useCvSubmit', () => {
 
   it('creates CV successfully', async () => {
     mockedAxios.post.mockResolvedValue({
-      data: { cv_id: 'test-id', filename: 'cv_test.odt' },
+      data: { cv_id: 'test-id', filename: 'cv_test.docx' },
     })
 
     const { result } = renderHook(() =>
@@ -42,9 +42,9 @@ describe('useCvSubmit', () => {
       await result.current.onSubmit(cvData)
     })
 
-    expect(mockedAxios.post).toHaveBeenCalledWith('/api/generate-cv', cvData)
+    expect(mockedAxios.post).toHaveBeenCalledWith('/api/generate-cv-docx', cvData)
     expect(window.open).toHaveBeenCalledWith(
-      expect.stringMatching(/^\/api\/download\/cv_test\.odt\?t=\d+$/),
+      expect.stringMatching(/^\/api\/download-docx\/cv_test\.docx\?t=\d+$/),
       '_blank'
     )
     expect(mockOnSuccess).toHaveBeenCalledWith('CV generated and downloaded successfully!')
@@ -52,7 +52,10 @@ describe('useCvSubmit', () => {
 
   it('updates CV successfully with download', async () => {
     mockedAxios.put.mockResolvedValue({
-      data: { cv_id: 'test-id', filename: 'cv_test.odt' },
+      data: { cv_id: 'test-id' },
+    })
+    mockedAxios.post.mockResolvedValue({
+      data: { filename: 'cv_test.docx' },
     })
 
     const { result } = renderHook(() =>
@@ -70,8 +73,9 @@ describe('useCvSubmit', () => {
     })
 
     expect(mockedAxios.put).toHaveBeenCalledWith('/api/cv/test-id', cvData)
+    expect(mockedAxios.post).toHaveBeenCalledWith('/api/cv/test-id/generate-docx')
     expect(window.open).toHaveBeenCalledWith(
-      expect.stringMatching(/^\/api\/download\/cv_test\.odt\?t=\d+$/),
+      expect.stringMatching(/^\/api\/download-docx\/cv_test\.docx\?t=\d+$/),
       '_blank'
     )
     expect(mockOnSuccess).toHaveBeenCalledWith('CV updated and downloaded successfully!')
@@ -79,6 +83,7 @@ describe('useCvSubmit', () => {
 
   it('updates CV successfully without filename', async () => {
     mockedAxios.put.mockResolvedValue({ data: { cv_id: 'test-id' } })
+    mockedAxios.post.mockResolvedValue({ data: {} })
 
     const { result } = renderHook(() =>
       useCvSubmit({

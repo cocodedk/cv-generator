@@ -9,7 +9,7 @@ All issues identified in the review have been fixed. Here's a summary:
 - **Fix:** Added filename validation to prevent path traversal attacks
 - **Changes:**
   - Validates filename doesn't contain `..`, `/`, or `\`
-  - Only allows `.odt` file extensions
+- Only allows `.docx` file extensions
   - Ensures file path is within output directory using `relative_to()`
 
 ### 2. Broken update_cv Function (FIXED)
