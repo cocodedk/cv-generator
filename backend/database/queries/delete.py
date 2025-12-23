@@ -18,8 +18,6 @@ def delete_cv(cv_id: str) -> bool:
 
     database = Neo4jConnection.get_database()
     with driver.session(database=database) as session:
-        result = session.write_transaction(
-            lambda tx: tx.run(query, cv_id=cv_id)
-        )
+        result = session.write_transaction(lambda tx: tx.run(query, cv_id=cv_id))
         deleted = result.single()["deleted"]
         return deleted > 0

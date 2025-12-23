@@ -22,10 +22,7 @@ class Neo4jConnection:
             password = os.getenv("NEO4J_PASSWORD", "cvpassword")
             database = os.getenv("NEO4J_DATABASE", "neo4j")
 
-            cls._driver = GraphDatabase.driver(
-                uri,
-                auth=(user, password)
-            )
+            cls._driver = GraphDatabase.driver(uri, auth=(user, password))
             cls._database = database
         return cls._driver
 

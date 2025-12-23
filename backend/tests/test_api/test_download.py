@@ -16,18 +16,23 @@ class TestDownloadCV:
         test_file.write_text("test content")
 
         import backend.app
+
         original_output_dir = backend.app.output_dir
         backend.app.output_dir = temp_output_dir
         try:
             response = await client.get("/api/download/test_cv.odt")
             assert response.status_code == 200
-            assert response.headers["content-type"] == "application/vnd.oasis.opendocument.text"
+            assert (
+                response.headers["content-type"]
+                == "application/vnd.oasis.opendocument.text"
+            )
         finally:
             backend.app.output_dir = original_output_dir
 
     async def test_download_cv_not_found(self, client, temp_output_dir):
         """Test download non-existent file."""
         import backend.app
+
         original_output_dir = backend.app.output_dir
         backend.app.output_dir = temp_output_dir
         try:
@@ -39,6 +44,7 @@ class TestDownloadCV:
     async def test_download_cv_path_traversal_attempt(self, client, temp_output_dir):
         """Test path traversal prevention."""
         import backend.app
+
         original_output_dir = backend.app.output_dir
         backend.app.output_dir = temp_output_dir
         try:
@@ -51,7 +57,7 @@ class TestDownloadCV:
                 "../../test.odt",
                 "..\\test.odt",
                 "/etc/passwd",
-                "test/../test.odt"
+                "test/../test.odt",
             ]
 
             for path in malicious_paths:
@@ -59,14 +65,17 @@ class TestDownloadCV:
                 # FastAPI normalizes paths before route matching, so these return 404
                 # which is still secure - they cannot access files outside the directory.
                 # The endpoint validation would catch any that make it through.
-                assert response.status_code in [400, 404], \
-                    f"Path '{path}' should return 400 (validation) or 404 (route not matched), got {response.status_code}"
+                assert response.status_code in [
+                    400,
+                    404,
+                ], f"Path '{path}' should return 400 (validation) or 404 (route not matched), got {response.status_code}"
         finally:
             backend.app.output_dir = original_output_dir
 
     async def test_download_cv_invalid_extension(self, client, temp_output_dir):
         """Test download with invalid file extension."""
         import backend.app
+
         original_output_dir = backend.app.output_dir
         backend.app.output_dir = temp_output_dir
         try:
@@ -81,6 +90,7 @@ class TestDownloadCV:
         test_file.write_text("test")
 
         import backend.app
+
         original_output_dir = backend.app.output_dir
         backend.app.output_dir = temp_output_dir
         try:

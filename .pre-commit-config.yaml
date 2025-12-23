@@ -1,0 +1,64 @@
+repos:
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+
+  # Python formatting (run in container)
+  - repo: local
+    hooks:
+      - id: black-backend
+        name: black-backend
+        entry: bash -c 'docker-compose exec -T app black backend || docker-compose run --rm app black backend'
+        language: system
+        pass_filenames: false
+        always_run: false
+        files: ^backend/.*\.py$
+
+  # Python linting (run in container)
+  - repo: local
+    hooks:
+      - id: flake8-backend
+        name: flake8-backend
+        entry: bash -c 'docker-compose exec -T app flake8 backend --config=.flake8 || docker-compose run --rm app flake8 backend --config=.flake8'
+        language: system
+        pass_filenames: false
+        always_run: false
+        files: ^backend/.*\.py$
+
+  # Run all tests (backend and frontend)
+  - repo: local
+    hooks:
+      - id: run-all-tests
+        name: run-all-tests
+        entry: bash scripts/run-tests.sh
+        language: system
+        pass_filenames: false
+        always_run: true
+        files: ^(backend/|frontend/src/)
+
+  # TypeScript/JavaScript formatting
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        files: ^frontend/src/.*\.(ts|tsx|css)$
+
+  # TypeScript/JavaScript linting
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v8.56.0
+    hooks:
+      - id: eslint
+        files: ^frontend/src/.*\.(ts|tsx)$
+        additional_dependencies:
+          - eslint@8.56.0
+          - '@typescript-eslint/parser@6.19.0'
+          - '@typescript-eslint/eslint-plugin@6.19.0'
+          - 'eslint-plugin-react@7.33.2'
+          - 'eslint-plugin-react-hooks@4.6.0'

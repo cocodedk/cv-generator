@@ -22,7 +22,9 @@ def mock_neo4j_driver():
     mock_session.__enter__ = Mock(return_value=mock_session)
     mock_session.__exit__ = Mock(return_value=None)
     mock_session.run = Mock(return_value=Mock(single=Mock(return_value=None)))
-    mock_session.write_transaction = Mock(return_value=Mock(single=Mock(return_value={"cv_id": "test-cv-id"})))
+    mock_session.write_transaction = Mock(
+        return_value=Mock(single=Mock(return_value={"cv_id": "test-cv-id"}))
+    )
 
     # Configure mock driver
     mock_driver.session = Mock(return_value=mock_session)
@@ -35,9 +37,11 @@ def mock_neo4j_driver():
 @pytest.fixture
 def mock_neo4j_connection(mock_neo4j_driver):
     """Mock Neo4j connection."""
-    with patch.object(Neo4jConnection, 'get_driver', return_value=mock_neo4j_driver):
-        with patch.object(Neo4jConnection, 'get_database', return_value='neo4j'):
-            with patch.object(Neo4jConnection, 'verify_connectivity', return_value=True):
+    with patch.object(Neo4jConnection, "get_driver", return_value=mock_neo4j_driver):
+        with patch.object(Neo4jConnection, "get_database", return_value="neo4j"):
+            with patch.object(
+                Neo4jConnection, "verify_connectivity", return_value=True
+            ):
                 yield mock_neo4j_driver
 
 
@@ -61,11 +65,11 @@ def sample_cv_data() -> Dict[str, Any]:
                 "city": "New York",
                 "state": "NY",
                 "zip": "10001",
-                "country": "USA"
+                "country": "USA",
             },
             "linkedin": "https://linkedin.com/in/johndoe",
             "github": "https://github.com/johndoe",
-            "summary": "Experienced software developer"
+            "summary": "Experienced software developer",
         },
         "experience": [
             {
@@ -74,7 +78,7 @@ def sample_cv_data() -> Dict[str, Any]:
                 "start_date": "2020-01",
                 "end_date": "2023-12",
                 "description": "Led development team",
-                "location": "Remote"
+                "location": "Remote",
             }
         ],
         "education": [
@@ -83,14 +87,14 @@ def sample_cv_data() -> Dict[str, Any]:
                 "institution": "University of Technology",
                 "year": "2018",
                 "field": "Computer Science",
-                "gpa": "3.8"
+                "gpa": "3.8",
             }
         ],
         "skills": [
             {"name": "Python", "category": "Programming", "level": "Expert"},
-            {"name": "React", "category": "Frontend", "level": "Advanced"}
+            {"name": "React", "category": "Frontend", "level": "Advanced"},
         ],
-        "theme": "classic"
+        "theme": "classic",
     }
 
 
