@@ -1,4 +1,5 @@
 """Document styling utilities for CV generation."""
+import logging
 from odf.opendocument import OpenDocumentText
 from odf.style import (
     Style,
@@ -9,6 +10,8 @@ from odf.style import (
     TableProperties,
     GraphicProperties,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class CVStyles:
@@ -106,9 +109,57 @@ class CVStyles:
     @staticmethod
     def create_styles(doc: OpenDocumentText, theme: str = "classic"):
         """Create all CV styles in the document."""
-        theme_def = CVStyles.THEMES.get(theme, CVStyles.THEMES["classic"])
+        # Validate theme and default to classic if invalid
+        if theme not in CVStyles.THEMES:
+            logger.warning(
+                "Invalid theme '%s', defaulting to 'classic'. Valid themes: %s",
+                theme,
+                list(CVStyles.THEMES.keys()),
+            )
+            theme = "classic"
+        theme_def = CVStyles.THEMES[theme]
+        logger.debug(
+            "Creating styles for theme '%s' (fontfamily=%s)",
+            theme,
+            theme_def["fontfamily"],
+        )
         fontfamily = theme_def["fontfamily"]
         spacing = theme_def["spacing"]
+
+        # Create or update default Standard style to ensure theme is applied globally
+        # This ensures elements without explicit styles inherit the theme
+        standard_style = None
+        for existing_style in doc.styles.childNodes:
+            if (
+                hasattr(existing_style, "getAttribute")
+                and existing_style.getAttribute("name") == "Standard"
+                and existing_style.getAttribute("family") == "paragraph"
+            ):
+                standard_style = existing_style
+                break
+
+        if not standard_style:
+            # Create Standard style if it doesn't exist
+            standard_style = Style(name="Standard", family="paragraph")
+            doc.styles.addElement(standard_style)
+
+        # Update Standard style with theme values
+        text_props = None
+        for child in standard_style.childNodes:
+            if "text-properties" in child.tagName:
+                text_props = child
+                break
+
+        if not text_props:
+            # Create text-properties if they don't exist
+            text_props = TextProperties()
+            standard_style.addElement(text_props)
+
+        # Set theme values in Standard style
+        ns = "urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"
+        text_props.setAttrNS(ns, "font-family", fontfamily)
+        text_props.setAttrNS(ns, "font-size", theme_def["normal"]["fontsize"])
+        text_props.setAttrNS(ns, "color", theme_def["normal"]["color"])
 
         # Heading style
         heading_style = Style(name="Heading", family="paragraph")

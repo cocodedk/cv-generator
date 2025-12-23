@@ -24,12 +24,18 @@ export function useCvSubmit({
     setLoading(true)
     try {
       if (isEditMode && cvId) {
-        await axios.put(`/api/cv/${cvId}`, data)
-        onSuccess('CV updated successfully!')
+        const response = await axios.put(`/api/cv/${cvId}`, data)
+        if (response.data.filename) {
+          const downloadUrl = `/api/download/${response.data.filename}?t=${Date.now()}`
+          window.open(downloadUrl, '_blank')
+          onSuccess('CV updated and downloaded successfully!')
+        } else {
+          onSuccess('CV updated successfully!')
+        }
       } else {
         const response = await axios.post('/api/generate-cv', data)
         if (response.data.filename) {
-          const downloadUrl = `/api/download/${response.data.filename}`
+          const downloadUrl = `/api/download/${response.data.filename}?t=${Date.now()}`
           window.open(downloadUrl, '_blank')
           onSuccess('CV generated and downloaded successfully!')
         } else {

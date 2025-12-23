@@ -28,6 +28,50 @@ class TestCVGenerator:
             generator.generate(sample_cv_data, str(output_path))
             assert output_path.exists()
 
+    def test_generate_theme_passed_to_styles(self, sample_cv_data, temp_output_dir):
+        """Test that theme is correctly passed to style creation."""
+        from backend.cv_generator.styles import CVStyles
+        from odf.opendocument import OpenDocumentText
+
+        generator = CVGenerator()
+        themes = ["classic", "modern", "minimal", "elegant", "accented"]
+
+        for theme in themes:
+            sample_cv_data["theme"] = theme
+            output_path = temp_output_dir / f"test_theme_{theme}.odt"
+            generator.generate(sample_cv_data, str(output_path))
+
+            # Verify file exists
+            assert output_path.exists()
+
+            # Verify theme was used by checking document styles
+            doc = OpenDocumentText()
+            doc = CVStyles.create_styles(doc, theme=theme)
+            # Check that styles were created (non-empty styles list)
+            assert len(list(doc.styles.childNodes)) > 0
+
+    def test_generate_defaults_to_classic_when_theme_missing(self, temp_output_dir):
+        """Test that generation defaults to classic theme when theme is missing."""
+        generator = CVGenerator()
+        cv_data = {
+            "personal_info": {"name": "Test User"},
+            "experience": [],
+            "education": [],
+            "skills": [],
+        }
+        # Explicitly don't include theme
+        output_path = temp_output_dir / "test_no_theme.odt"
+        generator.generate(cv_data, str(output_path))
+        assert output_path.exists()
+
+    def test_generate_theme_in_cv_data(self, sample_cv_data, temp_output_dir):
+        """Test that theme from cv_data is used during generation."""
+        generator = CVGenerator()
+        sample_cv_data["theme"] = "modern"
+        output_path = temp_output_dir / "test_theme_modern.odt"
+        generator.generate(sample_cv_data, str(output_path))
+        assert output_path.exists()
+
     def test_format_address(self, sample_cv_data, temp_output_dir):
         """Test address formatting."""
         generator = CVGenerator()

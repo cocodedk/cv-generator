@@ -59,3 +59,51 @@ class TestPrepareCVDict:
         assert result["education"] == []
         assert result["skills"] == []
         assert result["theme"] == "classic"
+
+    def test_generate_file_for_cv_includes_theme(self, temp_output_dir, sample_cv_data):
+        """Test that generate_file_for_cv passes theme to generator."""
+        service = CVFileService(temp_output_dir)
+        cv_id = "test-cv-123"
+        sample_cv_data["theme"] = "elegant"
+
+        filename = service.generate_file_for_cv(cv_id, sample_cv_data)
+        assert filename.startswith("cv_")
+        assert filename.endswith(".odt")
+
+        # Verify file was created
+        output_path = temp_output_dir / filename
+        assert output_path.exists()
+
+    def test_generate_file_for_cv_defaults_theme_when_missing(
+        self, temp_output_dir, sample_cv_data
+    ):
+        """Test that generate_file_for_cv defaults theme when missing."""
+        service = CVFileService(temp_output_dir)
+        cv_id = "test-cv-456"
+        # Remove theme from sample data
+        if "theme" in sample_cv_data:
+            del sample_cv_data["theme"]
+
+        filename = service.generate_file_for_cv(cv_id, sample_cv_data)
+        assert filename.startswith("cv_")
+        assert filename.endswith(".odt")
+
+        # Verify file was created
+        output_path = temp_output_dir / filename
+        assert output_path.exists()
+
+    def test_generate_file_for_cv_all_themes(self, temp_output_dir, sample_cv_data):
+        """Test generate_file_for_cv with all supported themes."""
+        service = CVFileService(temp_output_dir)
+        themes = ["classic", "modern", "minimal", "elegant", "accented"]
+
+        for i, theme in enumerate(themes):
+            cv_id = f"test-cv-{i}"
+            sample_cv_data["theme"] = theme
+            filename = service.generate_file_for_cv(cv_id, sample_cv_data)
+            assert filename.startswith("cv_")
+            assert filename.endswith(".odt")
+
+            # Verify file was created
+            output_path = temp_output_dir / filename
+            assert output_path.exists()

@@ -1,10 +1,13 @@
 """Main CV generation logic using odfpy."""
+import logging
 from typing import Dict, Any
 from odf.opendocument import OpenDocumentText
 from odf.text import P, H, Span, List, ListItem
 from odf.table import Table, TableRow, TableCell, TableColumn
 from odf.draw import Frame, TextBox
 from backend.cv_generator.styles import CVStyles
+
+logger = logging.getLogger(__name__)
 
 
 class CVGenerator:
@@ -15,17 +18,24 @@ class CVGenerator:
 
     def generate(self, cv_data: Dict[str, Any], output_path: str) -> str:
         """Generate ODT file from CV data."""
+        # Extract and validate theme
+        theme = cv_data.get("theme", "classic")
+        logger.debug(
+            "Generating CV with theme: %s (from cv_data keys: %s)",
+            theme,
+            list(cv_data.keys()),
+        )
+
         # Create document
         doc = OpenDocumentText()
 
         # Add styles
-        doc = self.styles.create_styles(doc, theme=cv_data.get("theme", "classic"))
+        doc = self.styles.create_styles(doc, theme=theme)
 
         # Get text body
         text_body = doc.text
 
         personal_info = cv_data.get("personal_info", {})
-        theme = cv_data.get("theme", "classic")
 
         # Add header with personal info
         if theme == "accented":
