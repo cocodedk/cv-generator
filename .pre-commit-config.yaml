@@ -10,17 +10,6 @@ repos:
       - id: check-added-large-files
         args: ['--maxkb=1000']
 
-  # Python formatting (run in container)
-  - repo: local
-    hooks:
-      - id: black-backend
-        name: black-backend
-        entry: bash -c 'docker-compose exec -T app black backend || docker-compose run --rm app black backend'
-        language: system
-        pass_filenames: false
-        always_run: false
-        files: ^backend/.*\.py$
-
   # Python linting (run in container)
   - repo: local
     hooks:

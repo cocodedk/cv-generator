@@ -43,11 +43,41 @@ describe('useCvSubmit', () => {
     })
 
     expect(mockedAxios.post).toHaveBeenCalledWith('/api/generate-cv', cvData)
-    expect(window.open).toHaveBeenCalledWith('/api/download/cv_test.odt', '_blank')
+    expect(window.open).toHaveBeenCalledWith(
+      expect.stringMatching(/^\/api\/download\/cv_test\.odt\?t=\d+$/),
+      '_blank'
+    )
     expect(mockOnSuccess).toHaveBeenCalledWith('CV generated and downloaded successfully!')
   })
 
-  it('updates CV successfully', async () => {
+  it('updates CV successfully with download', async () => {
+    mockedAxios.put.mockResolvedValue({
+      data: { cv_id: 'test-id', filename: 'cv_test.odt' },
+    })
+
+    const { result } = renderHook(() =>
+      useCvSubmit({
+        cvId: 'test-id',
+        isEditMode: true,
+        onSuccess: mockOnSuccess,
+        onError: mockOnError,
+        setLoading: mockSetLoading,
+      })
+    )
+
+    await act(async () => {
+      await result.current.onSubmit(cvData)
+    })
+
+    expect(mockedAxios.put).toHaveBeenCalledWith('/api/cv/test-id', cvData)
+    expect(window.open).toHaveBeenCalledWith(
+      expect.stringMatching(/^\/api\/download\/cv_test\.odt\?t=\d+$/),
+      '_blank'
+    )
+    expect(mockOnSuccess).toHaveBeenCalledWith('CV updated and downloaded successfully!')
+  })
+
+  it('updates CV successfully without filename', async () => {
     mockedAxios.put.mockResolvedValue({ data: { cv_id: 'test-id' } })
 
     const { result } = renderHook(() =>
@@ -65,6 +95,7 @@ describe('useCvSubmit', () => {
     })
 
     expect(mockedAxios.put).toHaveBeenCalledWith('/api/cv/test-id', cvData)
+    expect(window.open).not.toHaveBeenCalled()
     expect(mockOnSuccess).toHaveBeenCalledWith('CV updated successfully!')
   })
 

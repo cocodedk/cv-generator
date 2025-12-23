@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import { CVListResponse, CVListItem } from '../types/cv'
 
@@ -11,6 +11,12 @@ export default function CVList({ onError }: CVListProps) {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [total, setTotal] = useState(0)
+  const searchRef = useRef(search)
+
+  // Keep search ref in sync
+  useEffect(() => {
+    searchRef.current = search
+  }, [search])
 
   const fetchCVs = async (searchTerm?: string) => {
     setLoading(true)
@@ -33,6 +39,25 @@ export default function CVList({ onError }: CVListProps) {
     fetchCVs()
   }, [])
 
+  // Refresh list when navigating back from edit mode
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash
+      // Refresh when navigating to list view
+      if (hash === '#list' || hash === '' || hash === '#') {
+        // Use current search value from ref to avoid stale closure
+        fetchCVs(searchRef.current || undefined)
+      }
+    }
+
+    // Check initial hash
+    handleHashChange()
+
+    // Listen for hash changes
+    window.addEventListener('hashchange', handleHashChange)
+    return () => window.removeEventListener('hashchange', handleHashChange)
+  }, []) // Only run once on mount
+
   const handleSearch = () => {
     fetchCVs(search || undefined)
   }
@@ -53,7 +78,18 @@ export default function CVList({ onError }: CVListProps) {
     if (!filename) {
       return
     }
-    window.open(`/api/download/${filename}`, '_blank')
+    const downloadUrl = `/api/download/${filename}?t=${Date.now()}`
+    window.open(downloadUrl, '_blank')
+  }
+
+  const handleGenerateFile = async (cvId: string) => {
+    try {
+      await axios.post(`/api/cv/${cvId}/generate`)
+      // Refresh the list to show the download button
+      fetchCVs(search || undefined)
+    } catch (error: any) {
+      onError(error.response?.data?.detail || 'Failed to generate CV file')
+    }
   }
 
   const handleEdit = (cvId: string) => {
@@ -117,12 +153,19 @@ export default function CVList({ onError }: CVListProps) {
                     >
                       Edit
                     </button>
-                    {cv.filename && (
+                    {cv.filename ? (
                       <button
                         onClick={() => handleDownload(cv.filename)}
                         className="px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                       >
                         Download
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleGenerateFile(cv.cv_id)}
+                        className="px-3 py-1 text-sm font-medium text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
+                      >
+                        Generate File
                       </button>
                     )}
                     <button

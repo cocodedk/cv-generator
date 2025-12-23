@@ -89,3 +89,117 @@ class TestGetCV:
         assert len(result["experience"]) == 1
         assert len(result["education"]) == 0
         assert len(result["skills"]) == 0
+
+    def test_get_cv_returns_theme(self, mock_neo4j_connection):
+        """Test CV retrieval returns theme when present."""
+        mock_session = mock_neo4j_connection.session.return_value
+        mock_record = Mock()
+        mock_record.single.return_value = {
+            "person": {"name": "John Doe"},
+            "cv": {
+                "id": "test-id",
+                "created_at": "2024-01-01T00:00:00",
+                "updated_at": "2024-01-01T00:00:00",
+                "theme": "modern",
+            },
+            "experiences": [],
+            "educations": [],
+            "skills": [],
+        }
+        mock_session.run.return_value = mock_record
+
+        result = queries.get_cv_by_id("test-id")
+
+        assert result is not None
+        assert result["theme"] == "modern"
+
+    def test_get_cv_defaults_theme_when_missing(self, mock_neo4j_connection):
+        """Test CV retrieval defaults to classic when theme not present."""
+        mock_session = mock_neo4j_connection.session.return_value
+        mock_record = Mock()
+        mock_record.single.return_value = {
+            "person": {"name": "John Doe"},
+            "cv": {
+                "id": "test-id",
+                "created_at": "2024-01-01T00:00:00",
+                "updated_at": "2024-01-01T00:00:00",
+            },
+            "experiences": [],
+            "educations": [],
+            "skills": [],
+        }
+        mock_session.run.return_value = mock_record
+
+        result = queries.get_cv_by_id("test-id")
+
+        assert result is not None
+        assert result["theme"] == "classic"
+
+
+class TestGetCVByFilename:
+    """Test get_cv_by_filename query."""
+
+    def test_get_cv_by_filename_success(self, mock_neo4j_connection):
+        """Test successful CV retrieval by filename."""
+        mock_session = mock_neo4j_connection.session.return_value
+        mock_record = Mock()
+        mock_record.single.return_value = {
+            "person": {
+                "name": "John Doe",
+                "email": "john@example.com",
+                "address_street": "123 Main St",
+                "address_city": "New York",
+            },
+            "cv": {
+                "id": "test-id",
+                "created_at": "2024-01-01T00:00:00",
+                "updated_at": "2024-01-01T00:00:00",
+                "filename": "test_cv.odt",
+                "theme": "modern",
+            },
+            "experiences": [],
+            "educations": [],
+            "skills": [],
+        }
+        mock_session.run.return_value = mock_record
+
+        result = queries.get_cv_by_filename("test_cv.odt")
+
+        assert result is not None
+        assert result["cv_id"] == "test-id"
+        assert result["filename"] == "test_cv.odt"
+        assert result["theme"] == "modern"
+
+    def test_get_cv_by_filename_not_found(self, mock_neo4j_connection):
+        """Test CV not found by filename."""
+        mock_session = mock_neo4j_connection.session.return_value
+        mock_record = Mock()
+        mock_record.single.return_value = None
+        mock_session.run.return_value = mock_record
+
+        result = queries.get_cv_by_filename("non_existent.odt")
+
+        assert result is None
+
+    def test_get_cv_by_filename_defaults_theme(self, mock_neo4j_connection):
+        """Test CV retrieval by filename defaults to classic when theme missing."""
+        mock_session = mock_neo4j_connection.session.return_value
+        mock_record = Mock()
+        mock_record.single.return_value = {
+            "person": {"name": "John Doe"},
+            "cv": {
+                "id": "test-id",
+                "created_at": "2024-01-01T00:00:00",
+                "updated_at": "2024-01-01T00:00:00",
+                "filename": "test_cv.odt",
+            },
+            "experiences": [],
+            "educations": [],
+            "skills": [],
+        }
+        mock_session.run.return_value = mock_record
+
+        result = queries.get_cv_by_filename("test_cv.odt")
+
+        assert result is not None
+        assert result["theme"] == "classic"
