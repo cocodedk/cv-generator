@@ -104,4 +104,113 @@ describe('CVForm', () => {
 
     expect(themeSelect).toHaveValue('modern')
   })
+
+  it('loads profile data when Load from Profile is clicked', async () => {
+    const user = userEvent.setup()
+    const profileData = {
+      personal_info: {
+        name: 'John Doe',
+        email: 'john@example.com',
+      },
+      experience: [{ title: 'Developer', company: 'Tech Corp', start_date: '2020-01' }],
+      education: [{ degree: 'BS CS', institution: 'University', year: '2018' }],
+      skills: [{ name: 'Python' }],
+    }
+    mockedAxios.get.mockResolvedValue({ data: profileData })
+
+    render(<CVForm onSuccess={mockOnSuccess} onError={mockOnError} setLoading={mockSetLoading} />)
+
+    const loadButton = screen.getByRole('button', { name: /load from profile/i })
+    await user.click(loadButton)
+
+    await waitFor(() => {
+      expect(mockedAxios.get).toHaveBeenCalledWith('/api/profile')
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('Select Items to Include')).toBeInTheDocument()
+    })
+  })
+
+  it('handles profile load error when no profile exists', async () => {
+    const user = userEvent.setup()
+    mockedAxios.get.mockRejectedValue({
+      response: { status: 404 },
+    })
+
+    render(<CVForm onSuccess={mockOnSuccess} onError={mockOnError} setLoading={mockSetLoading} />)
+
+    const loadButton = screen.getByRole('button', { name: /load from profile/i })
+    await user.click(loadButton)
+
+    await waitFor(() => {
+      expect(mockOnError).toHaveBeenCalledWith('No profile found. Please save a profile first.')
+    })
+  })
+
+  it('saves current form data to profile', async () => {
+    const user = userEvent.setup()
+    mockedAxios.post.mockResolvedValue({ data: { status: 'success' } })
+
+    render(<CVForm onSuccess={mockOnSuccess} onError={mockOnError} setLoading={mockSetLoading} />)
+
+    const nameInput = screen.getByLabelText(/full name/i)
+    await user.type(nameInput, 'John Doe')
+
+    const saveButton = screen.getByRole('button', { name: /save to profile/i })
+    await user.click(saveButton)
+
+    await waitFor(() => {
+      expect(mockedAxios.post).toHaveBeenCalledWith(
+        '/api/profile',
+        expect.objectContaining({
+          personal_info: expect.objectContaining({
+            name: 'John Doe',
+          }),
+        })
+      )
+    })
+
+    expect(mockOnSuccess).toHaveBeenCalled()
+  })
+
+  it('allows selecting experiences and educations from profile', async () => {
+    const user = userEvent.setup()
+    const profileData = {
+      personal_info: {
+        name: 'John Doe',
+      },
+      experience: [
+        { title: 'Developer', company: 'Tech Corp', start_date: '2020-01' },
+        { title: 'Senior Dev', company: 'Big Corp', start_date: '2023-01' },
+      ],
+      education: [{ degree: 'BS CS', institution: 'University', year: '2018' }],
+      skills: [],
+    }
+    mockedAxios.get.mockResolvedValue({ data: profileData })
+
+    render(<CVForm onSuccess={mockOnSuccess} onError={mockOnError} setLoading={mockSetLoading} />)
+
+    const loadButton = screen.getByRole('button', { name: /load from profile/i })
+    await user.click(loadButton)
+
+    await waitFor(() => {
+      expect(screen.getByText('Select Items to Include')).toBeInTheDocument()
+    })
+
+    // Check that experiences are shown
+    expect(screen.getByText(/developer/i)).toBeInTheDocument()
+    expect(screen.getByText(/senior dev/i)).toBeInTheDocument()
+
+    // Uncheck one experience
+    const checkboxes = screen.getAllByRole('checkbox')
+    await user.click(checkboxes[0]) // Uncheck first experience
+
+    const loadSelectedButton = screen.getByRole('button', { name: /load selected/i })
+    await user.click(loadSelectedButton)
+
+    await waitFor(() => {
+      expect(mockOnSuccess).toHaveBeenCalled()
+    })
+  })
 })

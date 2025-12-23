@@ -90,3 +90,19 @@ class CVListResponse(BaseModel):
 
     cvs: List[CVListItem]
     total: int
+
+
+class ProfileData(BaseModel):
+    """Master profile data model (same structure as CVData)."""
+
+    personal_info: PersonalInfo
+    experience: List[Experience] = []
+    education: List[Education] = []
+    skills: List[Skill] = []
+
+
+class ProfileResponse(BaseModel):
+    """Profile operation response."""
+
+    status: str = "success"
+    message: Optional[str] = None

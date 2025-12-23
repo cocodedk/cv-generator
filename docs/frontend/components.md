@@ -11,7 +11,12 @@ App
 │   ├── Experience
 │   ├── Education
 │   └── Skills
-└── CVList
+├── CVList
+└── ProfileManager
+    ├── PersonalInfo
+    ├── Experience
+    ├── Education
+    └── Skills
 ```
 
 ## Main Components
@@ -21,10 +26,10 @@ App
 **Location**: `frontend/src/App.tsx`
 
 Main application component that manages:
-- Current view state (form vs list)
+- Current view state (form vs list vs profile)
 - Success/error notifications
 - Loading states
-- Navigation between CV form and CV list
+- Navigation between CV form, CV list, and profile management
 
 **Key Features**:
 - Error boundary integration
@@ -43,6 +48,8 @@ Main form component for CV data entry.
 - Dynamic array management for experience, education, and skills
 - API submission handling
 - File download after generation
+- Load from Profile button with selective item selection
+- Save to Profile button
 
 **Props**:
 - `onSuccess`: Callback for successful submission
@@ -73,6 +80,32 @@ Dynamic array: Add/remove entries, category grouping, level selection. Fields: N
 
 **Location**: `frontend/src/components/CVList.tsx`
 Features: Paginated list, search, deletion, editing, file downloads.
+
+### ProfileManager
+
+**Location**: `frontend/src/components/ProfileManager.tsx`
+
+Component for managing the master profile (reusable personal information, experiences, and education).
+
+**Features**:
+- React Hook Form integration
+- Loads existing profile on mount
+- Save/update profile functionality
+- Delete profile functionality
+- Form validation
+- Dynamic array management for experience, education, and skills
+- Displays profile status (saved/not saved)
+
+**Props**:
+- `onSuccess`: Callback for successful operations
+- `onError`: Callback for errors
+- `setLoading`: Loading state setter
+
+**Key Differences from CVForm**:
+- No theme selection
+- Automatically loads profile data on mount
+- Shows "Save Profile" or "Update Profile" based on profile existence
+- Includes delete functionality
 
 ### ErrorBoundary
 
