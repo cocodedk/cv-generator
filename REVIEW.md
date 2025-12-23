@@ -9,15 +9,15 @@
 
 **Fix Required:**
 ```python
-@app.get("/api/download/{filename}")
+@app.get("/api/download-docx/{filename}")
 async def download_cv(filename: str):
     """Download generated CV file."""
     # Validate filename to prevent path traversal
     if ".." in filename or "/" in filename or "\\" in filename:
         raise HTTPException(status_code=400, detail="Invalid filename")
 
-    # Only allow .odt files
-    if not filename.endswith(".odt"):
+    # Only allow .docx files
+    if not filename.endswith(".docx"):
         raise HTTPException(status_code=400, detail="Invalid file type")
 
     file_path = output_dir / filename
@@ -32,7 +32,7 @@ async def download_cv(filename: str):
     return FileResponse(
         path=str(file_path),
         filename=filename,
-        media_type="application/vnd.oasis.opendocument.text"
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     )
 ```
 

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import { CVListResponse, CVListItem } from '../types/cv'
+import { openDownload } from '../app_helpers/download'
 
 interface CVListProps {
   onError: (message: string) => void
@@ -78,13 +79,12 @@ export default function CVList({ onError }: CVListProps) {
     if (!filename) {
       return
     }
-    const downloadUrl = `/api/download/${filename}?t=${Date.now()}`
-    window.open(downloadUrl, '_blank')
+    openDownload(filename)
   }
 
   const handleGenerateFile = async (cvId: string) => {
     try {
-      await axios.post(`/api/cv/${cvId}/generate`)
+      await axios.post(`/api/cv/${cvId}/generate-docx`)
       // Refresh the list to show the download button
       fetchCVs(search || undefined)
     } catch (error: any) {

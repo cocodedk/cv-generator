@@ -1,6 +1,6 @@
 # CV Generator Overview
 
-The CV Generator is a full-stack web application for creating professional LibreOffice Writer (.odt) CV documents. It provides a modern React-based interface for inputting CV data and generates formatted documents that can be downloaded and edited.
+The CV Generator is a full-stack web application for creating professional DOCX CV documents. It provides a modern React-based interface for inputting CV data and generates formatted documents that can be downloaded and edited.
 
 ## Purpose
 
@@ -8,13 +8,13 @@ This application simplifies the CV creation process by:
 - Providing an intuitive web form for entering CV information
 - Offering a reusable master profile for personal info, experience, and education
 - Storing CV data in a Neo4j graph database for easy management
-- Generating professional ODT documents with multiple styling themes
+- Generating professional DOCX documents with multiple styling themes
 - Supporting CRUD operations for managing multiple CVs
 
 ## Key Features
 
 - **Web Interface**: Modern React UI with Tailwind CSS for creating and managing CVs
-- **ODT Generation**: Generate professional LibreOffice Writer documents
+- **DOCX Generation**: Generate professional Word-compatible documents
 - **CV Storage**: Neo4j graph database for storing and managing CV data
 - **CRUD Operations**: Create, read, update, and delete CVs via REST API
 - **Search**: Search CVs by name, email, or other criteria
@@ -28,7 +28,7 @@ This application simplifies the CV creation process by:
 - **Frontend**: React 18, TypeScript, Tailwind CSS, Vite
 - **Backend**: Python 3.11, FastAPI, Uvicorn
 - **Database**: Neo4j 5.15 (graph database)
-- **Document Generation**: odfpy library
+- **Document Generation**: Pandoc + python-docx
 - **Containerization**: Docker, Docker Compose
 
 ## Architecture

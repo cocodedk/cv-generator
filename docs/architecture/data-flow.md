@@ -15,16 +15,16 @@ sequenceDiagram
 
     User->>Frontend: Enter CV data
     Frontend->>Frontend: Validate form data
-    Frontend->>API: POST /api/generate-cv
+    Frontend->>API: POST /api/generate-cv-docx
     API->>API: Validate with Pydantic
     API->>Database: Create CV nodes
     Database-->>API: Return CV ID
-    API->>Generator: Generate ODT file
-    Generator->>Filesystem: Save .odt file
+    API->>Generator: Generate DOCX file
+    Generator->>Filesystem: Save .docx file
     Generator-->>API: Return file path
     API->>Database: Store filename
     API-->>Frontend: Return CV ID + filename
-    Frontend->>API: GET /api/download/{filename}
+    Frontend->>API: GET /api/download-docx/{filename}
     API->>Filesystem: Read file
     API-->>Frontend: Return file
     Frontend->>User: Download file
@@ -129,7 +129,7 @@ sequenceDiagram
     Frontend->>Frontend: Pre-fill CV form
     User->>Frontend: Edit CV form (optional)
     User->>Frontend: Generate CV
-    Frontend->>API: POST /api/generate-cv
+    Frontend->>API: POST /api/generate-cv-docx
     API->>Database: Create CV nodes (independent from Profile)
 ```
 

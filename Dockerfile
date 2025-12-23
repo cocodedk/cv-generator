@@ -30,6 +30,8 @@ WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
+    pandoc \
+    fonts-liberation \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user

@@ -13,10 +13,10 @@ Complete REST API endpoint documentation for the CV Generator backend.
 
 **GET** `/api/health` - Check API and database connectivity. Returns status and database connection state.
 
-### Generate CV
+### Generate CV (DOCX)
 
-**POST** `/api/generate-cv` - Generate ODT file from CV data and save to Neo4j.
-**Request**: `CVData` (see [Models](models.md))
+**POST** `/api/generate-cv-docx` - Generate DOCX file from CV data and save to Neo4j.
+**Request**: `CVData`
 **Response**: `CVResponse` with cv_id and filename
 
 ### Save CV
@@ -46,12 +46,18 @@ Complete REST API endpoint documentation for the CV Generator backend.
 
 **DELETE** `/api/cv/{cv_id}` - Delete CV from Neo4j. Returns success message or 404.
 
-### Download CV File
+### Download CV File (DOCX)
 
-**GET** `/api/download/{filename}` - Download generated ODT file.
-**Path param**: `filename` (e.g., `cv_12345678.odt`)
+**GET** `/api/download-docx/{filename}` - Download generated DOCX file.
+**Path param**: `filename` (e.g., `cv_12345678.docx`)
 **Response**: File download
 **Errors**: 400 (invalid filename/type), 404 (file not found)
+
+### Generate DOCX for Existing CV
+
+**POST** `/api/cv/{cv_id}/generate-docx` - Generate DOCX file for an existing CV.
+**Response**: `CVResponse`
+**Errors**: 404 if CV not found
 
 ### Profile Endpoints
 

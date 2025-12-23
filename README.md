@@ -1,11 +1,11 @@
 # CV Generator
 
-A full-stack application for generating professional LibreOffice Writer (.odt) CV documents with a modern web interface. Built with React + TypeScript + Tailwind CSS frontend, Python FastAPI backend, and Neo4j database for CV storage.
+A full-stack application for generating professional DOCX CV documents with a modern web interface. Built with React + TypeScript + Tailwind CSS frontend, Python FastAPI backend, and Neo4j database for CV storage.
 
 ## Features
 
 - **Web Interface**: Modern React UI with Tailwind CSS for creating CVs
-- **ODT Generation**: Generate professional LibreOffice Writer documents
+- **DOCX Generation**: Generate professional Word-compatible documents
 - **CV Storage**: Neo4j graph database for storing and managing CVs
 - **CRUD Operations**: Create, read, update, and delete CVs
 - **Search**: Search CVs by name, email, or other criteria
@@ -16,7 +16,7 @@ A full-stack application for generating professional LibreOffice Writer (.odt) C
 - **Frontend**: React 18, TypeScript, Tailwind CSS, Vite
 - **Backend**: Python 3.11, FastAPI, Uvicorn
 - **Database**: Neo4j 5.15
-- **Document Generation**: odfpy
+- **Document Generation**: Pandoc + python-docx
 - **Containerization**: Docker, Docker Compose
 
 ## Prerequisites
@@ -60,7 +60,8 @@ cv/
 ├── backend/           # Python FastAPI backend
 │   ├── app.py        # Main FastAPI application
 │   ├── database/     # Neo4j database operations
-│   ├── cv_generator/ # ODT document generation
+│   ├── cv_generator_docx/ # DOCX document generation
+│   ├── themes/       # Theme definitions
 │   └── models.py     # Pydantic models
 ├── frontend/          # React TypeScript frontend
 │   └── src/
@@ -72,12 +73,12 @@ cv/
 
 ## API Endpoints
 
-- `POST /api/generate-cv` - Generate ODT file from CV data and save to Neo4j
+- `POST /api/generate-cv-docx` - Generate DOCX file from CV data and save to Neo4j
 - `POST /api/save-cv` - Save CV data to Neo4j without generating file
 - `GET /api/cv/{cv_id}` - Retrieve CV data by ID
 - `GET /api/cvs` - List all CVs (with pagination and search)
 - `DELETE /api/cv/{cv_id}` - Delete CV
-- `GET /api/download/{filename}` - Download generated ODT file
+- `GET /api/download-docx/{filename}` - Download generated DOCX file
 - `GET /api/health` - Health check endpoint
 
 ## Environment Variables

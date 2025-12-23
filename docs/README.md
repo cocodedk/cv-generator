@@ -20,7 +20,8 @@ Welcome to the CV Generator documentation. This documentation is organized by to
 
 - [API Endpoints](backend/api-endpoints.md) - REST API documentation
 - [Database Schema](backend/database-schema.md) - Neo4j graph schema
-- [CV Generation](backend/cv-generation.md) - ODT document generation
+- [CV Generation](backend/cv-generation.md) - DOCX document generation
+- [DOCX Generation](backend/docx-generation.md) - Markdown -> DOCX pipeline option
 - [Data Models](backend/models.md) - Pydantic models
 
 ### Frontend
