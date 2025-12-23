@@ -16,7 +16,7 @@ class PersonNode:
         linkedin: Optional[str] = None,
         github: Optional[str] = None,
         website: Optional[str] = None,
-        summary: Optional[str] = None
+        summary: Optional[str] = None,
     ):
         self.name = name
         self.email = email
@@ -38,7 +38,7 @@ class ExperienceNode:
         start_date: str,
         end_date: Optional[str] = None,
         description: Optional[str] = None,
-        location: Optional[str] = None
+        location: Optional[str] = None,
     ):
         self.title = title
         self.company = company
@@ -57,7 +57,7 @@ class EducationNode:
         institution: str,
         year: Optional[str] = None,
         field: Optional[str] = None,
-        gpa: Optional[str] = None
+        gpa: Optional[str] = None,
     ):
         self.degree = degree
         self.institution = institution
@@ -70,10 +70,7 @@ class SkillNode:
     """Skill node model."""
 
     def __init__(
-        self,
-        name: str,
-        category: Optional[str] = None,
-        level: Optional[str] = None
+        self, name: str, category: Optional[str] = None, level: Optional[str] = None
     ):
         self.name = name
         self.category = category
@@ -87,7 +84,7 @@ class CVNode:
         self,
         cv_id: Optional[str] = None,
         created_at: Optional[str] = None,
-        updated_at: Optional[str] = None
+        updated_at: Optional[str] = None,
     ):
         self.cv_id = cv_id or str(uuid4())
         self.created_at = created_at or datetime.utcnow().isoformat()

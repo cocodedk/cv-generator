@@ -19,7 +19,9 @@ logger = logging.getLogger(__name__)
 app = FastAPI(title="CV Generator API", version="1.0.0")
 
 # CORS configuration
-cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:8000").split(",")
+cors_origins = os.getenv(
+    "CORS_ORIGINS", "http://localhost:5173,http://localhost:8000"
+).split(",")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
@@ -27,6 +29,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Initialize database connection
 @app.on_event("startup")
@@ -41,27 +44,28 @@ async def startup_event():
             logger.info("Successfully connected to Neo4j database")
             return
         retry_count += 1
-        logger.warning(f"Failed to connect to Neo4j database (attempt {retry_count}/{max_retries})")
+        logger.warning(
+            f"Failed to connect to Neo4j database (attempt {retry_count}/{max_retries})"
+        )
         if retry_count < max_retries:
             import time
+
             time.sleep(2)
 
     logger.error("Failed to connect to Neo4j database after multiple attempts")
     raise Exception("Failed to connect to Neo4j database")
+
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Close database connection on shutdown."""
     Neo4jConnection.close()
 
-# Mount static files for frontend (only in production/Docker)
-frontend_path = Path(__file__).parent.parent / "frontend" / "dist"
-if frontend_path.exists() and (frontend_path / "index.html").exists():
-    app.mount("/", StaticFiles(directory=str(frontend_path), html=True), name="static")
 
 # Create output directory
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
+
 
 # Health check endpoint
 @app.get("/api/health")
@@ -70,8 +74,9 @@ async def health_check():
     db_connected = Neo4jConnection.verify_connectivity()
     return {
         "status": "healthy" if db_connected else "unhealthy",
-        "database": "connected" if db_connected else "disconnected"
+        "database": "connected" if db_connected else "disconnected",
     }
+
 
 # Generate CV endpoint
 @app.post("/api/generate-cv", response_model=CVResponse)
@@ -93,14 +98,11 @@ async def generate_cv(cv_data: CVData):
         # Persist generated filename for download listing
         queries.set_cv_filename(cv_id, filename)
 
-        return CVResponse(
-            cv_id=cv_id,
-            filename=filename,
-            status="success"
-        )
+        return CVResponse(cv_id=cv_id, filename=filename, status="success")
     except Exception as e:
         logger.error("Failed to generate CV", exc_info=e)
         raise HTTPException(status_code=500, detail="Failed to generate CV")
+
 
 # Save CV endpoint (without generating file)
 @app.post("/api/save-cv", response_model=CVResponse)
@@ -114,6 +116,7 @@ async def save_cv(cv_data: CVData):
         logger.error("Failed to save CV", exc_info=e)
         raise HTTPException(status_code=500, detail="Failed to save CV")
 
+
 # Get CV by ID
 @app.get("/api/cv/{cv_id}")
 async def get_cv(cv_id: str):
@@ -123,16 +126,18 @@ async def get_cv(cv_id: str):
         raise HTTPException(status_code=404, detail="CV not found")
     return cv
 
+
 # List CVs
 @app.get("/api/cvs", response_model=CVListResponse)
 async def list_cvs(
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
-    search: Optional[str] = None
+    search: Optional[str] = None,
 ):
     """List all saved CVs with pagination."""
     result = queries.list_cvs(limit=limit, offset=offset, search=search)
     return CVListResponse(**result)
+
 
 # Delete CV
 @app.delete("/api/cv/{cv_id}")
@@ -142,6 +147,7 @@ async def delete_cv(cv_id: str):
     if not success:
         raise HTTPException(status_code=404, detail="CV not found")
     return {"status": "success", "message": "CV deleted"}
+
 
 # Download CV file
 @app.get("/api/download/{filename}")
@@ -169,8 +175,9 @@ async def download_cv(filename: str):
     return FileResponse(
         path=str(file_path),
         filename=filename,
-        media_type="application/vnd.oasis.opendocument.text"
+        media_type="application/vnd.oasis.opendocument.text",
     )
+
 
 # Update CV endpoint
 @app.put("/api/cv/{cv_id}", response_model=CVResponse)
@@ -188,6 +195,14 @@ async def update_cv_endpoint(cv_id: str, cv_data: CVData):
         logger.error("Failed to update CV %s", cv_id, exc_info=e)
         raise HTTPException(status_code=500, detail="Failed to update CV")
 
+
+# Mount static files for frontend (only in production/Docker)
+# This must be after all API routes to ensure routes are checked first
+frontend_path = Path(__file__).parent.parent / "frontend" / "dist"
+if frontend_path.exists() and (frontend_path / "index.html").exists():
+    app.mount("/", StaticFiles(directory=str(frontend_path), html=True), name="static")
+
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

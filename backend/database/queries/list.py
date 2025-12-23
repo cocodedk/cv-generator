@@ -3,7 +3,9 @@ from typing import Optional, List, Dict, Any
 from backend.database.connection import Neo4jConnection
 
 
-def list_cvs(limit: int = 50, offset: int = 0, search: Optional[str] = None) -> Dict[str, Any]:
+def list_cvs(
+    limit: int = 50, offset: int = 0, search: Optional[str] = None
+) -> Dict[str, Any]:
     """List all CVs with pagination."""
     driver = Neo4jConnection.get_driver()
 
@@ -52,7 +54,7 @@ def list_cvs(limit: int = 50, offset: int = 0, search: Optional[str] = None) -> 
                 "created_at": record["cv"]["created_at"],
                 "updated_at": record["cv"]["updated_at"],
                 "person_name": record["person_name"],
-                "filename": record["filename"]
+                "filename": record["filename"],
             }
             for record in results
         ]
@@ -60,9 +62,11 @@ def list_cvs(limit: int = 50, offset: int = 0, search: Optional[str] = None) -> 
         return {"cvs": cvs, "total": total}
 
 
-def search_cvs(skills: Optional[List[str]] = None,
-                experience_keywords: Optional[List[str]] = None,
-                education_keywords: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+def search_cvs(
+    skills: Optional[List[str]] = None,
+    experience_keywords: Optional[List[str]] = None,
+    education_keywords: Optional[List[str]] = None,
+) -> List[Dict[str, Any]]:
     """Search CVs by skills, experience, or education."""
     driver = Neo4jConnection.get_driver()
 
@@ -74,11 +78,15 @@ def search_cvs(skills: Optional[List[str]] = None,
         params["skills"] = skills
 
     if experience_keywords:
-        conditions.append("(exp.title CONTAINS $exp_keyword OR exp.company CONTAINS $exp_keyword)")
+        conditions.append(
+            "(exp.title CONTAINS $exp_keyword OR exp.company CONTAINS $exp_keyword)"
+        )
         params["exp_keyword"] = experience_keywords[0]  # Simplified for now
 
     if education_keywords:
-        conditions.append("(edu.degree CONTAINS $edu_keyword OR edu.institution CONTAINS $edu_keyword)")
+        conditions.append(
+            "(edu.degree CONTAINS $edu_keyword OR edu.institution CONTAINS $edu_keyword)"
+        )
         params["edu_keyword"] = education_keywords[0]  # Simplified for now
 
     if not conditions:
@@ -104,7 +112,7 @@ def search_cvs(skills: Optional[List[str]] = None,
             {
                 "cv_id": record["cv"]["id"],
                 "created_at": record["cv"]["created_at"],
-                "person_name": record["person_name"]
+                "person_name": record["person_name"],
             }
             for record in results
         ]
