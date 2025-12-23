@@ -56,6 +56,16 @@ export default function CVList({ onError }: CVListProps) {
     window.open(`/api/download/${filename}`, '_blank')
   }
 
+  const handleGenerateFile = async (cvId: string) => {
+    try {
+      await axios.post(`/api/cv/${cvId}/generate`)
+      // Refresh the list to show the download button
+      fetchCVs(search || undefined)
+    } catch (error: any) {
+      onError(error.response?.data?.detail || 'Failed to generate CV file')
+    }
+  }
+
   const handleEdit = (cvId: string) => {
     window.location.hash = `#edit/${cvId}`
   }
@@ -117,12 +127,19 @@ export default function CVList({ onError }: CVListProps) {
                     >
                       Edit
                     </button>
-                    {cv.filename && (
+                    {cv.filename ? (
                       <button
                         onClick={() => handleDownload(cv.filename)}
                         className="px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                       >
                         Download
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleGenerateFile(cv.cv_id)}
+                        className="px-3 py-1 text-sm font-medium text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
+                      >
+                        Generate File
                       </button>
                     )}
                     <button

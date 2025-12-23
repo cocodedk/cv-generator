@@ -17,8 +17,10 @@ class TestGenerateCV:
         original_output_dir = backend.app.output_dir
         backend.app.output_dir = temp_output_dir
         try:
-            with patch("backend.app.queries.create_cv", return_value="test-cv-id"):
-                with patch("backend.app.queries.set_cv_filename", return_value=True):
+            with patch("backend.database.queries.create_cv", return_value="test-cv-id"):
+                with patch(
+                    "backend.database.queries.set_cv_filename", return_value=True
+                ):
                     with patch(
                         "backend.cv_generator.generator.CVGenerator.generate"
                     ) as mock_gen:
@@ -45,7 +47,8 @@ class TestGenerateCV:
     ):
         """Test CV generation with server error."""
         with patch(
-            "backend.app.queries.create_cv", side_effect=Exception("Database error")
+            "backend.database.queries.create_cv",
+            side_effect=Exception("Database error"),
         ):
             response = await client.post("/api/generate-cv", json=sample_cv_data)
             assert response.status_code == 500
@@ -58,7 +61,7 @@ class TestSaveCV:
 
     async def test_save_cv_success(self, client, sample_cv_data, mock_neo4j_connection):
         """Test successful CV save."""
-        with patch("backend.app.queries.create_cv", return_value="test-cv-id"):
+        with patch("backend.database.queries.create_cv", return_value="test-cv-id"):
             response = await client.post("/api/save-cv", json=sample_cv_data)
             assert response.status_code == 200
             data = response.json()
@@ -86,7 +89,7 @@ class TestGetCV:
             "education": [],
             "skills": [],
         }
-        with patch("backend.app.queries.get_cv_by_id", return_value=cv_data):
+        with patch("backend.database.queries.get_cv_by_id", return_value=cv_data):
             response = await client.get("/api/cv/test-id")
             assert response.status_code == 200
             data = response.json()
@@ -94,7 +97,7 @@ class TestGetCV:
 
     async def test_get_cv_not_found(self, client, mock_neo4j_connection):
         """Test CV not found."""
-        with patch("backend.app.queries.get_cv_by_id", return_value=None):
+        with patch("backend.database.queries.get_cv_by_id", return_value=None):
             response = await client.get("/api/cv/non-existent")
             assert response.status_code == 404
 
@@ -117,7 +120,7 @@ class TestListCVs:
             ],
             "total": 1,
         }
-        with patch("backend.app.queries.list_cvs", return_value=list_data):
+        with patch("backend.database.queries.list_cvs", return_value=list_data):
             response = await client.get("/api/cvs")
             assert response.status_code == 200
             data = response.json()
@@ -127,14 +130,14 @@ class TestListCVs:
     async def test_list_cvs_with_pagination(self, client, mock_neo4j_connection):
         """Test CV listing with pagination."""
         list_data = {"cvs": [], "total": 0}
-        with patch("backend.app.queries.list_cvs", return_value=list_data):
+        with patch("backend.database.queries.list_cvs", return_value=list_data):
             response = await client.get("/api/cvs?limit=10&offset=0")
             assert response.status_code == 200
 
     async def test_list_cvs_with_search(self, client, mock_neo4j_connection):
         """Test CV listing with search."""
         list_data = {"cvs": [], "total": 0}
-        with patch("backend.app.queries.list_cvs", return_value=list_data):
+        with patch("backend.database.queries.list_cvs", return_value=list_data):
             response = await client.get("/api/cvs?search=John")
             assert response.status_code == 200
 
@@ -148,7 +151,7 @@ class TestUpdateCV:
         self, client, sample_cv_data, mock_neo4j_connection
     ):
         """Test successful CV update."""
-        with patch("backend.app.queries.update_cv", return_value=True):
+        with patch("backend.database.queries.update_cv", return_value=True):
             response = await client.put("/api/cv/test-id", json=sample_cv_data)
             assert response.status_code == 200
             data = response.json()
@@ -159,7 +162,7 @@ class TestUpdateCV:
         self, client, sample_cv_data, mock_neo4j_connection
     ):
         """Test update non-existent CV."""
-        with patch("backend.app.queries.update_cv", return_value=False):
+        with patch("backend.database.queries.update_cv", return_value=False):
             response = await client.put("/api/cv/non-existent", json=sample_cv_data)
             assert response.status_code == 404
 
@@ -171,7 +174,7 @@ class TestDeleteCV:
 
     async def test_delete_cv_success(self, client, mock_neo4j_connection):
         """Test successful CV deletion."""
-        with patch("backend.app.queries.delete_cv", return_value=True):
+        with patch("backend.database.queries.delete_cv", return_value=True):
             response = await client.delete("/api/cv/test-id")
             assert response.status_code == 200
             data = response.json()
@@ -179,6 +182,6 @@ class TestDeleteCV:
 
     async def test_delete_cv_not_found(self, client, mock_neo4j_connection):
         """Test delete non-existent CV."""
-        with patch("backend.app.queries.delete_cv", return_value=False):
+        with patch("backend.database.queries.delete_cv", return_value=False):
             response = await client.delete("/api/cv/non-existent")
             assert response.status_code == 404
