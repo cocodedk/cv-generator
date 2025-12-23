@@ -12,10 +12,10 @@ class TestGenerateCV:
         self, client, sample_cv_data, mock_neo4j_connection, temp_output_dir
     ):
         """Test successful CV generation."""
-        import backend.app
+        from backend.app import app
 
-        original_output_dir = backend.app.output_dir
-        backend.app.output_dir = temp_output_dir
+        original_output_dir = app.state.output_dir
+        app.state.output_dir = temp_output_dir
         try:
             with patch("backend.database.queries.create_cv", return_value="test-cv-id"):
                 with patch(
@@ -34,7 +34,7 @@ class TestGenerateCV:
                         assert data["status"] == "success"
                         assert "filename" in data
         finally:
-            backend.app.output_dir = original_output_dir
+            app.state.output_dir = original_output_dir
 
     async def test_generate_cv_validation_error(self, client):
         """Test CV generation with invalid data."""

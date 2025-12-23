@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 def create_cv_router(  # noqa: C901
     limiter: Limiter,
     cv_file_service: CVFileService,
-    output_dir: Path,
+    output_dir: Optional[Path] = None,
 ) -> APIRouter:
     """Create and return CV router with dependencies."""
     router = APIRouter()
@@ -87,21 +87,20 @@ def create_cv_router(  # noqa: C901
     @router.get("/api/download/{filename}")
     async def download_cv(request: Request, filename: str):
         """Download generated CV file."""
-        # Resolve output dir with test overrides in mind.
-        module_output_dir = None
-        try:
-            import backend.app as app_module
+        # Use output_dir parameter as primary source, fall back to app attributes if None
+        # Allow app.state.output_dir to override for test scenarios
+        app_state_output_dir = getattr(request.app.state, "output_dir", None)
+        if output_dir is not None:
+            # Parameter is primary, but allow app.state override for tests
+            current_output_dir = app_state_output_dir or output_dir
+        else:
+            # Parameter is None, fall back to app.state
+            current_output_dir = app_state_output_dir
 
-            module_output_dir = getattr(app_module, "output_dir", None)
-        except Exception:
-            module_output_dir = None
-
-        current_output_dir = (
-            module_output_dir
-            or getattr(request.app, "output_dir", None)
-            or getattr(request.app.state, "output_dir", None)
-            or output_dir
-        )
+        if current_output_dir is None:
+            raise HTTPException(
+                status_code=500, detail="Output directory not configured"
+            )
 
         # Validate filename to prevent path traversal
         if ".." in filename or "/" in filename or "\\" in filename:

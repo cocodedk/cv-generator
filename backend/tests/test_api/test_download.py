@@ -1,5 +1,6 @@
 """Tests for file download endpoint."""
 import pytest
+from backend.app import app
 
 
 @pytest.mark.asyncio
@@ -13,10 +14,8 @@ class TestDownloadCV:
         test_file = temp_output_dir / "test_cv.odt"
         test_file.write_text("test content")
 
-        import backend.app
-
-        original_output_dir = backend.app.output_dir
-        backend.app.output_dir = temp_output_dir
+        original_output_dir = getattr(app.state, "output_dir", None)
+        app.state.output_dir = temp_output_dir
         try:
             response = await client.get("/api/download/test_cv.odt")
             assert response.status_code == 200
@@ -25,26 +24,22 @@ class TestDownloadCV:
                 == "application/vnd.oasis.opendocument.text"
             )
         finally:
-            backend.app.output_dir = original_output_dir
+            app.state.output_dir = original_output_dir
 
     async def test_download_cv_not_found(self, client, temp_output_dir):
         """Test download non-existent file."""
-        import backend.app
-
-        original_output_dir = backend.app.output_dir
-        backend.app.output_dir = temp_output_dir
+        original_output_dir = getattr(app.state, "output_dir", None)
+        app.state.output_dir = temp_output_dir
         try:
             response = await client.get("/api/download/non_existent.odt")
             assert response.status_code == 404
         finally:
-            backend.app.output_dir = original_output_dir
+            app.state.output_dir = original_output_dir
 
     async def test_download_cv_path_traversal_attempt(self, client, temp_output_dir):
         """Test path traversal prevention."""
-        import backend.app
-
-        original_output_dir = backend.app.output_dir
-        backend.app.output_dir = temp_output_dir
+        original_output_dir = getattr(app.state, "output_dir", None)
+        app.state.output_dir = temp_output_dir
         try:
             # Test various path traversal attempts
             # Note: FastAPI normalizes paths before route matching, so paths with "../"
@@ -68,31 +63,27 @@ class TestDownloadCV:
                     404,
                 ], f"Path '{path}' should return 400 (validation) or 404 (route not matched), got {response.status_code}"
         finally:
-            backend.app.output_dir = original_output_dir
+            app.state.output_dir = original_output_dir
 
     async def test_download_cv_invalid_extension(self, client, temp_output_dir):
         """Test download with invalid file extension."""
-        import backend.app
-
-        original_output_dir = backend.app.output_dir
-        backend.app.output_dir = temp_output_dir
+        original_output_dir = getattr(app.state, "output_dir", None)
+        app.state.output_dir = temp_output_dir
         try:
             response = await client.get("/api/download/test.txt")
             assert response.status_code == 400
         finally:
-            backend.app.output_dir = original_output_dir
+            app.state.output_dir = original_output_dir
 
     async def test_download_cv_only_odt_allowed(self, client, temp_output_dir):
         """Test that only .odt files are allowed."""
         test_file = temp_output_dir / "test_cv.odt"
         test_file.write_text("test")
 
-        import backend.app
-
-        original_output_dir = backend.app.output_dir
-        backend.app.output_dir = temp_output_dir
+        original_output_dir = getattr(app.state, "output_dir", None)
+        app.state.output_dir = temp_output_dir
         try:
             response = await client.get("/api/download/test_cv.odt")
             assert response.status_code == 200
         finally:
-            backend.app.output_dir = original_output_dir
+            app.state.output_dir = original_output_dir

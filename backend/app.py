@@ -27,9 +27,7 @@ app.add_exception_handler(RequestValidationError, validation_exception_handler)
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
 
-# Make output_dir accessible as app attribute for tests
-app.output_dir = output_dir
-# Also store in app.state for router access
+# Store in app.state for router/test access
 app.state.output_dir = output_dir
 
 # Initialize CV file service
