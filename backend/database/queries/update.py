@@ -103,7 +103,7 @@ def update_cv(cv_id: str, cv_data: Dict[str, Any]) -> bool:
                 summary=personal_info.get("summary"),
                 experiences=cv_data.get("experience", []),
                 educations=cv_data.get("education", []),
-                skills=cv_data.get("skills", [])
+                skills=cv_data.get("skills", []),
             )
         )
         return result.single() is not None
@@ -127,7 +127,7 @@ def set_cv_filename(cv_id: str, filename: str) -> bool:
                 query,
                 cv_id=cv_id,
                 filename=filename,
-                updated_at=datetime.utcnow().isoformat()
+                updated_at=datetime.utcnow().isoformat(),
             )
         )
         return result.single() is not None

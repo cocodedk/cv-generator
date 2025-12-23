@@ -101,7 +101,7 @@ def create_cv(cv_data: Dict[str, Any]) -> str:
                 summary=personal_info.get("summary"),
                 experiences=cv_data.get("experience", []),
                 educations=cv_data.get("education", []),
-                skills=cv_data.get("skills", [])
+                skills=cv_data.get("skills", []),
             )
         )
         return result.single()["cv_id"]
