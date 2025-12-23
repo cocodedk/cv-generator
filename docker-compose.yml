@@ -43,6 +43,7 @@ services:
     volumes:
       - ./backend:/app/backend  # Mount backend for auto-reload on code changes
       - ./backend/output:/app/backend/output
+      - ./.flake8:/app/.flake8  # Mount flake8 config for linting
     command: ["uvicorn", "backend.app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     depends_on:
       neo4j:

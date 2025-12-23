@@ -6,6 +6,8 @@ React component structure and usage in the CV Generator frontend.
 
 ```
 App
+├── Navigation
+├── MessageDisplay
 ├── CVForm
 │   ├── PersonalInfo
 │   ├── Experience
@@ -13,6 +15,7 @@ App
 │   └── Skills
 ├── CVList
 └── ProfileManager
+    ├── ProfileHeader
     ├── PersonalInfo
     ├── Experience
     ├── Education
@@ -26,15 +29,16 @@ App
 **Location**: `frontend/src/App.tsx`
 
 Main application component that manages:
-- Current view state (form vs list vs profile)
+- Hash-based view state (form vs list vs profile)
 - Success/error notifications
 - Loading states
+- Theme toggle state (dark/light)
 - Navigation between CV form, CV list, and profile management
 
 **Key Features**:
-- Error boundary integration
-- Toast notifications for user feedback
-- View switching logic
+- View switching via URL hash
+- Global message banner via `MessageDisplay`
+- Theme toggle wiring for `Navigation`
 
 ### CVForm
 
@@ -106,6 +110,21 @@ Component for managing the master profile (reusable personal information, experi
 - Automatically loads profile data on mount
 - Shows "Save Profile" or "Update Profile" based on profile existence
 - Includes delete functionality
+
+### Navigation
+
+**Location**: `frontend/src/components/Navigation.tsx`
+Top navigation with view switching and a dark/light mode toggle.
+
+### MessageDisplay
+
+**Location**: `frontend/src/components/MessageDisplay.tsx`
+Global success/error banner displayed at the top of the page.
+
+### ProfileHeader
+
+**Location**: `frontend/src/components/ProfileHeader.tsx`
+Header actions for Profile Manager (reload and delete).
 
 ### ErrorBoundary
 

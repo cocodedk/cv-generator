@@ -1,6 +1,5 @@
 """Tests for profile queries."""
-import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 from backend.database import queries
 
 
@@ -16,9 +15,15 @@ class TestSaveProfile:
             "skills": sample_cv_data["skills"],
         }
         mock_session = mock_neo4j_connection.session.return_value
+        mock_tx = Mock()
         mock_result = Mock()
         mock_result.single.return_value = {"profile": {}}
-        mock_session.write_transaction.return_value = mock_result
+        mock_tx.run.return_value = mock_result
+
+        def execute_work(work_func):
+            return work_func(mock_tx)
+
+        mock_session.write_transaction.side_effect = execute_work
 
         success = queries.save_profile(profile_data)
 
@@ -34,9 +39,15 @@ class TestSaveProfile:
             "skills": [],
         }
         mock_session = mock_neo4j_connection.session.return_value
+        mock_tx = Mock()
         mock_result = Mock()
         mock_result.single.return_value = {"profile": {}}
-        mock_session.write_transaction.return_value = mock_result
+        mock_tx.run.return_value = mock_result
+
+        def execute_work(work_func):
+            return work_func(mock_tx)
+
+        mock_session.write_transaction.side_effect = execute_work
 
         success = queries.save_profile(minimal_data)
         assert success is True
@@ -118,9 +129,17 @@ class TestDeleteProfile:
     def test_delete_profile_success(self, mock_neo4j_connection):
         """Test successful profile deletion."""
         mock_session = mock_neo4j_connection.session.return_value
+        mock_tx = Mock()
         mock_result = Mock()
-        mock_result.single.return_value = {"deleted": 1}
-        mock_session.write_transaction.return_value = mock_result
+        mock_record = Mock()
+        mock_record.get.return_value = 1
+        mock_result.single.return_value = mock_record
+        mock_tx.run.return_value = mock_result
+
+        def execute_work(work_func):
+            return work_func(mock_tx)
+
+        mock_session.write_transaction.side_effect = execute_work
 
         success = queries.delete_profile()
 
@@ -129,9 +148,17 @@ class TestDeleteProfile:
     def test_delete_profile_not_found(self, mock_neo4j_connection):
         """Test delete non-existent profile."""
         mock_session = mock_neo4j_connection.session.return_value
+        mock_tx = Mock()
         mock_result = Mock()
-        mock_result.single.return_value = {"deleted": 0}
-        mock_session.write_transaction.return_value = mock_result
+        mock_record = Mock()
+        mock_record.get.return_value = 0
+        mock_result.single.return_value = mock_record
+        mock_tx.run.return_value = mock_result
+
+        def execute_work(work_func):
+            return work_func(mock_tx)
+
+        mock_session.write_transaction.side_effect = execute_work
 
         success = queries.delete_profile()
 

@@ -9,7 +9,6 @@ from odf.style import (
     TableProperties,
     GraphicProperties,
 )
-from odf.text import P
 
 
 class CVStyles:

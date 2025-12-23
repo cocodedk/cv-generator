@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import axios from 'axios'
 import ProfileManager from '../../components/ProfileManager'
+import * as profileService from '../../services/profileService'
 
-// Mock axios
-vi.mock('axios')
-const mockedAxios = axios as any
+// Mock profile service
+vi.mock('../../services/profileService')
+const mockedProfileService = profileService as any
 
 describe('ProfileManager', () => {
   const mockOnSuccess = vi.fn()
@@ -20,7 +20,7 @@ describe('ProfileManager', () => {
   })
 
   it('renders profile form with all sections', async () => {
-    mockedAxios.get.mockResolvedValue({ status: 404 })
+    mockedProfileService.getProfile.mockResolvedValue(null)
     render(
       <ProfileManager onSuccess={mockOnSuccess} onError={mockOnError} setLoading={mockSetLoading} />
     )
@@ -45,14 +45,14 @@ describe('ProfileManager', () => {
       education: [],
       skills: [],
     }
-    mockedAxios.get.mockResolvedValue({ data: profileData })
+    mockedProfileService.getProfile.mockResolvedValue(profileData)
 
     render(
       <ProfileManager onSuccess={mockOnSuccess} onError={mockOnError} setLoading={mockSetLoading} />
     )
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith('/api/profile')
+      expect(mockedProfileService.getProfile).toHaveBeenCalled()
     })
 
     await waitFor(() => {
@@ -63,8 +63,8 @@ describe('ProfileManager', () => {
 
   it('saves profile successfully', async () => {
     const user = userEvent.setup()
-    mockedAxios.get.mockResolvedValue({ status: 404 })
-    mockedAxios.post.mockResolvedValue({ data: { status: 'success' } })
+    mockedProfileService.getProfile.mockResolvedValue(null)
+    mockedProfileService.saveProfile.mockResolvedValue({ status: 'success' })
 
     render(
       <ProfileManager onSuccess={mockOnSuccess} onError={mockOnError} setLoading={mockSetLoading} />
@@ -81,8 +81,7 @@ describe('ProfileManager', () => {
     await user.click(submitButton)
 
     await waitFor(() => {
-      expect(mockedAxios.post).toHaveBeenCalledWith(
-        '/api/profile',
+      expect(mockedProfileService.saveProfile).toHaveBeenCalledWith(
         expect.objectContaining({
           personal_info: expect.objectContaining({
             name: 'John Doe',
@@ -105,8 +104,8 @@ describe('ProfileManager', () => {
       education: [],
       skills: [],
     }
-    mockedAxios.get.mockResolvedValue({ data: profileData })
-    mockedAxios.post.mockResolvedValue({ data: { status: 'success' } })
+    mockedProfileService.getProfile.mockResolvedValue(profileData)
+    mockedProfileService.saveProfile.mockResolvedValue({ status: 'success' })
 
     render(
       <ProfileManager onSuccess={mockOnSuccess} onError={mockOnError} setLoading={mockSetLoading} />
@@ -120,7 +119,7 @@ describe('ProfileManager', () => {
     await user.click(submitButton)
 
     await waitFor(() => {
-      expect(mockedAxios.post).toHaveBeenCalled()
+      expect(mockedProfileService.saveProfile).toHaveBeenCalled()
     })
   })
 
@@ -134,8 +133,8 @@ describe('ProfileManager', () => {
       education: [],
       skills: [],
     }
-    mockedAxios.get.mockResolvedValue({ data: profileData })
-    mockedAxios.delete.mockResolvedValue({ data: { status: 'success' } })
+    mockedProfileService.getProfile.mockResolvedValue(profileData)
+    mockedProfileService.deleteProfile.mockResolvedValue({ status: 'success' })
 
     render(
       <ProfileManager onSuccess={mockOnSuccess} onError={mockOnError} setLoading={mockSetLoading} />
@@ -149,29 +148,27 @@ describe('ProfileManager', () => {
     await user.click(deleteButton)
 
     await waitFor(() => {
-      expect(mockedAxios.delete).toHaveBeenCalledWith('/api/profile')
+      expect(mockedProfileService.deleteProfile).toHaveBeenCalled()
     })
 
     expect(mockOnSuccess).toHaveBeenCalled()
   })
 
   it('handles profile load error', async () => {
-    mockedAxios.get.mockRejectedValue({
-      response: { status: 500, data: { detail: 'Server error' } },
-    })
+    mockedProfileService.getProfile.mockRejectedValue(new Error('Server error'))
 
     render(
       <ProfileManager onSuccess={mockOnSuccess} onError={mockOnError} setLoading={mockSetLoading} />
     )
 
     await waitFor(() => {
-      expect(mockOnError).toHaveBeenCalledWith('Failed to load profile')
+      expect(mockOnError).toHaveBeenCalledWith('Failed to load profile: Server error')
     })
   })
 
   it('validates required name field', async () => {
     const user = userEvent.setup()
-    mockedAxios.get.mockResolvedValue({ status: 404 })
+    mockedProfileService.getProfile.mockResolvedValue(null)
 
     render(
       <ProfileManager onSuccess={mockOnSuccess} onError={mockOnError} setLoading={mockSetLoading} />
@@ -188,6 +185,42 @@ describe('ProfileManager', () => {
       expect(screen.getByText(/name is required/i)).toBeInTheDocument()
     })
 
-    expect(mockedAxios.post).not.toHaveBeenCalled()
+    expect(mockedProfileService.saveProfile).not.toHaveBeenCalled()
+  })
+
+  it('loads profile when Load Profile button is clicked', async () => {
+    const user = userEvent.setup()
+    const profileData = {
+      personal_info: {
+        name: 'Jane Doe',
+        email: 'jane@example.com',
+      },
+      experience: [],
+      education: [],
+      skills: [],
+    }
+    mockedProfileService.getProfile
+      .mockResolvedValueOnce(null) // Initial load
+      .mockResolvedValueOnce(profileData) // After button click
+
+    render(
+      <ProfileManager onSuccess={mockOnSuccess} onError={mockOnError} setLoading={mockSetLoading} />
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText('Load Profile')).toBeInTheDocument()
+    })
+
+    const loadButton = screen.getByRole('button', { name: /load profile/i })
+    await user.click(loadButton)
+
+    await waitFor(() => {
+      expect(mockedProfileService.getProfile).toHaveBeenCalledTimes(2)
+    })
+
+    await waitFor(() => {
+      const nameInput = screen.getByLabelText(/full name/i) as HTMLInputElement
+      expect(nameInput.value).toBe('Jane Doe')
+    })
   })
 })

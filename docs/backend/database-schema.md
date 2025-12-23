@@ -51,6 +51,7 @@ graph LR
 **Relationships**:
 - `BELONGS_TO_CV` → CV node
 - `BELONGS_TO_PROFILE` → Profile node (for master profile)
+- `BELONGS_TO_PROFILE` → Profile node (for master profile)
 - `HAS_EXPERIENCE` → Experience nodes
 - `HAS_EDUCATION` → Education nodes
 - `HAS_SKILL` → Skill nodes

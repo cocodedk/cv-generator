@@ -1,5 +1,4 @@
 """Tests for CVGenerator."""
-import pytest
 from pathlib import Path
 from backend.cv_generator.generator import CVGenerator
 

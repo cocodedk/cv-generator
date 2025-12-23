@@ -12,8 +12,11 @@ Testing strategy and how to run tests for the CV Generator.
 - `test_models.py`: Pydantic model validation tests
 - `test_generator.py`: CVGenerator class tests
 - `test_database/test_queries.py`: Database query tests
+- `test_database/test_profile_queries.py`: Profile query tests (mocked)
+- `test_database/test_profile_queries_integration.py`: Profile CRUD integration (live Neo4j)
 - `test_api/test_health.py`: Health check endpoint tests
 - `test_api/test_cv_endpoints.py`: CV CRUD endpoint tests
+- `test_api/test_profile_endpoints.py`: Profile endpoint tests
 - `test_api/test_download.py`: File download endpoint tests
 
 **Framework**: pytest
@@ -30,6 +33,7 @@ Testing strategy and how to run tests for the CV Generator.
 - `components/Experience.test.tsx`: Experience array management tests
 - `components/Education.test.tsx`: Education array management tests
 - `components/Skills.test.tsx`: Skills array management tests
+- `components/ProfileManager.test.tsx`: Profile management tests
 
 **Framework**: Vitest with React Testing Library
 
@@ -71,7 +75,8 @@ npm test
 
 ## Test Database
 
-Backend tests use the same Neo4j database. Tests should clean up after themselves.
+Most backend tests mock the Neo4j driver. Integration tests run against the live
+Neo4j database in Docker and should clean up after themselves.
 
 ## Writing Tests
 
