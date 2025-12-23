@@ -1,5 +1,5 @@
 import { expect } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import CVForm from '../../../components/CVForm'
 
@@ -22,35 +22,47 @@ export const renderCVForm = (props: CVFormProps) => {
 }
 
 export const fillNameField = async (name: string) => {
+  const user = userEvent.setup()
   const nameInput = screen.getByLabelText(/full name/i)
-  await userEvent.type(nameInput, name)
+  await act(async () => {
+    await user.type(nameInput, name)
+  })
   return nameInput
 }
 
 export const clearNameField = async () => {
+  const user = userEvent.setup()
   const nameInput = screen.getByLabelText(/full name/i)
-  await userEvent.clear(nameInput)
+  await act(async () => {
+    await user.clear(nameInput)
+  })
   return nameInput
 }
 
 export const submitForm = async (buttonText: RegExp | string = /generate cv/i) => {
   const user = userEvent.setup()
   const submitButton = screen.getByRole('button', { name: buttonText })
-  await user.click(submitButton)
+  await act(async () => {
+    await user.click(submitButton)
+  })
   return submitButton
 }
 
 export const clickLoadProfileButton = async () => {
   const user = userEvent.setup()
   const loadButton = screen.getByRole('button', { name: /load from profile/i })
-  await user.click(loadButton)
+  await act(async () => {
+    await user.click(loadButton)
+  })
   return loadButton
 }
 
 export const clickSaveToProfileButton = async () => {
   const user = userEvent.setup()
   const saveButton = screen.getByRole('button', { name: /save to profile/i })
-  await user.click(saveButton)
+  await act(async () => {
+    await user.click(saveButton)
+  })
   return saveButton
 }
 

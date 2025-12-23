@@ -24,7 +24,7 @@ def save_profile(profile_data: Dict[str, Any]) -> bool:
             result = tx.run(CREATE_QUERY, **params)
             return result.single() is not None
 
-        return session.write_transaction(work)
+        return session.execute_write(work)
 
 
 def get_profile() -> Optional[Dict[str, Any]]:
@@ -32,7 +32,9 @@ def get_profile() -> Optional[Dict[str, Any]]:
     driver = Neo4jConnection.get_driver()
     database = Neo4jConnection.get_database()
     with driver.session(database=database) as session:
-        return process_profile_record(session.run(GET_QUERY).single())
+        result = session.run(GET_QUERY)
+        record = result.single()
+        return process_profile_record(record)
 
 
 def delete_profile() -> bool:
@@ -46,4 +48,4 @@ def delete_profile() -> bool:
             record = result.single()
             return record and record.get("deleted", 0) > 0
 
-        return session.write_transaction(work)
+        return session.execute_write(work)

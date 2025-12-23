@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import ProfileManager from '../../components/ProfileManager'
 import * as profileService from '../../services/profileService'
@@ -75,10 +75,14 @@ describe('ProfileManager', () => {
     })
 
     const nameInput = screen.getByLabelText(/full name/i)
-    await user.type(nameInput, 'John Doe')
+    await act(async () => {
+      await user.type(nameInput, 'John Doe')
+    })
 
     const submitButton = screen.getByRole('button', { name: /save profile/i })
-    await user.click(submitButton)
+    await act(async () => {
+      await user.click(submitButton)
+    })
 
     await waitFor(() => {
       expect(mockedProfileService.saveProfile).toHaveBeenCalledWith(
@@ -116,7 +120,9 @@ describe('ProfileManager', () => {
     })
 
     const submitButton = screen.getByRole('button', { name: /update profile/i })
-    await user.click(submitButton)
+    await act(async () => {
+      await user.click(submitButton)
+    })
 
     await waitFor(() => {
       expect(mockedProfileService.saveProfile).toHaveBeenCalled()
@@ -145,7 +151,9 @@ describe('ProfileManager', () => {
     })
 
     const deleteButton = screen.getByRole('button', { name: /delete profile/i })
-    await user.click(deleteButton)
+    await act(async () => {
+      await user.click(deleteButton)
+    })
 
     await waitFor(() => {
       expect(mockedProfileService.deleteProfile).toHaveBeenCalled()
@@ -179,7 +187,9 @@ describe('ProfileManager', () => {
     })
 
     const submitButton = screen.getByRole('button', { name: /save profile/i })
-    await user.click(submitButton)
+    await act(async () => {
+      await user.click(submitButton)
+    })
 
     await waitFor(() => {
       expect(screen.getByText(/name is required/i)).toBeInTheDocument()
@@ -212,7 +222,9 @@ describe('ProfileManager', () => {
     })
 
     const loadButton = screen.getByRole('button', { name: /load profile/i })
-    await user.click(loadButton)
+    await act(async () => {
+      await user.click(loadButton)
+    })
 
     await waitFor(() => {
       expect(mockedProfileService.getProfile).toHaveBeenCalledTimes(2)

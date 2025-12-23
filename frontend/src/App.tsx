@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import CVForm from './components/CVForm'
 import CVList from './components/CVList'
 import ProfileManager from './components/ProfileManager'
@@ -15,6 +15,13 @@ function App() {
   const { message, showMessage } = useMessage()
   const [_loading, setLoading] = useState(false)
 
+  const handleSuccess = useCallback(
+    (message: string) => showMessage('success', message),
+    [showMessage]
+  )
+
+  const handleError = useCallback((message: string) => showMessage('error', message), [showMessage])
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <Navigation
@@ -28,19 +35,15 @@ function App() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {viewMode === 'form' || viewMode === 'edit' ? (
           <CVForm
-            onSuccess={message => showMessage('success', message)}
-            onError={message => showMessage('error', message)}
+            onSuccess={handleSuccess}
+            onError={handleError}
             setLoading={setLoading}
             cvId={cvId}
           />
         ) : viewMode === 'list' ? (
-          <CVList onError={message => showMessage('error', message)} />
+          <CVList onError={handleError} />
         ) : (
-          <ProfileManager
-            onSuccess={message => showMessage('success', message)}
-            onError={message => showMessage('error', message)}
-            setLoading={setLoading}
-          />
+          <ProfileManager onSuccess={handleSuccess} onError={handleError} setLoading={setLoading} />
         )}
       </main>
     </div>

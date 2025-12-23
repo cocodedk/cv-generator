@@ -74,6 +74,7 @@ def create_cv(cv_data: Dict[str, Any]) -> str:
     CREATE (person)-[:HAS_SKILL]->(s)
     CREATE (s)-[:BELONGS_TO_CV]->(cv)
 
+    WITH DISTINCT cv
     RETURN cv.id AS cv_id
     """
 
@@ -109,4 +110,4 @@ def create_cv(cv_data: Dict[str, Any]) -> str:
             # Return the cv_id we already have (query just confirms creation)
             return cv_id
 
-        return session.write_transaction(work)
+        return session.execute_write(work)

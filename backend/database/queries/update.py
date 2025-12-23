@@ -4,25 +4,33 @@ from datetime import datetime
 from backend.database.connection import Neo4jConnection
 
 
-def update_cv(cv_id: str, cv_data: Dict[str, Any]) -> bool:
-    """Update CV data."""
-    driver = Neo4jConnection.get_driver()
-    database = Neo4jConnection.get_database()
-    updated_at = datetime.utcnow().isoformat()
-
-    # Delete existing relationships and nodes, then recreate with same CV ID
-    update_query = """
+def _update_cv_timestamp(tx, cv_id: str, updated_at: str) -> None:
+    """Update CV timestamp."""
+    query = """
     MATCH (cv:CV {id: $cv_id})
     SET cv.updated_at = $updated_at
+    """
+    tx.run(query, cv_id=cv_id, updated_at=updated_at)
 
-    // Delete existing relationships and nodes
-    OPTIONAL MATCH (person:Person)-[:BELONGS_TO_CV]->(cv)
-    OPTIONAL MATCH (person)-[r1:HAS_EXPERIENCE]->(exp:Experience)-[:BELONGS_TO_CV]->(cv)
-    OPTIONAL MATCH (person)-[r2:HAS_EDUCATION]->(edu:Education)-[:BELONGS_TO_CV]->(cv)
-    OPTIONAL MATCH (person)-[r3:HAS_SKILL]->(skill:Skill)-[:BELONGS_TO_CV]->(cv)
-    DELETE r1, r2, r3, exp, edu, skill, person
 
-    // Recreate Person node
+def _delete_cv_relationships(tx, cv_id: str) -> None:
+    """Delete existing relationships and nodes for a CV."""
+    query = """
+    MATCH (cv:CV {id: $cv_id})
+    OPTIONAL MATCH (old_person:Person)-[:BELONGS_TO_CV]->(cv)
+    OPTIONAL MATCH (old_person)-[:HAS_EXPERIENCE]->(exp:Experience)-[:BELONGS_TO_CV]->(cv)
+    OPTIONAL MATCH (old_person)-[:HAS_EDUCATION]->(edu:Education)-[:BELONGS_TO_CV]->(cv)
+    OPTIONAL MATCH (old_person)-[:HAS_SKILL]->(skill:Skill)-[:BELONGS_TO_CV]->(cv)
+    DETACH DELETE exp, edu, skill, old_person
+    """
+    tx.run(query, cv_id=cv_id)
+
+
+def _create_person_node(tx, cv_id: str, personal_info: Dict[str, Any]) -> None:
+    """Create Person node and link to CV."""
+    address = personal_info.get("address") or {}
+    query = """
+    MATCH (cv:CV {id: $cv_id})
     CREATE (person:Person {
         name: $name,
         email: $email,
@@ -38,9 +46,32 @@ def update_cv(cv_id: str, cv_data: Dict[str, Any]) -> bool:
         summary: $summary
     })
     CREATE (person)-[:BELONGS_TO_CV]->(cv)
+    """
+    tx.run(
+        query,
+        cv_id=cv_id,
+        name=personal_info.get("name", ""),
+        email=personal_info.get("email"),
+        phone=personal_info.get("phone"),
+        address_street=address.get("street"),
+        address_city=address.get("city"),
+        address_state=address.get("state"),
+        address_zip=address.get("zip"),
+        address_country=address.get("country"),
+        linkedin=personal_info.get("linkedin"),
+        github=personal_info.get("github"),
+        website=personal_info.get("website"),
+        summary=personal_info.get("summary"),
+    )
 
-    // Create Experience nodes
-    WITH cv, person
+
+def _create_experience_nodes(tx, cv_id: str, experiences: list) -> None:
+    """Create Experience nodes and link to Person and CV."""
+    if not experiences:
+        return
+    query = """
+    MATCH (cv:CV {id: $cv_id})
+    MATCH (person:Person)-[:BELONGS_TO_CV]->(cv)
     UNWIND $experiences AS exp
     CREATE (experience:Experience {
         title: exp.title,
@@ -52,9 +83,17 @@ def update_cv(cv_id: str, cv_data: Dict[str, Any]) -> bool:
     })
     CREATE (person)-[:HAS_EXPERIENCE]->(experience)
     CREATE (experience)-[:BELONGS_TO_CV]->(cv)
+    """
+    tx.run(query, cv_id=cv_id, experiences=experiences)
 
-    // Create Education nodes
-    WITH cv, person
+
+def _create_education_nodes(tx, cv_id: str, educations: list) -> None:
+    """Create Education nodes and link to Person and CV."""
+    if not educations:
+        return
+    query = """
+    MATCH (cv:CV {id: $cv_id})
+    MATCH (person:Person)-[:BELONGS_TO_CV]->(cv)
     UNWIND $educations AS edu
     CREATE (education:Education {
         degree: edu.degree,
@@ -65,9 +104,17 @@ def update_cv(cv_id: str, cv_data: Dict[str, Any]) -> bool:
     })
     CREATE (person)-[:HAS_EDUCATION]->(education)
     CREATE (education)-[:BELONGS_TO_CV]->(cv)
+    """
+    tx.run(query, cv_id=cv_id, educations=educations)
 
-    // Create Skill nodes (per-CV to avoid cross-CV deletes and metadata bleed)
-    WITH cv, person
+
+def _create_skill_nodes(tx, cv_id: str, skills: list) -> None:
+    """Create Skill nodes and link to Person and CV."""
+    if not skills:
+        return
+    query = """
+    MATCH (cv:CV {id: $cv_id})
+    MATCH (person:Person)-[:BELONGS_TO_CV]->(cv)
     UNWIND $skills AS skill
     CREATE (s:Skill {
         name: skill.name,
@@ -76,40 +123,34 @@ def update_cv(cv_id: str, cv_data: Dict[str, Any]) -> bool:
     })
     CREATE (person)-[:HAS_SKILL]->(s)
     CREATE (s)-[:BELONGS_TO_CV]->(cv)
-
-    RETURN cv.id AS cv_id
     """
+    tx.run(query, cv_id=cv_id, skills=skills)
 
+
+def update_cv(cv_id: str, cv_data: Dict[str, Any]) -> bool:
+    """Update CV data."""
+    driver = Neo4jConnection.get_driver()
+    database = Neo4jConnection.get_database()
+    updated_at = datetime.utcnow().isoformat()
     personal_info = cv_data.get("personal_info", {})
-    address = personal_info.get("address") or {}
 
     with driver.session(database=database) as session:
 
         def work(tx):
-            result = tx.run(
-                update_query,
-                cv_id=cv_id,
-                updated_at=updated_at,
-                name=personal_info.get("name", ""),
-                email=personal_info.get("email"),
-                phone=personal_info.get("phone"),
-                address_street=address.get("street"),
-                address_city=address.get("city"),
-                address_state=address.get("state"),
-                address_zip=address.get("zip"),
-                address_country=address.get("country"),
-                linkedin=personal_info.get("linkedin"),
-                github=personal_info.get("github"),
-                website=personal_info.get("website"),
-                summary=personal_info.get("summary"),
-                experiences=cv_data.get("experience", []),
-                educations=cv_data.get("education", []),
-                skills=cv_data.get("skills", []),
-            )
+            _update_cv_timestamp(tx, cv_id, updated_at)
+            _delete_cv_relationships(tx, cv_id)
+            _create_person_node(tx, cv_id, personal_info)
+            _create_experience_nodes(tx, cv_id, cv_data.get("experience", []))
+            _create_education_nodes(tx, cv_id, cv_data.get("education", []))
+            _create_skill_nodes(tx, cv_id, cv_data.get("skills", []))
+
+            # Verify CV exists
+            verify_query = "MATCH (cv:CV {id: $cv_id}) RETURN cv.id AS cv_id"
+            result = tx.run(verify_query, cv_id=cv_id)
             record = result.single()
             return record is not None
 
-        return session.write_transaction(work)
+        return session.execute_write(work)
 
 
 def set_cv_filename(cv_id: str, filename: str) -> bool:
@@ -136,4 +177,4 @@ def set_cv_filename(cv_id: str, filename: str) -> bool:
             record = result.single()
             return record is not None
 
-        return session.write_transaction(work)
+        return session.execute_write(work)
