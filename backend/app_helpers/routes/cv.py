@@ -87,12 +87,20 @@ def create_cv_router(  # noqa: C901
     @router.get("/api/download/{filename}")
     async def download_cv(request: Request, filename: str):
         """Download generated CV file."""
-        # Get output_dir from app (allows tests to patch it)
-        # Try app.output_dir first, then app.state.output_dir, then closure variable
-        current_output_dir = getattr(
-            request.app,
-            "output_dir",
-            getattr(request.app.state, "output_dir", output_dir),
+        # Resolve output dir with test overrides in mind.
+        module_output_dir = None
+        try:
+            import backend.app as app_module
+
+            module_output_dir = getattr(app_module, "output_dir", None)
+        except Exception:
+            module_output_dir = None
+
+        current_output_dir = (
+            module_output_dir
+            or getattr(request.app, "output_dir", None)
+            or getattr(request.app.state, "output_dir", None)
+            or output_dir
         )
 
         # Validate filename to prevent path traversal
