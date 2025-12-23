@@ -234,7 +234,10 @@ describe('CVList', () => {
       await user.click(downloadButton)
     })
 
-    expect(openMock).toHaveBeenCalledWith('/api/download/cv_1234.odt', '_blank')
+    expect(openMock).toHaveBeenCalledWith(
+      expect.stringMatching(/^\/api\/download\/cv_1234\.odt\?t=\d+$/),
+      '_blank'
+    )
   })
 
   it('does not delete when confirmation is rejected', async () => {

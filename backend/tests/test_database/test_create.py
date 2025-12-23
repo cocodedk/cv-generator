@@ -102,3 +102,85 @@ class TestCreateCV:
 
         cv_id = queries.create_cv(data)
         assert isinstance(cv_id, str)
+
+    def test_create_cv_with_theme(self, mock_neo4j_connection):
+        """Test CV creation with theme provided."""
+        data = {
+            "personal_info": {"name": "John Doe"},
+            "experience": [],
+            "education": [],
+            "skills": [],
+            "theme": "modern",
+        }
+        mock_session = mock_neo4j_connection.session.return_value
+        mock_result = Mock()
+        mock_result.single.return_value = {"cv_id": "test-id"}
+        mock_tx = Mock()
+        mock_tx.run.return_value = mock_result
+
+        def write_transaction_side_effect(work):
+            return work(mock_tx)
+
+        mock_session.write_transaction.side_effect = write_transaction_side_effect
+
+        cv_id = queries.create_cv(data)
+        assert isinstance(cv_id, str)
+        # Verify theme was passed to the query
+        call_args = mock_tx.run.call_args
+        assert call_args is not None
+        assert call_args[1]["theme"] == "modern"
+
+    def test_create_cv_defaults_theme_when_missing(self, mock_neo4j_connection):
+        """Test CV creation defaults to classic theme when not provided."""
+        data = {
+            "personal_info": {"name": "John Doe"},
+            "experience": [],
+            "education": [],
+            "skills": [],
+        }
+        mock_session = mock_neo4j_connection.session.return_value
+        mock_result = Mock()
+        mock_result.single.return_value = {"cv_id": "test-id"}
+        mock_tx = Mock()
+        mock_tx.run.return_value = mock_result
+
+        def write_transaction_side_effect(work):
+            return work(mock_tx)
+
+        mock_session.write_transaction.side_effect = write_transaction_side_effect
+
+        cv_id = queries.create_cv(data)
+        assert isinstance(cv_id, str)
+        # Verify theme defaults to classic
+        call_args = mock_tx.run.call_args
+        assert call_args is not None
+        assert call_args[1]["theme"] == "classic"
+
+    def test_create_cv_with_all_themes(self, mock_neo4j_connection):
+        """Test CV creation with all valid theme values."""
+        themes = ["classic", "modern", "minimal", "elegant", "accented"]
+        for theme in themes:
+            data = {
+                "personal_info": {"name": "John Doe"},
+                "experience": [],
+                "education": [],
+                "skills": [],
+                "theme": theme,
+            }
+            mock_session = mock_neo4j_connection.session.return_value
+            mock_result = Mock()
+            mock_result.single.return_value = {"cv_id": "test-id"}
+            mock_tx = Mock()
+            mock_tx.run.return_value = mock_result
+
+            def write_transaction_side_effect(work):
+                return work(mock_tx)
+
+            mock_session.write_transaction.side_effect = write_transaction_side_effect
+
+            cv_id = queries.create_cv(data)
+            assert isinstance(cv_id, str)
+            # Verify theme was passed correctly
+            call_args = mock_tx.run.call_args
+            assert call_args is not None
+            assert call_args[1]["theme"] == theme

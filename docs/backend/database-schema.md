@@ -33,6 +33,7 @@ graph LR
 - `created_at` (string): ISO timestamp
 - `updated_at` (string): ISO timestamp
 - `filename` (string, optional): Generated ODT filename
+- `theme` (string, optional): CV theme name (classic, modern, minimal, elegant, or accented). Defaults to "classic" if not provided.
 
 ### Person Node
 

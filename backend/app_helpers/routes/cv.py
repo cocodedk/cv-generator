@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 def create_cv_router(  # noqa: C901
     limiter: Limiter,
     cv_file_service: CVFileService,
-    output_dir: Path,
+    output_dir: Optional[Path] = None,
 ) -> APIRouter:
     """Create and return CV router with dependencies."""
     router = APIRouter()
@@ -25,7 +25,16 @@ def create_cv_router(  # noqa: C901
     async def generate_cv(request: Request, cv_data: CVData):
         """Generate ODT file from CV data and save to Neo4j."""
         try:
-            cv_dict = cv_data.model_dump()
+            cv_dict = cv_data.model_dump(exclude_none=False)
+            # Ensure theme is always present
+            if "theme" not in cv_dict or cv_dict["theme"] is None:
+                cv_dict["theme"] = "classic"
+            theme = cv_dict["theme"]
+            logger.debug(
+                "Generate CV endpoint: theme=%s, cv_dict keys=%s",
+                theme,
+                list(cv_dict.keys()),
+            )
             cv_id = queries.create_cv(cv_dict)
             filename = cv_file_service.generate_file_for_cv(cv_id, cv_dict)
             return CVResponse(cv_id=cv_id, filename=filename, status="success")
@@ -85,8 +94,23 @@ def create_cv_router(  # noqa: C901
         return {"status": "success", "message": "CV deleted"}
 
     @router.get("/api/download/{filename}")
-    async def download_cv(filename: str):
-        """Download generated CV file."""
+    async def download_cv(request: Request, filename: str):
+        """Download generated CV file. Regenerates file on each request to ensure latest data."""
+        # Use output_dir parameter as primary source, fall back to app attributes if None
+        # Allow app.state.output_dir to override for test scenarios
+        app_state_output_dir = getattr(request.app.state, "output_dir", None)
+        if output_dir is not None:
+            # Parameter is primary, but allow app.state override for tests
+            current_output_dir = app_state_output_dir or output_dir
+        else:
+            # Parameter is None, fall back to app.state
+            current_output_dir = app_state_output_dir
+
+        if current_output_dir is None:
+            raise HTTPException(
+                status_code=500, detail="Output directory not configured"
+            )
+
         # Validate filename to prevent path traversal
         if ".." in filename or "/" in filename or "\\" in filename:
             raise HTTPException(status_code=400, detail="Invalid filename")
@@ -95,22 +119,51 @@ def create_cv_router(  # noqa: C901
         if not filename.endswith(".odt"):
             raise HTTPException(status_code=400, detail="Invalid file type")
 
-        file_path = output_dir / filename
+        # Find CV by filename and regenerate file with latest data
+        cv = queries.get_cv_by_filename(filename)
+        if not cv:
+            raise HTTPException(status_code=404, detail="CV not found for filename")
+
+        cv_id = cv["cv_id"]
+        logger.debug(
+            "Regenerating CV file for download: cv_id=%s, filename=%s, theme=%s",
+            cv_id,
+            filename,
+            cv.get("theme", "classic"),
+        )
+
+        # Regenerate file with latest data from database
+        cv_dict = cv_file_service.prepare_cv_dict(cv)
+        cv_file_service.generate_file_for_cv(cv_id, cv_dict)
+
+        file_path = current_output_dir / filename
 
         # Ensure file is within output directory (prevent path traversal)
         try:
-            file_path.resolve().relative_to(output_dir.resolve())
+            file_path.resolve().relative_to(current_output_dir.resolve())
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid file path")
 
         if not file_path.exists():
-            raise HTTPException(status_code=404, detail="File not found")
+            raise HTTPException(status_code=500, detail="File generation failed")
 
-        return FileResponse(
+        # Get file modification time for ETag
+        file_mtime = file_path.stat().st_mtime
+
+        response = FileResponse(
             path=str(file_path),
             filename=filename,
             media_type="application/vnd.oasis.opendocument.text",
         )
+
+        # Set headers to prevent caching and ensure dynamic downloads
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        # Add ETag based on file modification time for cache validation
+        response.headers["ETag"] = f'"{int(file_mtime)}"'
+
+        return response
 
     @router.post("/api/cv/{cv_id}/generate", response_model=CVResponse)
     @limiter.limit("10/minute")
@@ -120,6 +173,14 @@ def create_cv_router(  # noqa: C901
             cv = queries.get_cv_by_id(cv_id)
             if not cv:
                 raise HTTPException(status_code=404, detail="CV not found")
+
+            theme_from_db = cv.get("theme", "classic")
+            logger.debug(
+                "Generate CV file endpoint for %s: theme from DB=%s, cv keys=%s",
+                cv_id,
+                theme_from_db,
+                list(cv.keys()),
+            )
 
             cv_dict = cv_file_service.prepare_cv_dict(cv)
             filename = cv_file_service.generate_file_for_cv(cv_id, cv_dict)
@@ -133,13 +194,33 @@ def create_cv_router(  # noqa: C901
 
     @router.put("/api/cv/{cv_id}", response_model=CVResponse)
     async def update_cv_endpoint(cv_id: str, cv_data: CVData):
-        """Update CV data."""
+        """Update CV data and regenerate ODT file."""
         try:
-            cv_dict = cv_data.model_dump()
+            cv_dict = cv_data.model_dump(exclude_none=False)
+            # Ensure theme is always present
+            if "theme" not in cv_dict or cv_dict["theme"] is None:
+                cv_dict["theme"] = "classic"
+            theme = cv_dict["theme"]
+            logger.debug(
+                "Update CV endpoint for %s: theme=%s",
+                cv_id,
+                theme,
+            )
             success = queries.update_cv(cv_id, cv_dict)
             if not success:
                 raise HTTPException(status_code=404, detail="CV not found")
-            return CVResponse(cv_id=cv_id, status="success")
+
+            # Regenerate ODT file with updated data
+            cv = queries.get_cv_by_id(cv_id)
+            if not cv:
+                raise HTTPException(status_code=404, detail="CV not found after update")
+
+            cv_dict_for_generation = cv_file_service.prepare_cv_dict(cv)
+            filename = cv_file_service.generate_file_for_cv(
+                cv_id, cv_dict_for_generation
+            )
+
+            return CVResponse(cv_id=cv_id, filename=filename, status="success")
         except HTTPException:
             raise
         except Exception as e:

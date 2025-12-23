@@ -16,7 +16,8 @@ def create_cv(cv_data: Dict[str, Any]) -> str:
     CREATE (cv:CV {
         id: $cv_id,
         created_at: $created_at,
-        updated_at: $created_at
+        updated_at: $created_at,
+        theme: $theme
     })
 
     // Create Person node
@@ -81,6 +82,7 @@ def create_cv(cv_data: Dict[str, Any]) -> str:
     database = Neo4jConnection.get_database()
     personal_info = cv_data.get("personal_info", {})
     address = personal_info.get("address") or {}
+    theme = cv_data.get("theme", "classic")
 
     with driver.session(database=database) as session:
 
@@ -89,6 +91,7 @@ def create_cv(cv_data: Dict[str, Any]) -> str:
                 query,
                 cv_id=cv_id,
                 created_at=created_at,
+                theme=theme,
                 name=personal_info.get("name", ""),
                 email=personal_info.get("email"),
                 phone=personal_info.get("phone"),
