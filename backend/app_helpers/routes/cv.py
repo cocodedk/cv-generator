@@ -85,8 +85,16 @@ def create_cv_router(  # noqa: C901
         return {"status": "success", "message": "CV deleted"}
 
     @router.get("/api/download/{filename}")
-    async def download_cv(filename: str):
+    async def download_cv(request: Request, filename: str):
         """Download generated CV file."""
+        # Get output_dir from app (allows tests to patch it)
+        # Try app.output_dir first, then app.state.output_dir, then closure variable
+        current_output_dir = getattr(
+            request.app,
+            "output_dir",
+            getattr(request.app.state, "output_dir", output_dir),
+        )
+
         # Validate filename to prevent path traversal
         if ".." in filename or "/" in filename or "\\" in filename:
             raise HTTPException(status_code=400, detail="Invalid filename")
@@ -95,11 +103,11 @@ def create_cv_router(  # noqa: C901
         if not filename.endswith(".odt"):
             raise HTTPException(status_code=400, detail="Invalid file type")
 
-        file_path = output_dir / filename
+        file_path = current_output_dir / filename
 
         # Ensure file is within output directory (prevent path traversal)
         try:
-            file_path.resolve().relative_to(output_dir.resolve())
+            file_path.resolve().relative_to(current_output_dir.resolve())
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid file path")
 

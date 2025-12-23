@@ -11,7 +11,8 @@ class TestHealthEndpoint:
     async def test_health_check_connected(self, client, mock_neo4j_connection):
         """Test health check when database is connected."""
         with patch(
-            "backend.app.Neo4jConnection.verify_connectivity", return_value=True
+            "backend.database.connection.Neo4jConnection.verify_connectivity",
+            return_value=True,
         ):
             response = await client.get("/api/health")
             assert response.status_code == 200
@@ -22,7 +23,8 @@ class TestHealthEndpoint:
     async def test_health_check_disconnected(self, client):
         """Test health check when database is disconnected."""
         with patch(
-            "backend.app.Neo4jConnection.verify_connectivity", return_value=False
+            "backend.database.connection.Neo4jConnection.verify_connectivity",
+            return_value=False,
         ):
             response = await client.get("/api/health")
             assert response.status_code == 200
