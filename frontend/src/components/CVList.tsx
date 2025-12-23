@@ -56,6 +56,10 @@ export default function CVList({ onError }: CVListProps) {
     window.open(`/api/download/${filename}`, '_blank')
   }
 
+  const handleEdit = (cvId: string) => {
+    window.location.hash = `#edit/${cvId}`
+  }
+
   return (
     <div className="bg-white shadow rounded-lg dark:bg-gray-900 dark:border dark:border-gray-800">
       <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
@@ -65,8 +69,8 @@ export default function CVList({ onError }: CVListProps) {
             <input
               type="text"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              onChange={e => setSearch(e.target.value)}
+              onKeyPress={e => e.key === 'Enter' && handleSearch()}
               placeholder="Search CVs..."
               className="px-4 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-900 shadow-sm text-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-blue-400 dark:focus:ring-blue-400"
             />
@@ -91,7 +95,7 @@ export default function CVList({ onError }: CVListProps) {
           </div>
         ) : (
           <div className="space-y-4">
-            {cvs.map((cv) => (
+            {cvs.map(cv => (
               <div
                 key={cv.cv_id}
                 className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/60"
@@ -104,11 +108,15 @@ export default function CVList({ onError }: CVListProps) {
                     <p className="text-sm text-gray-500 mt-1 dark:text-gray-400">
                       Created: {new Date(cv.created_at).toLocaleDateString()}
                     </p>
-                    <p className="text-xs text-gray-400 mt-1 dark:text-gray-500">
-                      ID: {cv.cv_id}
-                    </p>
+                    <p className="text-xs text-gray-400 mt-1 dark:text-gray-500">ID: {cv.cv_id}</p>
                   </div>
                   <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleEdit(cv.cv_id)}
+                      className="px-3 py-1 text-sm font-medium text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+                    >
+                      Edit
+                    </button>
                     {cv.filename && (
                       <button
                         onClick={() => handleDownload(cv.filename)}

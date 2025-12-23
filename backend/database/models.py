@@ -1,5 +1,5 @@
 """Neo4j node and relationship models for CV data."""
-from typing import Optional, List
+from typing import Optional
 from datetime import datetime
 from uuid import uuid4
 

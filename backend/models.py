@@ -1,7 +1,6 @@
 """Pydantic models for CV data validation."""
 from typing import Optional, List
 from pydantic import BaseModel, EmailStr, Field
-from datetime import datetime
 
 
 class Address(BaseModel):

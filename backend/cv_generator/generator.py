@@ -1,11 +1,9 @@
 """Main CV generation logic using odfpy."""
 from typing import Dict, Any
-from datetime import datetime
 from odf.opendocument import OpenDocumentText
 from odf.text import P, H, Span, List, ListItem
 from odf.table import Table, TableRow, TableCell, TableColumn
 from odf.draw import Frame, TextBox
-from odf.style import Style
 from backend.cv_generator.styles import CVStyles
 
 

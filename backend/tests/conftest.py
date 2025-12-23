@@ -16,7 +16,6 @@ def mock_neo4j_driver():
     """Mock Neo4j driver for testing."""
     mock_driver = Mock()
     mock_session = Mock()
-    mock_transaction = Mock()
 
     # Configure mock session
     mock_session.__enter__ = Mock(return_value=mock_session)

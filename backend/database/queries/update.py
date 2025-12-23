@@ -84,8 +84,9 @@ def update_cv(cv_id: str, cv_data: Dict[str, Any]) -> bool:
     address = personal_info.get("address") or {}
 
     with driver.session(database=database) as session:
-        result = session.write_transaction(
-            lambda tx: tx.run(
+
+        def work(tx):
+            result = tx.run(
                 update_query,
                 cv_id=cv_id,
                 updated_at=updated_at,
@@ -105,8 +106,10 @@ def update_cv(cv_id: str, cv_data: Dict[str, Any]) -> bool:
                 educations=cv_data.get("education", []),
                 skills=cv_data.get("skills", []),
             )
-        )
-        return result.single() is not None
+            record = result.single()
+            return record is not None
+
+        return session.write_transaction(work)
 
 
 def set_cv_filename(cv_id: str, filename: str) -> bool:
@@ -122,12 +125,15 @@ def set_cv_filename(cv_id: str, filename: str) -> bool:
     """
 
     with driver.session(database=database) as session:
-        result = session.write_transaction(
-            lambda tx: tx.run(
+
+        def work(tx):
+            result = tx.run(
                 query,
                 cv_id=cv_id,
                 filename=filename,
                 updated_at=datetime.utcnow().isoformat(),
             )
-        )
-        return result.single() is not None
+            record = result.single()
+            return record is not None
+
+        return session.write_transaction(work)
