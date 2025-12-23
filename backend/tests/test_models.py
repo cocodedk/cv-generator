@@ -134,6 +134,31 @@ class TestCVData:
         assert cv.education == []
         assert cv.skills == []
 
+    def test_cv_data_with_valid_theme(self):
+        """Test CV data with valid theme values."""
+        valid_themes = ["classic", "modern", "minimal", "elegant", "accented"]
+        for theme in valid_themes:
+            cv = CVData(
+                personal_info={"name": "John Doe"},
+                theme=theme,
+            )
+            assert cv.theme == theme
+
+    def test_cv_data_without_theme(self):
+        """Test that theme defaults to classic when not provided."""
+        cv = CVData(personal_info={"name": "John Doe"})
+        assert cv.theme == "classic"
+
+    def test_cv_data_with_invalid_theme(self):
+        """Test that invalid theme values are accepted (no strict validation)."""
+        # Note: Pydantic doesn't enforce enum validation by default for Optional[str]
+        # Invalid themes are accepted but may cause issues in CV generation
+        cv = CVData(
+            personal_info={"name": "John Doe"},
+            theme="invalid_theme",
+        )
+        assert cv.theme == "invalid_theme"
+
 
 class TestCVResponse:
     """Test CVResponse model."""

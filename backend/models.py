@@ -64,6 +64,10 @@ class CVData(BaseModel):
     experience: List[Experience] = []
     education: List[Education] = []
     skills: List[Skill] = []
+    theme: Optional[str] = Field(
+        default="classic",
+        description="CV theme: classic, modern, minimal, elegant, or accented",
+    )
 
 
 class CVResponse(BaseModel):
