@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useForm } from 'react-hook-form'
 import Experience from '../../components/Experience'
@@ -36,12 +36,16 @@ describe('Experience', () => {
     render(<ExperienceWrapper />)
 
     const addButton = screen.getByRole('button', { name: /add experience/i })
-    await user.click(addButton)
+    await act(async () => {
+      await user.click(addButton)
+    })
 
-    expect(screen.getByText(/experience 1/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/job title/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/company/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/start date/i)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText(/experience 1/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/job title/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/company/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/start date/i)).toBeInTheDocument()
+    })
   })
 
   it('removes experience entry', async () => {
@@ -70,9 +74,13 @@ describe('Experience', () => {
     render(<ExperienceWithData />)
 
     const removeButton = screen.getByRole('button', { name: /remove/i })
-    await user.click(removeButton)
+    await act(async () => {
+      await user.click(removeButton)
+    })
 
-    expect(screen.getByText(/no experience added/i)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText(/no experience added/i)).toBeInTheDocument()
+    })
   })
 
   it('renders multiple experience entries', async () => {
@@ -80,10 +88,14 @@ describe('Experience', () => {
     render(<ExperienceWrapper />)
 
     const addButton = screen.getByRole('button', { name: /add experience/i })
-    await user.click(addButton)
-    await user.click(addButton)
+    await act(async () => {
+      await user.click(addButton)
+      await user.click(addButton)
+    })
 
-    expect(screen.getByText(/experience 1/i)).toBeInTheDocument()
-    expect(screen.getByText(/experience 2/i)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText(/experience 1/i)).toBeInTheDocument()
+      expect(screen.getByText(/experience 2/i)).toBeInTheDocument()
+    })
   })
 })

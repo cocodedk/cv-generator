@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { screen, waitFor } from '@testing-library/react'
+import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import axios from 'axios'
 import { setupAxiosMock, setupWindowMocks, createMockCallbacks } from '../helpers/cvForm/mocks'
@@ -113,7 +113,9 @@ describe('CVForm', () => {
     })
 
     const themeSelect = screen.getByLabelText(/theme/i)
-    await user.selectOptions(themeSelect, 'modern')
+    await act(async () => {
+      await user.selectOptions(themeSelect, 'modern')
+    })
 
     expect(themeSelect).toHaveValue('modern')
   })
@@ -202,10 +204,14 @@ describe('CVForm', () => {
     expect(screen.getByText(/senior dev/i)).toBeInTheDocument()
 
     const checkboxes = screen.getAllByRole('checkbox')
-    await user.click(checkboxes[0])
+    await act(async () => {
+      await user.click(checkboxes[0])
+    })
 
     const loadSelectedButton = screen.getByRole('button', { name: /load selected/i })
-    await user.click(loadSelectedButton)
+    await act(async () => {
+      await user.click(loadSelectedButton)
+    })
 
     await waitFor(() => {
       expect(mockOnSuccess).toHaveBeenCalled()

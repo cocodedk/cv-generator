@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useForm } from 'react-hook-form'
 import Skills from '../../components/Skills'
@@ -36,12 +36,16 @@ describe('Skills', () => {
     render(<SkillsWrapper />)
 
     const addButton = screen.getByRole('button', { name: /add skill/i })
-    await user.click(addButton)
+    await act(async () => {
+      await user.click(addButton)
+    })
 
-    expect(screen.getByText(/skill 1/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/skill name/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/category/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/level/i)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText(/skill 1/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/skill name/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/category/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/level/i)).toBeInTheDocument()
+    })
   })
 
   it('removes skill entry', async () => {
@@ -67,9 +71,13 @@ describe('Skills', () => {
     render(<SkillsWithData />)
 
     const removeButton = screen.getByRole('button', { name: /remove/i })
-    await user.click(removeButton)
+    await act(async () => {
+      await user.click(removeButton)
+    })
 
-    expect(screen.getByText(/no skills added/i)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText(/no skills added/i)).toBeInTheDocument()
+    })
   })
 
   it('renders multiple skill entries', async () => {
@@ -77,10 +85,14 @@ describe('Skills', () => {
     render(<SkillsWrapper />)
 
     const addButton = screen.getByRole('button', { name: /add skill/i })
-    await user.click(addButton)
-    await user.click(addButton)
+    await act(async () => {
+      await user.click(addButton)
+      await user.click(addButton)
+    })
 
-    expect(screen.getByText(/skill 1/i)).toBeInTheDocument()
-    expect(screen.getByText(/skill 2/i)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText(/skill 1/i)).toBeInTheDocument()
+      expect(screen.getByText(/skill 2/i)).toBeInTheDocument()
+    })
   })
 })

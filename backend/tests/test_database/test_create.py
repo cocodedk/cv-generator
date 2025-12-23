@@ -53,3 +53,52 @@ class TestCreateCV:
         uuid_pattern = r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
         assert re.match(uuid_pattern, cv_id), f"Expected UUID format, got: {cv_id}"
         assert isinstance(cv_id, str)
+
+    def test_create_cv_empty_arrays(self, mock_neo4j_connection):
+        """Test CV creation with empty arrays."""
+        data = {
+            "personal_info": {"name": "Test"},
+            "experience": [],
+            "education": [],
+            "skills": [],
+        }
+        mock_session = mock_neo4j_connection.session.return_value
+        mock_result = Mock()
+        mock_result.single.return_value = {"cv_id": "test-id"}
+        mock_tx = Mock()
+        mock_tx.run.return_value = mock_result
+
+        def write_transaction_side_effect(work):
+            return work(mock_tx)
+
+        mock_session.write_transaction.side_effect = write_transaction_side_effect
+
+        cv_id = queries.create_cv(data)
+        assert isinstance(cv_id, str)
+
+    def test_create_cv_none_values(self, mock_neo4j_connection):
+        """Test CV creation with None values in optional fields."""
+        data = {
+            "personal_info": {
+                "name": "Test",
+                "email": None,
+                "phone": None,
+                "address": None,
+            },
+            "experience": [],
+            "education": [],
+            "skills": [],
+        }
+        mock_session = mock_neo4j_connection.session.return_value
+        mock_result = Mock()
+        mock_result.single.return_value = {"cv_id": "test-id"}
+        mock_tx = Mock()
+        mock_tx.run.return_value = mock_result
+
+        def write_transaction_side_effect(work):
+            return work(mock_tx)
+
+        mock_session.write_transaction.side_effect = write_transaction_side_effect
+
+        cv_id = queries.create_cv(data)
+        assert isinstance(cv_id, str)

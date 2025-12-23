@@ -56,7 +56,10 @@ class TestTransactionScope:
 
         assert success is True
         assert mock_result.single.call_count == 1
-        mock_tx.run.assert_called_once()
+        # After refactoring, update_cv makes multiple focused query calls
+        assert (
+            mock_tx.run.call_count >= 6
+        )  # timestamp, delete, person, exp, edu, skills, verify
 
     def test_delete_cv_consumes_result_in_transaction(self, mock_neo4j_connection):
         """Test that delete_cv consumes result inside transaction callback."""

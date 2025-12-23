@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { UseFormReset } from 'react-hook-form'
 import axios from 'axios'
 import { CVData } from '../../types/cv'
@@ -13,16 +13,21 @@ interface UseCvLoaderProps {
 
 export function useCvLoader({ cvId, reset, onError, setLoading }: UseCvLoaderProps) {
   const [isLoadingCv, setIsLoadingCv] = useState(false)
+  const callbacksRef = useRef({ onError, setLoading, reset })
+
+  useEffect(() => {
+    callbacksRef.current = { onError, setLoading, reset }
+  }, [onError, setLoading, reset])
 
   useEffect(() => {
     const loadCvData = async () => {
       if (!cvId) return
       setIsLoadingCv(true)
-      setLoading(true)
+      callbacksRef.current.setLoading(true)
       try {
         const response = await axios.get(`/api/cv/${cvId}`)
         const cvData = response.data
-        reset({
+        callbacksRef.current.reset({
           personal_info: cvData.personal_info || defaultCvData.personal_info,
           experience: cvData.experience || [],
           education: cvData.education || [],
@@ -31,20 +36,20 @@ export function useCvLoader({ cvId, reset, onError, setLoading }: UseCvLoaderPro
         })
       } catch (error: any) {
         if (error.response?.status === 404) {
-          onError('CV not found')
+          callbacksRef.current.onError('CV not found')
         } else {
-          onError(error.response?.data?.detail || 'Failed to load CV')
+          callbacksRef.current.onError(error.response?.data?.detail || 'Failed to load CV')
         }
       } finally {
         setIsLoadingCv(false)
-        setLoading(false)
+        callbacksRef.current.setLoading(false)
       }
     }
 
     if (cvId) {
       loadCvData()
     }
-  }, [cvId, reset, onError, setLoading])
+  }, [cvId])
 
   return { isLoadingCv }
 }
