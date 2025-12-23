@@ -16,7 +16,19 @@ def setup_rate_limiting(app: FastAPI) -> Limiter:
 
 
 def setup_cors(app: FastAPI) -> None:
-    """Configure CORS middleware."""
+    """Configure CORS middleware.
+
+    **Production Configuration Required:**
+    The CORS_ORIGINS environment variable must be set in production to a
+    comma-separated list of trusted origins. Example:
+    CORS_ORIGINS="https://example.com,https://www.example.com"
+
+    **Security Note:**
+    Currently, allow_methods and allow_headers are wildcarded (["*"]).
+    In production, these should be restricted to only the required methods
+    and headers, or reviewed alongside the origins configuration to ensure
+    appropriate security boundaries.
+    """
     cors_origins = [
         origin.strip()
         for origin in os.getenv(

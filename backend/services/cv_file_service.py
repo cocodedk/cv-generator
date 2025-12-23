@@ -37,5 +37,7 @@ class CVFileService:
             "experience": cv.get("experience", []),
             "education": cv.get("education", []),
             "skills": cv.get("skills", []),
-            "theme": "classic",  # Default theme (not stored in DB)
+            # Default to "classic" for backward compatibility; can be overridden
+            # by providing a "theme" field in the cv dict
+            "theme": cv.get("theme", "classic"),
         }
