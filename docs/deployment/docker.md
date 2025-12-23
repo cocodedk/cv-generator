@@ -25,7 +25,11 @@ The application uses Docker Compose with two services:
   - 7474: HTTP interface (Neo4j Browser)
   - 7687: Bolt protocol
 - **Volumes**:
-  - `neo4j_data`: Database persistence
+  - `neo4j_data:/data`: Main database data (persisted as `cv_neo4j_data` volume)
+  - `neo4j_logs:/logs`: Log files (persisted as `cv_neo4j_logs` volume)
+  - `neo4j_import:/var/lib/neo4j/import`: Import directory (persisted as `cv_neo4j_import` volume)
+  - `neo4j_plugins:/plugins`: Plugin directory (persisted as `cv_neo4j_plugins` volume)
+- **Restart policy**: `unless-stopped` (automatically restarts on system reboot)
 - **Environment variables**:
   - `NEO4J_AUTH`: Authentication (neo4j/cvpassword)
 
@@ -72,10 +76,53 @@ docker-compose up
 docker-compose down
 ```
 
-**Stop and remove volumes** (clean database):
+**Stop and remove volumes** (⚠️ **WARNING: This deletes all database data**):
 ```bash
 docker-compose down -v
 ```
+
+## Data Persistence
+
+⚠️ **IMPORTANT**: Neo4j database data is stored in Docker volumes and persists across container stops and rebuilds.
+
+### How Data Persistence Works
+
+- **`docker-compose down`**: Stops containers but **preserves** all data in volumes
+- **`docker-compose down -v`**: Stops containers and **deletes** all volumes (⚠️ **permanently deletes all database data**)
+- **`docker-compose build`**: Rebuilds images but **does not affect** volume data
+- **`docker-compose up -d`**: Starts containers and **restores** data from existing volumes
+
+### Volume Names
+
+Neo4j data is stored in explicitly named volumes:
+- `cv_neo4j_data`: Main database data (most important)
+- `cv_neo4j_logs`: Log files
+- `cv_neo4j_import`: Import directory
+- `cv_neo4j_plugins`: Plugin directory
+
+These volumes persist even if Docker Compose project name changes.
+
+### Backup Recommendations
+
+To backup your Neo4j data:
+
+1. **List volumes**: `docker volume ls | grep cv_neo4j`
+2. **Backup volume**: Use `docker run` with volume mount to export data
+3. **Restore volume**: Copy backup data back to volume
+
+Example backup:
+```bash
+# Create backup directory
+mkdir -p ./backups
+
+# Backup Neo4j data volume
+docker run --rm -v cv_neo4j_data:/data -v $(pwd)/backups:/backup \
+  alpine tar czf /backup/neo4j_data_backup_$(date +%Y%m%d).tar.gz -C /data .
+```
+
+### Restart Policy
+
+The Neo4j service is configured with `restart: unless-stopped`, meaning it will automatically restart on system reboot or Docker daemon restart, ensuring data availability.
 
 ## Container Management
 
@@ -85,9 +132,24 @@ docker-compose down -v
 
 ## Volume Management
 
-**List**: `docker volume ls`
-**Inspect**: `docker volume inspect cv_neo4j_data`
-**Remove** (deletes data): `docker-compose down -v`
+**List volumes**: `docker volume ls | grep cv_neo4j`
+
+**Inspect volume**:
+```bash
+docker volume inspect cv_neo4j_data
+```
+
+**View volume location**: Volumes are stored in Docker's volume directory (typically `/var/lib/docker/volumes/` on Linux)
+
+**Remove volumes** (⚠️ **WARNING: This permanently deletes all database data**):
+```bash
+docker-compose down -v
+```
+
+**Manual volume removal** (if needed):
+```bash
+docker volume rm cv_neo4j_data cv_neo4j_logs cv_neo4j_import cv_neo4j_plugins
+```
 
 ## Production Considerations
 

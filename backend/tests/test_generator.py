@@ -1,5 +1,4 @@
 """Tests for CVGenerator."""
-import pytest
 from pathlib import Path
 from backend.cv_generator.generator import CVGenerator
 
@@ -70,4 +69,50 @@ class TestCVGenerator:
         sample_cv_data["theme"] = "accented"
         output_path = temp_output_dir / "accented.odt"
         generator.generate(sample_cv_data, str(output_path))
+        assert output_path.exists()
+
+    def test_generate_empty_sections(self, temp_output_dir):
+        """Test generation with empty sections."""
+        generator = CVGenerator()
+        data = {
+            "personal_info": {"name": "Test"},
+            "experience": [],
+            "education": [],
+            "skills": [],
+        }
+        output_path = temp_output_dir / "empty.odt"
+        generator.generate(data, str(output_path))
+        assert output_path.exists()
+
+    def test_generate_none_values(self, temp_output_dir):
+        """Test generation with None values."""
+        generator = CVGenerator()
+        data = {
+            "personal_info": {
+                "name": "Test",
+                "email": None,
+                "phone": None,
+                "summary": None,
+            },
+            "experience": [],
+            "education": [],
+            "skills": [],
+        }
+        output_path = temp_output_dir / "none.odt"
+        generator.generate(data, str(output_path))
+        assert output_path.exists()
+
+    def test_generate_missing_optional_fields(self, temp_output_dir):
+        """Test generation with missing optional fields."""
+        generator = CVGenerator()
+        data = {
+            "personal_info": {"name": "Test"},
+            "experience": [
+                {"title": "Dev", "company": "Corp", "start_date": "2020-01"}
+            ],
+            "education": [{"degree": "BS", "institution": "Uni"}],
+            "skills": [{"name": "Python"}],
+        }
+        output_path = temp_output_dir / "missing.odt"
+        generator.generate(data, str(output_path))
         assert output_path.exists()

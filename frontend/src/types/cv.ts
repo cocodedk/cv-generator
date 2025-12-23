@@ -1,71 +1,83 @@
 /** TypeScript types for CV data structure */
 
 export interface Address {
-  street?: string;
-  city?: string;
-  state?: string;
-  zip?: string;
-  country?: string;
+  street?: string
+  city?: string
+  state?: string
+  zip?: string
+  country?: string
 }
 
 export interface PersonalInfo {
-  name: string;
-  title?: string;
-  email?: string;
-  phone?: string;
-  address?: Address;
-  linkedin?: string;
-  github?: string;
-  website?: string;
-  summary?: string;
+  name: string
+  title?: string
+  email?: string
+  phone?: string
+  address?: Address
+  linkedin?: string
+  github?: string
+  website?: string
+  summary?: string
 }
 
 export interface Experience {
-  title: string;
-  company: string;
-  start_date: string;
-  end_date?: string;
-  description?: string;
-  location?: string;
+  title: string
+  company: string
+  start_date: string
+  end_date?: string
+  description?: string
+  location?: string
 }
 
 export interface Education {
-  degree: string;
-  institution: string;
-  year?: string;
-  field?: string;
-  gpa?: string;
+  degree: string
+  institution: string
+  year?: string
+  field?: string
+  gpa?: string
 }
 
 export interface Skill {
-  name: string;
-  category?: string;
-  level?: string;
+  name: string
+  category?: string
+  level?: string
 }
 
 export interface CVData {
-  personal_info: PersonalInfo;
-  experience: Experience[];
-  education: Education[];
-  skills: Skill[];
-  theme?: 'classic' | 'modern' | 'minimal' | 'elegant' | 'accented';
+  personal_info: PersonalInfo
+  experience: Experience[]
+  education: Education[]
+  skills: Skill[]
+  theme?: 'classic' | 'modern' | 'minimal' | 'elegant' | 'accented'
 }
 
 export interface CVResponse {
-  cv_id: string;
-  filename?: string;
-  status: string;
+  cv_id: string
+  filename?: string
+  status: string
 }
 
 export interface CVListItem {
-  cv_id: string;
-  created_at: string;
-  updated_at: string;
-  person_name?: string;
-  filename?: string;
+  cv_id: string
+  created_at: string
+  updated_at: string
+  person_name?: string
+  filename?: string
 }
 
 export interface CVListResponse {
-  cvs: CVListItem[];
-  total: number;
+  cvs: CVListItem[]
+  total: number
+}
+
+export interface ProfileData {
+  personal_info: PersonalInfo
+  experience: Experience[]
+  education: Education[]
+  skills: Skill[]
+}
+
+export interface ProfileResponse {
+  status: string
+  message?: string
 }

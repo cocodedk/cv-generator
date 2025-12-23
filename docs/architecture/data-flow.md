@@ -70,6 +70,69 @@ Frontend sends PUT request → API validates → Database deletes old relationsh
 
 Frontend sends DELETE request → API deletes CV and relationships from database → Returns success.
 
+## Profile Save Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant API
+    participant Database
+
+    User->>Frontend: Enter profile data
+    Frontend->>Frontend: Validate form data
+    Frontend->>API: POST /api/profile
+    API->>API: Validate with Pydantic
+    API->>Database: Delete existing profile (if any)
+    API->>Database: Create Profile node + relationships
+    Database-->>API: Return success
+    API-->>Frontend: Return ProfileResponse
+    Frontend->>User: Show success message
+```
+
+## Profile Load Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant API
+    participant Database
+
+    User->>Frontend: Click "Load from Profile"
+    Frontend->>API: GET /api/profile
+    API->>Database: Query Profile node
+    Database-->>API: Return profile data
+    API-->>Frontend: Return ProfileData
+    Frontend->>Frontend: Show selection modal
+    User->>Frontend: Select items to include
+    Frontend->>Frontend: Pre-fill CV form with selected data
+```
+
+## Profile to CV Transfer Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant API
+    participant Database
+
+    User->>Frontend: Click "Load from Profile"
+    Frontend->>API: GET /api/profile
+    API->>Database: Query Profile node
+    Database-->>API: Return ProfileData
+    API-->>Frontend: Return ProfileData
+    Frontend->>Frontend: Display selection UI
+    User->>Frontend: Select experiences/educations
+    User->>Frontend: Click "Load Selected"
+    Frontend->>Frontend: Pre-fill CV form
+    User->>Frontend: Edit CV form (optional)
+    User->>Frontend: Generate CV
+    Frontend->>API: POST /api/generate-cv
+    API->>Database: Create CV nodes (independent from Profile)
+```
+
 ## Error Handling
 
 All endpoints: validation errors (400), not found (404), server errors (500). Frontend displays error messages.

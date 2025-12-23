@@ -11,20 +11,28 @@ from backend.app import app
 from backend.database.connection import Neo4jConnection
 
 
+def pytest_configure(config):
+    """Register custom markers."""
+    config.addinivalue_line("markers", "unit: Unit tests")
+    config.addinivalue_line("markers", "integration: Integration tests")
+    config.addinivalue_line("markers", "api: API endpoint tests")
+
+
 @pytest.fixture
 def mock_neo4j_driver():
     """Mock Neo4j driver for testing."""
     mock_driver = Mock()
     mock_session = Mock()
-    mock_transaction = Mock()
 
     # Configure mock session
     mock_session.__enter__ = Mock(return_value=mock_session)
     mock_session.__exit__ = Mock(return_value=None)
     mock_session.run = Mock(return_value=Mock(single=Mock(return_value=None)))
-    mock_session.write_transaction = Mock(
+    mock_session.execute_write = Mock(
         return_value=Mock(single=Mock(return_value={"cv_id": "test-cv-id"}))
     )
+    # Keep write_transaction for backwards compatibility in tests
+    mock_session.write_transaction = mock_session.execute_write
 
     # Configure mock driver
     mock_driver.session = Mock(return_value=mock_session)
@@ -109,8 +117,6 @@ def temp_output_dir():
 @pytest.fixture(autouse=True)
 def reset_neo4j_connection():
     """Reset Neo4j connection state before each test."""
-    Neo4jConnection._driver = None
-    Neo4jConnection._database = None
+    Neo4jConnection.reset()
     yield
-    Neo4jConnection._driver = None
-    Neo4jConnection._database = None
+    Neo4jConnection.reset()

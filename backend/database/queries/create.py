@@ -74,6 +74,7 @@ def create_cv(cv_data: Dict[str, Any]) -> str:
     CREATE (person)-[:HAS_SKILL]->(s)
     CREATE (s)-[:BELONGS_TO_CV]->(cv)
 
+    WITH DISTINCT cv
     RETURN cv.id AS cv_id
     """
 
@@ -82,8 +83,9 @@ def create_cv(cv_data: Dict[str, Any]) -> str:
     address = personal_info.get("address") or {}
 
     with driver.session(database=database) as session:
-        result = session.write_transaction(
-            lambda tx: tx.run(
+
+        def work(tx):
+            result = tx.run(
                 query,
                 cv_id=cv_id,
                 created_at=created_at,
@@ -103,5 +105,9 @@ def create_cv(cv_data: Dict[str, Any]) -> str:
                 educations=cv_data.get("education", []),
                 skills=cv_data.get("skills", []),
             )
-        )
-        return result.single()["cv_id"]
+            # Consume result to ensure transaction completes
+            result.single()
+            # Return the cv_id we already have (query just confirms creation)
+            return cv_id
+
+        return session.execute_write(work)
