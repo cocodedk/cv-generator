@@ -165,12 +165,7 @@ class CVGenerator:
             contact_p.addText(" | ".join(contact_info))
             left_cell.addElement(contact_p)
 
-        frame = Frame(
-            width="4cm",
-            height="4cm",
-            anchortype="paragraph",
-            stylename="PhotoFrame"
-        )
+        frame = Frame(width="4cm", height="4cm", anchortype="paragraph")
         textbox = TextBox()
         photo_p = P(stylename="PhotoText")
         photo_p.addText("Photo")
@@ -206,7 +201,9 @@ class CVGenerator:
             for exp in experiences:
                 title = exp.get("title", "")
                 company = exp.get("company", "")
-                dates = " - ".join(filter(None, [exp.get("start_date"), exp.get("end_date")]))
+                dates = " - ".join(
+                    filter(None, [exp.get("start_date"), exp.get("end_date")])
+                )
                 parts = [part for part in [title, company] if part]
                 line = " at ".join(parts) if parts else ""
                 if dates:
@@ -223,12 +220,16 @@ class CVGenerator:
             skills_by_category = {}
             for skill in skills:
                 category = skill.get("category", "Other") or "Other"
-                skills_by_category.setdefault(category, []).append(skill.get("name", ""))
+                skills_by_category.setdefault(category, []).append(
+                    skill.get("name", "")
+                )
             for category, skill_names in skills_by_category.items():
                 category_p = P(stylename="SectionTitle")
                 category_p.addText(category)
                 right_cell.addElement(category_p)
-                self._add_bullet_list(right_cell, [name for name in skill_names if name])
+                self._add_bullet_list(
+                    right_cell, [name for name in skill_names if name]
+                )
 
         text_body.addElement(body_table)
 

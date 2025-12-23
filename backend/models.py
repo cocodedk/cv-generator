@@ -6,6 +6,7 @@ from datetime import datetime
 
 class Address(BaseModel):
     """Address model with components."""
+
     street: Optional[str] = None
     city: Optional[str] = None
     state: Optional[str] = None
@@ -15,6 +16,7 @@ class Address(BaseModel):
 
 class PersonalInfo(BaseModel):
     """Personal information model."""
+
     name: str = Field(..., min_length=1, max_length=200)
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
@@ -27,16 +29,20 @@ class PersonalInfo(BaseModel):
 
 class Experience(BaseModel):
     """Work experience model."""
+
     title: str = Field(..., min_length=1, max_length=200)
     company: str = Field(..., min_length=1, max_length=200)
     start_date: str = Field(..., description="Start date in YYYY-MM format")
-    end_date: Optional[str] = Field(None, description="End date in YYYY-MM format or 'Present'")
+    end_date: Optional[str] = Field(
+        None, description="End date in YYYY-MM format or 'Present'"
+    )
     description: Optional[str] = None
     location: Optional[str] = None
 
 
 class Education(BaseModel):
     """Education model."""
+
     degree: str = Field(..., min_length=1, max_length=200)
     institution: str = Field(..., min_length=1, max_length=200)
     year: Optional[str] = None
@@ -46,6 +52,7 @@ class Education(BaseModel):
 
 class Skill(BaseModel):
     """Skill model."""
+
     name: str = Field(..., min_length=1, max_length=100)
     category: Optional[str] = None
     level: Optional[str] = None
@@ -53,6 +60,7 @@ class Skill(BaseModel):
 
 class CVData(BaseModel):
     """Complete CV data model."""
+
     personal_info: PersonalInfo
     experience: List[Experience] = []
     education: List[Education] = []
@@ -61,6 +69,7 @@ class CVData(BaseModel):
 
 class CVResponse(BaseModel):
     """CV creation response."""
+
     cv_id: str
     filename: Optional[str] = None
     status: str = "success"
@@ -68,6 +77,7 @@ class CVResponse(BaseModel):
 
 class CVListItem(BaseModel):
     """CV list item."""
+
     cv_id: str
     created_at: str
     updated_at: str
@@ -77,5 +87,6 @@ class CVListItem(BaseModel):
 
 class CVListResponse(BaseModel):
     """CV list response."""
+
     cvs: List[CVListItem]
     total: int

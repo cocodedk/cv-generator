@@ -9,7 +9,18 @@
     "build": "vite build",
     "build:watch": "vite build --watch",
     "preview": "vite preview",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "docker-compose exec -T app pytest || docker-compose run --rm app pytest",
+    "test:backend:local": "cd backend && pytest",
+    "test:frontend": "cd frontend && vitest run",
+    "test:coverage": "npm run test:backend -- --cov && npm run test:frontend -- --coverage",
+    "lint:backend": "docker-compose exec -T app flake8 backend || docker-compose run --rm app flake8 backend",
+    "lint:backend:local": "flake8 backend",
+    "lint:frontend": "eslint frontend/src --ext .ts,.tsx",
+    "format:backend": "docker-compose exec -T app black backend || docker-compose run --rm app black backend",
+    "format:backend:local": "black backend",
+    "format:frontend": "prettier --write \"frontend/src/**/*.{ts,tsx,css}\""
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -25,6 +36,19 @@
     "vite": "^5.0.8",
     "tailwindcss": "^3.4.0",
     "postcss": "^8.4.32",
-    "autoprefixer": "^10.4.16"
+    "autoprefixer": "^10.4.16",
+    "vitest": "^1.0.4",
+    "@testing-library/react": "^14.1.2",
+    "@testing-library/jest-dom": "^6.1.5",
+    "@testing-library/user-event": "^14.5.1",
+    "@vitest/ui": "^1.0.4",
+    "msw": "^2.0.0",
+    "eslint": "^8.56.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "prettier": "^3.1.1",
+    "jsdom": "^23.0.1"
   }
 }
