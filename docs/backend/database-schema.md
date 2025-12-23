@@ -13,6 +13,13 @@ graph LR
     Exp -->|BELONGS_TO_CV| CV
     Edu -->|BELONGS_TO_CV| CV
     Skill -->|BELONGS_TO_CV| CV
+    Profile[Profile Node] -->|BELONGS_TO_PROFILE| Person2[Person Node]
+    Person2 -->|HAS_EXPERIENCE| Exp2[Experience Node]
+    Person2 -->|HAS_EDUCATION| Edu2[Education Node]
+    Person2 -->|HAS_SKILL| Skill2[Skill Node]
+    Exp2 -->|BELONGS_TO_PROFILE| Profile
+    Edu2 -->|BELONGS_TO_PROFILE| Profile
+    Skill2 -->|BELONGS_TO_PROFILE| Profile
 ```
 
 ## Node Types
@@ -43,6 +50,8 @@ graph LR
 
 **Relationships**:
 - `BELONGS_TO_CV` → CV node
+- `BELONGS_TO_PROFILE` → Profile node (for master profile)
+- `BELONGS_TO_PROFILE` → Profile node (for master profile)
 - `HAS_EXPERIENCE` → Experience nodes
 - `HAS_EDUCATION` → Education nodes
 - `HAS_SKILL` → Skill nodes
@@ -61,6 +70,7 @@ graph LR
 
 **Relationships**:
 - `BELONGS_TO_CV` → CV node
+- `BELONGS_TO_PROFILE` → Profile node (for master profile)
 
 ### Education Node
 
@@ -87,8 +97,26 @@ graph LR
 
 **Relationships**:
 - `BELONGS_TO_CV` → CV node
+- `BELONGS_TO_PROFILE` → Profile node (for master profile)
+
+### Profile Node
+
+**Label**: `Profile`
+
+**Properties**:
+- `updated_at` (string): ISO timestamp of last update
+
+**Relationships**:
+- Connected to Person node via `BELONGS_TO_PROFILE`
+- Experience, Education, and Skill nodes connected via `BELONGS_TO_PROFILE`
+
+**Note**: There is only one Profile node per database instance (single master profile). The Profile node does not have an ID since it's unique.
 
 ## Query Patterns
+
+- **Create Profile**: Deletes existing profile if present, then creates Profile node, Person node, and all related nodes with relationships in a single transaction.
+- **Read Profile**: Matches Profile node, traverses relationships to collect all related data.
+- **Delete Profile**: Deletes Profile node and all related nodes and relationships.
 
 - **Create CV**: Creates CV node, Person node, and all related nodes with relationships in a single transaction.
 - **Read CV**: Matches CV by ID, traverses relationships to collect all related data.

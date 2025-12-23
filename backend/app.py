@@ -1,13 +1,25 @@
 """FastAPI application for CV generator."""
 import os
 import logging
+import asyncio
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Optional
-from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from backend.models import CVData, CVResponse, CVListResponse
+from fastapi.exceptions import RequestValidationError
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from backend.models import (
+    CVData,
+    CVResponse,
+    CVListResponse,
+    ProfileData,
+    ProfileResponse,
+)
 from backend.database.connection import Neo4jConnection
 from backend.database import queries
 from backend.cv_generator.generator import CVGenerator
@@ -16,7 +28,42 @@ from backend.cv_generator.generator import CVGenerator
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="CV Generator API", version="1.0.0")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for startup and shutdown."""
+    # Startup
+    logger.info("Starting up CV Generator API...")
+    max_retries = 5
+    retry_count = 0
+
+    while retry_count < max_retries:
+        if Neo4jConnection.verify_connectivity():
+            logger.info("Successfully connected to Neo4j database")
+            break
+        retry_count += 1
+        logger.warning(
+            f"Failed to connect to Neo4j database (attempt {retry_count}/{max_retries})"
+        )
+        if retry_count < max_retries:
+            await asyncio.sleep(2)
+
+    if retry_count >= max_retries:
+        logger.error("Failed to connect to Neo4j database after multiple attempts")
+        raise Exception("Failed to connect to Neo4j database")
+
+    yield
+
+    # Shutdown
+    Neo4jConnection.close()
+
+
+app = FastAPI(title="CV Generator API", version="1.0.0", lifespan=lifespan)
+
+# Rate limiting
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # CORS configuration
 cors_origins = os.getenv(
@@ -31,40 +78,47 @@ app.add_middleware(
 )
 
 
-# Initialize database connection
-@app.on_event("startup")
-async def startup_event():
-    """Initialize database connection on startup."""
-    logger.info("Starting up CV Generator API...")
-    max_retries = 5
-    retry_count = 0
-
-    while retry_count < max_retries:
-        if Neo4jConnection.verify_connectivity():
-            logger.info("Successfully connected to Neo4j database")
-            return
-        retry_count += 1
-        logger.warning(
-            f"Failed to connect to Neo4j database (attempt {retry_count}/{max_retries})"
-        )
-        if retry_count < max_retries:
-            import time
-
-            time.sleep(2)
-
-    logger.error("Failed to connect to Neo4j database after multiple attempts")
-    raise Exception("Failed to connect to Neo4j database")
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Close database connection on shutdown."""
-    Neo4jConnection.close()
-
-
 # Create output directory
 output_dir = Path(__file__).parent / "output"
 output_dir.mkdir(exist_ok=True)
+
+
+# Validation error handler for user-friendly messages
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """Convert Pydantic validation errors to user-friendly messages."""
+    error_messages = []
+    error_mapping = {
+        "value_error.email": "Email format invalid",
+        "value_error.missing": "Field is required",
+        "type_error.str": "Expected text value",
+        "type_error.integer": "Expected number value",
+        "value_error.str.min_length": "Value is too short",
+        "value_error.str.max_length": "Value is too long",
+    }
+
+    for error in exc.errors():
+        field_path = " -> ".join(str(loc) for loc in error["loc"])
+        error_type = error.get("type", "")
+        error_msg = error.get("msg", "")
+
+        # Try to map to friendly message
+        friendly_msg = error_mapping.get(error_type, error_msg)
+
+        # Extract field name (last part of path)
+        if field_path:
+            field_name = field_path.split(" -> ")[-1]
+            if field_name.startswith("body."):
+                field_name = field_name[5:]  # Remove "body." prefix
+        else:
+            field_name = "unknown field"
+
+        error_messages.append(f"{field_name}: {friendly_msg}")
+
+    return JSONResponse(
+        status_code=422,
+        content={"detail": error_messages, "errors": exc.errors()},
+    )
 
 
 # Health check endpoint
@@ -80,7 +134,8 @@ async def health_check():
 
 # Generate CV endpoint
 @app.post("/api/generate-cv", response_model=CVResponse)
-async def generate_cv(cv_data: CVData):
+@limiter.limit("10/minute")
+async def generate_cv(request: Request, cv_data: CVData):
     """Generate ODT file from CV data and save to Neo4j."""
     try:
         # Convert Pydantic model to dict
@@ -106,7 +161,8 @@ async def generate_cv(cv_data: CVData):
 
 # Save CV endpoint (without generating file)
 @app.post("/api/save-cv", response_model=CVResponse)
-async def save_cv(cv_data: CVData):
+@limiter.limit("20/minute")
+async def save_cv(request: Request, cv_data: CVData):
     """Save CV data to Neo4j without generating file."""
     try:
         cv_dict = cv_data.model_dump()
@@ -194,6 +250,52 @@ async def update_cv_endpoint(cv_id: str, cv_data: CVData):
     except Exception as e:
         logger.error("Failed to update CV %s", cv_id, exc_info=e)
         raise HTTPException(status_code=500, detail="Failed to update CV")
+
+
+# Profile endpoints
+@app.post("/api/profile", response_model=ProfileResponse)
+@limiter.limit("30/minute")
+async def save_profile_endpoint(request: Request, profile_data: ProfileData):
+    """Save or update master profile."""
+    try:
+        profile_dict = profile_data.model_dump()
+        success = queries.save_profile(profile_dict)
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to save profile")
+        return ProfileResponse(status="success", message="Profile saved successfully")
+    except Exception as e:
+        logger.error("Failed to save profile", exc_info=e)
+        raise HTTPException(status_code=500, detail="Failed to save profile")
+
+
+@app.get("/api/profile")
+async def get_profile_endpoint():
+    """Get master profile."""
+    try:
+        profile = queries.get_profile()
+        if not profile:
+            raise HTTPException(status_code=404, detail="Profile not found")
+        return profile
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Failed to get profile", exc_info=e)
+        raise HTTPException(status_code=500, detail="Failed to get profile")
+
+
+@app.delete("/api/profile", response_model=ProfileResponse)
+async def delete_profile_endpoint():
+    """Delete master profile."""
+    try:
+        success = queries.delete_profile()
+        if not success:
+            raise HTTPException(status_code=404, detail="Profile not found")
+        return ProfileResponse(status="success", message="Profile deleted successfully")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("Failed to delete profile", exc_info=e)
+        raise HTTPException(status_code=500, detail="Failed to delete profile")
 
 
 # Mount static files for frontend (only in production/Docker)

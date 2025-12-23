@@ -1,7 +1,6 @@
 """Tests for CV CRUD endpoints."""
 import pytest
-from unittest.mock import patch, Mock
-from backend.database import queries
+from unittest.mock import patch
 
 
 @pytest.mark.asyncio

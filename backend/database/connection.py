@@ -1,10 +1,13 @@
 """Neo4j database connection management."""
 import os
+import logging
 from typing import Optional
 from neo4j import GraphDatabase, Driver
 from dotenv import load_dotenv
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 
 class Neo4jConnection:
@@ -41,6 +44,12 @@ class Neo4jConnection:
             cls._driver = None
 
     @classmethod
+    def reset(cls):
+        """Reset Neo4j connection state (for testing)."""
+        cls.close()
+        cls._database = None
+
+    @classmethod
     def verify_connectivity(cls) -> bool:
         """Verify Neo4j connection is working."""
         try:
@@ -48,4 +57,5 @@ class Neo4jConnection:
             driver.verify_connectivity()
             return True
         except Exception:
+            logger.error("Neo4j connection failed", exc_info=True)
             return False

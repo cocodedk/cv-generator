@@ -22,6 +22,7 @@ services:
       retries: 5
     networks:
       - cv-network
+    restart: unless-stopped
 
   app:
     # Backend service (FastAPI with auto-reload enabled)
@@ -42,6 +43,7 @@ services:
     volumes:
       - ./backend:/app/backend  # Mount backend for auto-reload on code changes
       - ./backend/output:/app/backend/output
+      - ./.flake8:/app/.flake8  # Mount flake8 config for linting
     command: ["uvicorn", "backend.app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     depends_on:
       neo4j:
@@ -52,9 +54,13 @@ services:
 
 volumes:
   neo4j_data:
+    name: cv_neo4j_data
   neo4j_logs:
+    name: cv_neo4j_logs
   neo4j_import:
+    name: cv_neo4j_import
   neo4j_plugins:
+    name: cv_neo4j_plugins
 
 networks:
   cv-network:

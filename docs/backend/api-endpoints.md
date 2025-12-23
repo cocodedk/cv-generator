@@ -53,6 +53,21 @@ Complete REST API endpoint documentation for the CV Generator backend.
 **Response**: File download
 **Errors**: 400 (invalid filename/type), 404 (file not found)
 
+### Profile Endpoints
+
+**POST** `/api/profile` - Save or update master profile.
+**Request**: `ProfileData` (see [Models](models.md))
+**Response**: `ProfileResponse` with status and message
+**Errors**: 422 (validation error), 500 (server error)
+
+**GET** `/api/profile` - Get master profile.
+**Response**: `ProfileData` object or 404 if not found
+**Errors**: 404 (profile not found), 500 (server error)
+
+**DELETE** `/api/profile` - Delete master profile.
+**Response**: `ProfileResponse` with status and message
+**Errors**: 404 (profile not found), 500 (server error)
+
 ## Interactive Documentation
 
 - **Swagger UI**: http://localhost:8000/docs

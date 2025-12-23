@@ -48,6 +48,7 @@ def list_cvs(
             results = session.run(query, offset=offset, limit=limit)
 
         total = count_result.single()["total"]
+        # Convert to list to consume all results before session closes
         cvs = [
             {
                 "cv_id": record["cv"]["id"],
@@ -108,7 +109,8 @@ def search_cvs(
     database = Neo4jConnection.get_database()
     with driver.session(database=database) as session:
         results = session.run(query, **params)
-        return [
+        # Convert to list to consume all results before session closes
+        cvs = [
             {
                 "cv_id": record["cv"]["id"],
                 "created_at": record["cv"]["created_at"],
@@ -116,3 +118,4 @@ def search_cvs(
             }
             for record in results
         ]
+        return cvs
