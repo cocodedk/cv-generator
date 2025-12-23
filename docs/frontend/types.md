@@ -76,6 +76,28 @@ interface CVListResponse {
 }
 ```
 
+### ProfileData
+```typescript
+interface ProfileData {
+  personal_info: PersonalInfo;
+  experience: Experience[];
+  education: Education[];
+  skills: Skill[];
+}
+```
+
+Same structure as `CVData` but without the `theme` field. Used for master profile storage and retrieval.
+
+### ProfileResponse
+```typescript
+interface ProfileResponse {
+  status: string;
+  message?: string;
+}
+```
+
+Response type for profile operations (save, delete).
+
 ## Type Location
 
 All types are defined in `frontend/src/types/cv.ts`.

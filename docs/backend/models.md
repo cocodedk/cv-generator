@@ -88,6 +88,26 @@ class CVListResponse(BaseModel):
     cvs: List[CVListItem]; total: int
 ```
 
+### ProfileData
+```python
+class ProfileData(BaseModel):
+    personal_info: PersonalInfo
+    experience: List[Experience] = []
+    education: List[Education] = []
+    skills: List[Skill] = []
+```
+
+Same structure as `CVData` but used for master profile storage. Does not include `theme` field.
+
+### ProfileResponse
+```python
+class ProfileResponse(BaseModel):
+    status: str = "success"
+    message: Optional[str] = None
+```
+
+Response model for profile operations (save, delete).
+
 ## Validation
 
 Pydantic validates: required fields, string lengths, email format, types.

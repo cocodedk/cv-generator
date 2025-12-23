@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
 import CVForm from './components/CVForm'
 import CVList from './components/CVList'
+import ProfileManager from './components/ProfileManager'
 import './index.css'
 
-type ViewMode = 'form' | 'list'
+type ViewMode = 'form' | 'list' | 'profile'
 
 function App() {
   const [viewMode, setViewMode] = useState<ViewMode>('form')
   const [_loading, setLoading] = useState(false)
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [isDark, setIsDark] = useState(() => {
     if (typeof window === 'undefined') {
       return false
@@ -46,7 +47,7 @@ function App() {
             <div className="flex items-center space-x-4">
               <button
                 type="button"
-                onClick={() => setIsDark((current) => !current)}
+                onClick={() => setIsDark(current => !current)}
                 aria-pressed={isDark}
                 className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
               >
@@ -72,6 +73,16 @@ function App() {
               >
                 My CVs
               </button>
+              <button
+                onClick={() => setViewMode('profile')}
+                className={`px-4 py-2 rounded-md text-sm font-medium ${
+                  viewMode === 'profile'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800'
+                }`}
+              >
+                Profile
+              </button>
             </div>
           </div>
         </div>
@@ -94,13 +105,17 @@ function App() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {viewMode === 'form' ? (
           <CVForm
-            onSuccess={(message) => showMessage('success', message)}
-            onError={(message) => showMessage('error', message)}
+            onSuccess={message => showMessage('success', message)}
+            onError={message => showMessage('error', message)}
             setLoading={setLoading}
           />
+        ) : viewMode === 'list' ? (
+          <CVList onError={message => showMessage('error', message)} />
         ) : (
-          <CVList
-            onError={(message) => showMessage('error', message)}
+          <ProfileManager
+            onSuccess={message => showMessage('success', message)}
+            onError={message => showMessage('error', message)}
+            setLoading={setLoading}
           />
         )}
       </main>
