@@ -4,13 +4,16 @@ from datetime import datetime
 from backend.database.connection import Neo4jConnection
 
 
-def _update_cv_timestamp(tx, cv_id: str, updated_at: str) -> None:
-    """Update CV timestamp."""
+def _update_cv_timestamp(
+    tx, cv_id: str, updated_at: str, theme: str = "classic"
+) -> None:
+    """Update CV timestamp and theme."""
     query = """
     MATCH (cv:CV {id: $cv_id})
-    SET cv.updated_at = $updated_at
+    SET cv.updated_at = $updated_at,
+        cv.theme = $theme
     """
-    tx.run(query, cv_id=cv_id, updated_at=updated_at)
+    tx.run(query, cv_id=cv_id, updated_at=updated_at, theme=theme)
 
 
 def _delete_cv_relationships(tx, cv_id: str) -> None:
@@ -133,11 +136,12 @@ def update_cv(cv_id: str, cv_data: Dict[str, Any]) -> bool:
     database = Neo4jConnection.get_database()
     updated_at = datetime.utcnow().isoformat()
     personal_info = cv_data.get("personal_info", {})
+    theme = cv_data.get("theme", "classic")
 
     with driver.session(database=database) as session:
 
         def work(tx):
-            _update_cv_timestamp(tx, cv_id, updated_at)
+            _update_cv_timestamp(tx, cv_id, updated_at, theme)
             _delete_cv_relationships(tx, cv_id)
             _create_person_node(tx, cv_id, personal_info)
             _create_experience_nodes(tx, cv_id, cv_data.get("experience", []))

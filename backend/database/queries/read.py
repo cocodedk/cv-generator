@@ -57,6 +57,7 @@ def get_cv_by_id(cv_id: str) -> Optional[Dict[str, Any]]:
             "created_at": record["cv"]["created_at"],
             "updated_at": record["cv"]["updated_at"],
             "filename": record["cv"].get("filename"),
+            "theme": record["cv"].get("theme", "classic"),
             "personal_info": {
                 "name": person.get("name"),
                 "email": person.get("email"),

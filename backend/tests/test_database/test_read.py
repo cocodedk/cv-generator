@@ -89,3 +89,48 @@ class TestGetCV:
         assert len(result["experience"]) == 1
         assert len(result["education"]) == 0
         assert len(result["skills"]) == 0
+
+    def test_get_cv_returns_theme(self, mock_neo4j_connection):
+        """Test CV retrieval returns theme when present."""
+        mock_session = mock_neo4j_connection.session.return_value
+        mock_record = Mock()
+        mock_record.single.return_value = {
+            "person": {"name": "John Doe"},
+            "cv": {
+                "id": "test-id",
+                "created_at": "2024-01-01T00:00:00",
+                "updated_at": "2024-01-01T00:00:00",
+                "theme": "modern",
+            },
+            "experiences": [],
+            "educations": [],
+            "skills": [],
+        }
+        mock_session.run.return_value = mock_record
+
+        result = queries.get_cv_by_id("test-id")
+
+        assert result is not None
+        assert result["theme"] == "modern"
+
+    def test_get_cv_defaults_theme_when_missing(self, mock_neo4j_connection):
+        """Test CV retrieval defaults to classic when theme not present."""
+        mock_session = mock_neo4j_connection.session.return_value
+        mock_record = Mock()
+        mock_record.single.return_value = {
+            "person": {"name": "John Doe"},
+            "cv": {
+                "id": "test-id",
+                "created_at": "2024-01-01T00:00:00",
+                "updated_at": "2024-01-01T00:00:00",
+            },
+            "experiences": [],
+            "educations": [],
+            "skills": [],
+        }
+        mock_session.run.return_value = mock_record
+
+        result = queries.get_cv_by_id("test-id")
+
+        assert result is not None
+        assert result["theme"] == "classic"

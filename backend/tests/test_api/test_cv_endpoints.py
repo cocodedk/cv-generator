@@ -53,6 +53,36 @@ class TestGenerateCV:
             response = await client.post("/api/generate-cv", json=sample_cv_data)
             assert response.status_code == 500
 
+    async def test_generate_cv_saves_theme(
+        self, client, sample_cv_data, mock_neo4j_connection, temp_output_dir
+    ):
+        """Test that theme is saved when generating CV."""
+        from backend.app import app
+
+        original_output_dir = app.state.output_dir
+        app.state.output_dir = temp_output_dir
+        try:
+            sample_cv_data["theme"] = "elegant"
+            with patch("backend.database.queries.create_cv") as mock_create:
+                mock_create.return_value = "test-cv-id"
+                with patch(
+                    "backend.database.queries.set_cv_filename", return_value=True
+                ):
+                    with patch(
+                        "backend.cv_generator.generator.CVGenerator.generate"
+                    ) as mock_gen:
+                        mock_gen.return_value = str(temp_output_dir / "cv_test.odt")
+                        response = await client.post(
+                            "/api/generate-cv", json=sample_cv_data
+                        )
+                        assert response.status_code == 200
+                        # Verify theme was passed to create_cv
+                        call_args = mock_create.call_args
+                        assert call_args is not None
+                        assert call_args[0][0]["theme"] == "elegant"
+        finally:
+            app.state.output_dir = original_output_dir
+
 
 @pytest.mark.asyncio
 @pytest.mark.api
@@ -73,6 +103,20 @@ class TestSaveCV:
         invalid_data = {"personal_info": {}}  # Missing required name
         response = await client.post("/api/save-cv", json=invalid_data)
         assert response.status_code == 422
+
+    async def test_save_cv_saves_theme(
+        self, client, sample_cv_data, mock_neo4j_connection
+    ):
+        """Test that theme is saved when saving CV."""
+        sample_cv_data["theme"] = "minimal"
+        with patch("backend.database.queries.create_cv") as mock_create:
+            mock_create.return_value = "test-cv-id"
+            response = await client.post("/api/save-cv", json=sample_cv_data)
+            assert response.status_code == 200
+            # Verify theme was passed to create_cv
+            call_args = mock_create.call_args
+            assert call_args is not None
+            assert call_args[0][0]["theme"] == "minimal"
 
 
 @pytest.mark.asyncio
@@ -100,6 +144,40 @@ class TestGetCV:
         with patch("backend.database.queries.get_cv_by_id", return_value=None):
             response = await client.get("/api/cv/non-existent")
             assert response.status_code == 404
+
+    async def test_get_cv_returns_theme(self, client, mock_neo4j_connection):
+        """Test that theme is returned when retrieving CV."""
+        cv_data = {
+            "cv_id": "test-id",
+            "personal_info": {"name": "John Doe"},
+            "experience": [],
+            "education": [],
+            "skills": [],
+            "theme": "modern",
+        }
+        with patch("backend.database.queries.get_cv_by_id", return_value=cv_data):
+            response = await client.get("/api/cv/test-id")
+            assert response.status_code == 200
+            data = response.json()
+            assert data["theme"] == "modern"
+
+    async def test_get_cv_defaults_theme_when_missing(
+        self, client, mock_neo4j_connection
+    ):
+        """Test that theme defaults to classic when not in database."""
+        cv_data = {
+            "cv_id": "test-id",
+            "personal_info": {"name": "John Doe"},
+            "experience": [],
+            "education": [],
+            "skills": [],
+            "theme": "classic",
+        }
+        with patch("backend.database.queries.get_cv_by_id", return_value=cv_data):
+            response = await client.get("/api/cv/test-id")
+            assert response.status_code == 200
+            data = response.json()
+            assert data["theme"] == "classic"
 
 
 @pytest.mark.asyncio
@@ -165,6 +243,45 @@ class TestUpdateCV:
         with patch("backend.database.queries.update_cv", return_value=False):
             response = await client.put("/api/cv/non-existent", json=sample_cv_data)
             assert response.status_code == 404
+
+    async def test_update_cv_saves_theme(
+        self, client, sample_cv_data, mock_neo4j_connection
+    ):
+        """Test that theme is saved when updating CV."""
+        sample_cv_data["theme"] = "accented"
+        with patch("backend.database.queries.update_cv") as mock_update:
+            mock_update.return_value = True
+            response = await client.put("/api/cv/test-id", json=sample_cv_data)
+            assert response.status_code == 200
+            # Verify theme was passed to update_cv
+            call_args = mock_update.call_args
+            assert call_args is not None
+            assert call_args[0][1]["theme"] == "accented"
+
+    async def test_update_cv_preserves_theme(
+        self, client, sample_cv_data, mock_neo4j_connection
+    ):
+        """Test that theme persists after update."""
+        sample_cv_data["theme"] = "elegant"
+        with patch("backend.database.queries.update_cv", return_value=True):
+            with patch(
+                "backend.database.queries.get_cv_by_id",
+                return_value={
+                    "cv_id": "test-id",
+                    "personal_info": {"name": "John Doe"},
+                    "experience": [],
+                    "education": [],
+                    "skills": [],
+                    "theme": "elegant",
+                },
+            ):
+                response = await client.put("/api/cv/test-id", json=sample_cv_data)
+                assert response.status_code == 200
+                # Verify theme was saved
+                get_response = await client.get("/api/cv/test-id")
+                assert get_response.status_code == 200
+                data = get_response.json()
+                assert data["theme"] == "elegant"
 
 
 @pytest.mark.asyncio
