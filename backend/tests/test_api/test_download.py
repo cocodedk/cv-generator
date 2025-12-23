@@ -1,5 +1,6 @@
 """Tests for file download endpoint."""
 import pytest
+from unittest.mock import patch
 from backend.app import app
 
 
@@ -8,31 +9,55 @@ from backend.app import app
 class TestDownloadCV:
     """Test GET /api/download/{filename} endpoint."""
 
-    async def test_download_cv_success(self, client, temp_output_dir):
-        """Test successful file download."""
-        # Create a test file
+    async def test_download_cv_success(
+        self, client, temp_output_dir, mock_neo4j_connection
+    ):
+        """Test successful file download with regeneration."""
+        # Create a test file (will be regenerated)
         test_file = temp_output_dir / "test_cv.odt"
         test_file.write_text("test content")
+
+        cv_data = {
+            "cv_id": "test-id",
+            "personal_info": {"name": "John Doe"},
+            "experience": [],
+            "education": [],
+            "skills": [],
+            "theme": "classic",
+            "filename": "test_cv.odt",
+        }
 
         original_output_dir = getattr(app.state, "output_dir", None)
         app.state.output_dir = temp_output_dir
         try:
-            response = await client.get("/api/download/test_cv.odt")
-            assert response.status_code == 200
-            assert (
-                response.headers["content-type"]
-                == "application/vnd.oasis.opendocument.text"
-            )
+            with patch(
+                "backend.database.queries.get_cv_by_filename", return_value=cv_data
+            ):
+                with patch(
+                    "backend.services.cv_file_service.CVFileService.generate_file_for_cv",
+                    return_value="test_cv.odt",
+                ):
+                    response = await client.get("/api/download/test_cv.odt")
+                    assert response.status_code == 200
+                    assert (
+                        response.headers["content-type"]
+                        == "application/vnd.oasis.opendocument.text"
+                    )
         finally:
             app.state.output_dir = original_output_dir
 
-    async def test_download_cv_not_found(self, client, temp_output_dir):
+    async def test_download_cv_not_found(
+        self, client, temp_output_dir, mock_neo4j_connection
+    ):
         """Test download non-existent file."""
         original_output_dir = getattr(app.state, "output_dir", None)
         app.state.output_dir = temp_output_dir
         try:
-            response = await client.get("/api/download/non_existent.odt")
-            assert response.status_code == 404
+            with patch(
+                "backend.database.queries.get_cv_by_filename", return_value=None
+            ):
+                response = await client.get("/api/download/non_existent.odt")
+                assert response.status_code == 404
         finally:
             app.state.output_dir = original_output_dir
 
@@ -75,15 +100,34 @@ class TestDownloadCV:
         finally:
             app.state.output_dir = original_output_dir
 
-    async def test_download_cv_only_odt_allowed(self, client, temp_output_dir):
+    async def test_download_cv_only_odt_allowed(
+        self, client, temp_output_dir, mock_neo4j_connection
+    ):
         """Test that only .odt files are allowed."""
         test_file = temp_output_dir / "test_cv.odt"
         test_file.write_text("test")
 
+        cv_data = {
+            "cv_id": "test-id",
+            "personal_info": {"name": "John Doe"},
+            "experience": [],
+            "education": [],
+            "skills": [],
+            "theme": "classic",
+            "filename": "test_cv.odt",
+        }
+
         original_output_dir = getattr(app.state, "output_dir", None)
         app.state.output_dir = temp_output_dir
         try:
-            response = await client.get("/api/download/test_cv.odt")
-            assert response.status_code == 200
+            with patch(
+                "backend.database.queries.get_cv_by_filename", return_value=cv_data
+            ):
+                with patch(
+                    "backend.services.cv_file_service.CVFileService.generate_file_for_cv",
+                    return_value="test_cv.odt",
+                ):
+                    response = await client.get("/api/download/test_cv.odt")
+                    assert response.status_code == 200
         finally:
             app.state.output_dir = original_output_dir

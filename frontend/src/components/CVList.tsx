@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import { CVListResponse, CVListItem } from '../types/cv'
 
@@ -11,6 +11,12 @@ export default function CVList({ onError }: CVListProps) {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [total, setTotal] = useState(0)
+  const searchRef = useRef(search)
+
+  // Keep search ref in sync
+  useEffect(() => {
+    searchRef.current = search
+  }, [search])
 
   const fetchCVs = async (searchTerm?: string) => {
     setLoading(true)
@@ -33,6 +39,25 @@ export default function CVList({ onError }: CVListProps) {
     fetchCVs()
   }, [])
 
+  // Refresh list when navigating back from edit mode
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash
+      // Refresh when navigating to list view
+      if (hash === '#list' || hash === '' || hash === '#') {
+        // Use current search value from ref to avoid stale closure
+        fetchCVs(searchRef.current || undefined)
+      }
+    }
+
+    // Check initial hash
+    handleHashChange()
+
+    // Listen for hash changes
+    window.addEventListener('hashchange', handleHashChange)
+    return () => window.removeEventListener('hashchange', handleHashChange)
+  }, []) // Only run once on mount
+
   const handleSearch = () => {
     fetchCVs(search || undefined)
   }
@@ -53,7 +78,8 @@ export default function CVList({ onError }: CVListProps) {
     if (!filename) {
       return
     }
-    window.open(`/api/download/${filename}`, '_blank')
+    const downloadUrl = `/api/download/${filename}?t=${Date.now()}`
+    window.open(downloadUrl, '_blank')
   }
 
   const handleGenerateFile = async (cvId: string) => {
