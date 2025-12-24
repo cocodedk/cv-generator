@@ -21,11 +21,12 @@ describe('useCvSubmit', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     window.open = vi.fn()
+    window.location.hash = '#form'
   })
 
   it('creates CV successfully', async () => {
     mockedAxios.post.mockResolvedValue({
-      data: { cv_id: 'test-id', filename: 'cv_test.docx' },
+      data: { cv_id: 'test-id', status: 'success' },
     })
 
     const { result } = renderHook(() =>
@@ -42,21 +43,20 @@ describe('useCvSubmit', () => {
       await result.current.onSubmit(cvData)
     })
 
-    expect(mockedAxios.post).toHaveBeenCalledWith('/api/generate-cv-docx', cvData)
+    expect(mockedAxios.post).toHaveBeenCalledWith('/api/save-cv', cvData)
+    expect(window.location.hash).toBe('#edit/test-id')
     expect(window.open).toHaveBeenCalledWith(
-      expect.stringMatching(/^\/api\/download-docx\/cv_test\.docx\?t=\d+$/),
-      '_blank'
+      '/api/cv/test-id/print-html',
+      '_blank',
+      'noopener,noreferrer'
     )
-    expect(mockOnSuccess).toHaveBeenCalledWith('CV generated and downloaded successfully!')
+    expect(mockOnSuccess).toHaveBeenCalledWith('CV saved. Printable view opened.')
   })
 
-  it('updates CV successfully with download', async () => {
+  it('updates CV successfully and opens printable view', async () => {
     mockedAxios.put.mockResolvedValue({
       data: { cv_id: 'test-id' },
     })
-    mockedAxios.post.mockResolvedValue({
-      data: { filename: 'cv_test.docx' },
-    })
 
     const { result } = renderHook(() =>
       useCvSubmit({
@@ -73,17 +73,16 @@ describe('useCvSubmit', () => {
     })
 
     expect(mockedAxios.put).toHaveBeenCalledWith('/api/cv/test-id', cvData)
-    expect(mockedAxios.post).toHaveBeenCalledWith('/api/cv/test-id/generate-docx')
     expect(window.open).toHaveBeenCalledWith(
-      expect.stringMatching(/^\/api\/download-docx\/cv_test\.docx\?t=\d+$/),
-      '_blank'
+      '/api/cv/test-id/print-html',
+      '_blank',
+      'noopener,noreferrer'
     )
-    expect(mockOnSuccess).toHaveBeenCalledWith('CV updated and downloaded successfully!')
+    expect(mockOnSuccess).toHaveBeenCalledWith('CV updated. Printable view opened.')
   })
 
-  it('updates CV successfully without filename', async () => {
+  it('updates CV successfully without download', async () => {
     mockedAxios.put.mockResolvedValue({ data: { cv_id: 'test-id' } })
-    mockedAxios.post.mockResolvedValue({ data: {} })
 
     const { result } = renderHook(() =>
       useCvSubmit({
@@ -100,8 +99,8 @@ describe('useCvSubmit', () => {
     })
 
     expect(mockedAxios.put).toHaveBeenCalledWith('/api/cv/test-id', cvData)
-    expect(window.open).not.toHaveBeenCalled()
-    expect(mockOnSuccess).toHaveBeenCalledWith('CV updated successfully!')
+    expect(window.open).toHaveBeenCalled()
+    expect(mockOnSuccess).toHaveBeenCalledWith('CV updated. Printable view opened.')
   })
 
   it('handles create error', async () => {

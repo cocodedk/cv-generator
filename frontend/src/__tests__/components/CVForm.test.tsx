@@ -55,7 +55,7 @@ describe('CVForm', () => {
 
     await waitFor(() => {
       expect(mockedAxios.post).toHaveBeenCalledWith(
-        '/api/generate-cv-docx',
+        '/api/save-cv',
         expect.objectContaining({
           personal_info: expect.objectContaining({
             name: 'John Doe',
