@@ -1,0 +1,19 @@
+<div class="skills">
+  {% for category, skills in skills_by_category.items() %}
+    <div class="skill-cat">
+      <p class="skill-cat-title">{{ category }}</p>
+      <div class="chips">
+        {% for skill in skills %}
+          {% set lvl = (skill.level or '')|lower %}
+          {% if lvl == 'expert' %}
+            <span class="chip chip--expert">{{ skill.name }}</span>
+          {% elif lvl in ['advanced', 'advance'] %}
+            <span class="chip chip--adv">{{ skill.name }}</span>
+          {% else %}
+            <span class="chip">{{ skill.name }}</span>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  {% endfor %}
+</div>

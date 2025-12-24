@@ -72,7 +72,7 @@ def create_cv_router(  # noqa: C901
 
     @router.put("/api/cv/{cv_id}", response_model=CVResponse)
     async def update_cv_endpoint(cv_id: str, cv_data: CVData):
-        """Update CV data and regenerate DOCX file."""
+        """Update CV data."""
         try:
             cv_dict = cv_data.model_dump(exclude_none=False)
             # Ensure theme is always present
@@ -87,18 +87,7 @@ def create_cv_router(  # noqa: C901
             success = queries.update_cv(cv_id, cv_dict)
             if not success:
                 raise HTTPException(status_code=404, detail="CV not found")
-
-            # Regenerate DOCX file with updated data
-            cv = queries.get_cv_by_id(cv_id)
-            if not cv:
-                raise HTTPException(status_code=404, detail="CV not found after update")
-
-            cv_dict_for_generation = cv_file_service.prepare_cv_dict(cv)
-            filename = cv_file_service.generate_file_for_cv(
-                cv_id, cv_dict_for_generation
-            )
-
-            return CVResponse(cv_id=cv_id, filename=filename, status="success")
+            return CVResponse(cv_id=cv_id, status="success")
         except HTTPException:
             raise
         except Exception as e:

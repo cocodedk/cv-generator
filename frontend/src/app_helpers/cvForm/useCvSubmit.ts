@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import axios from 'axios'
 import { CVData } from '../../types/cv'
-import { openDownload } from '../download'
 
 interface UseCvSubmitProps {
   cvId: string | null | undefined
@@ -9,6 +8,10 @@ interface UseCvSubmitProps {
   onSuccess: (message: string) => void
   onError: (message: string) => void
   setLoading: (loading: boolean) => void
+}
+
+function openPrintable(cvId: string) {
+  window.open(`/api/cv/${cvId}/print-html`, '_blank', 'noopener,noreferrer')
 }
 
 export function useCvSubmit({
@@ -26,22 +29,15 @@ export function useCvSubmit({
     try {
       if (isEditMode && cvId) {
         await axios.put(`/api/cv/${cvId}`, data)
-        try {
-          const docxResponse = await axios.post(`/api/cv/${cvId}/generate-docx`)
-          if (docxResponse.data.filename) {
-            openDownload(docxResponse.data.filename)
-            onSuccess('CV updated and downloaded successfully!')
-          } else {
-            onSuccess('CV updated successfully!')
-          }
-        } catch (docxError: any) {
-          onError(docxError.response?.data?.detail || 'CV updated but DOCX generation failed')
-        }
+        openPrintable(cvId)
+        onSuccess('CV updated. Printable view opened.')
       } else {
-        const response = await axios.post('/api/generate-cv-docx', data)
-        if (response.data.filename) {
-          openDownload(response.data.filename)
-          onSuccess('CV generated and downloaded successfully!')
+        const response = await axios.post('/api/save-cv', data)
+        const createdCvId: string | undefined = response.data?.cv_id
+        if (createdCvId) {
+          window.location.hash = `edit/${createdCvId}`
+          openPrintable(createdCvId)
+          onSuccess('CV saved. Printable view opened.')
         } else {
           onSuccess('CV saved successfully!')
         }

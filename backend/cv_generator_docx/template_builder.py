@@ -2,7 +2,8 @@
 from pathlib import Path
 from docx import Document
 from backend.themes import THEMES, validate_theme
-from backend.cv_generator_docx.style_utils import apply_character_style, apply_paragraph_style
+from backend.cv_generator_docx.custom_styles import add_custom_styles
+from backend.cv_generator_docx.style_utils import apply_paragraph_style
 
 
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
@@ -73,59 +74,7 @@ def build_template(theme_name: str, output_path: Path) -> None:
         theme["line_height"]["normal"],
     )
 
-    # Create custom "Contact Info" style (9pt font)
-    contact_info_style = doc.styles.add_style("Contact Info", 1)  # 1 = paragraph style
-    apply_paragraph_style(
-        contact_info_style,
-        theme,
-        {"fontsize": "9pt", "color": theme["normal"].get("color")},
-        theme["spacing"]["normal"],
-        theme["line_height"]["normal"],
-    )
-
-    skill_category_style = doc.styles.add_style(
-        "Skill Category", 1  # 1 = paragraph style
-    )
-    apply_paragraph_style(
-        skill_category_style,
-        theme,
-        {
-            "fontsize": "10pt",
-            "fontweight": "bold",
-            "color": theme.get("text_secondary", theme["normal"].get("color")),
-        },
-        ("0cm", "0cm"),
-        "1.2",
-    )
-
-    skill_items_style = doc.styles.add_style("Skill Items", 1)  # 1 = paragraph style
-    apply_paragraph_style(
-        skill_items_style,
-        theme,
-        {"fontsize": "10pt", "color": theme["normal"].get("color")},
-        ("0cm", "0cm"),
-        "1.2",
-    )
-
-    skill_highlight_style = doc.styles.add_style(
-        "Skill Highlight", 2  # 2 = character style
-    )
-    apply_character_style(
-        skill_highlight_style,
-        theme,
-        {
-            "fontsize": "10pt",
-            "fontweight": "bold",
-            "color": theme.get("divider_color", theme.get("accent_color")),
-        },
-    )
-
-    skill_level_style = doc.styles.add_style("Skill Level", 2)  # 2 = character style
-    apply_character_style(
-        skill_level_style,
-        theme,
-        {"fontsize": "10pt", "color": theme.get("text_secondary")},
-    )
+    add_custom_styles(doc, theme)
 
     doc.save(output_path)
 
