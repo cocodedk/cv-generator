@@ -74,6 +74,16 @@ def build_template(theme_name: str, output_path: Path) -> None:
         theme["line_height"]["normal"],
     )
 
+    # Create custom "Contact Info" style (9pt font)
+    contact_info_style = doc.styles.add_style("Contact Info", 1)  # 1 = paragraph style
+    _apply_paragraph_style(
+        contact_info_style,
+        theme,
+        {"fontsize": "9pt", "color": theme["normal"].get("color")},
+        theme["spacing"]["normal"],
+        theme["line_height"]["normal"],
+    )
+
     doc.save(output_path)
 
 

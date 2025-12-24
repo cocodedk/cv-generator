@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ personal_info.name or 'CV' }}</title>
+</head>
+<body>
+    <table style="width: 100%; border-collapse: collapse; border: 0;">
+        <tr>
+            <td style="vertical-align: top; border: 0;">
+                {% if personal_info.name %}
+                <h1>{{ personal_info.name }}</h1>
+                {% endif %}
+                {% if personal_info.title %}
+                <h2>{{ personal_info.title }}</h2>
+                {% endif %}
+            </td>
+            <td style="vertical-align: top; text-align: right; border: 0; width: 120px;">
+                {% if personal_info.photo %}
+                <img src="{{ personal_info.photo }}" alt="Photo" style="width: 100px; height: 100px; object-fit: cover; border: 1px solid #ccc;" />
+                {% else %}
+                <div style="width: 100px; height: 100px; border: 1px solid #ccc; background-color: #f0f0f0; display: inline-block;"></div>
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+
+    {% include 'components/contact_info.html' %}
+
+    {% if personal_info.summary %}
+    <h2>Summary</h2>
+    <p>{{ personal_info.summary }}</p>
+    {% endif %}
+
+    {% if experience %}
+    <h2>Experience</h2>
+    {% for exp in experience %}
+        {% include 'components/experience_item.html' %}
+    {% endfor %}
+    {% endif %}
+
+    {% if education %}
+    <h2>Education</h2>
+    {% for edu in education %}
+        {% include 'components/education_item.html' %}
+    {% endfor %}
+    {% endif %}
+
+    {% if skills_by_category %}
+    <h2>Skills</h2>
+    {% include 'components/skills_list.html' %}
+    {% endif %}
+</body>
+</html>
