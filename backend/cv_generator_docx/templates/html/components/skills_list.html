@@ -1,0 +1,8 @@
+{% for category, skills in skills_by_category.items() %}
+<h3>{{ category }}</h3>
+<ul>
+{% for skill in skills %}
+<li>{% if skill.level %}{{ skill.name }} ({{ skill.level }}){% else %}{{ skill.name }}{% endif %}</li>
+{% endfor %}
+</ul>
+{% endfor %}

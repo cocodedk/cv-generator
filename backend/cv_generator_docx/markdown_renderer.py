@@ -32,9 +32,9 @@ def _add_header(lines: List[str], personal_info: Dict[str, Any]) -> None:
 
 def _add_contact_info(lines: List[str], personal_info: Dict[str, Any]) -> None:
     """Add contact information line."""
-    contact_line = _render_contact_line(personal_info)
-    if contact_line:
-        lines.append(contact_line)
+    contact_lines = _render_contact_table(personal_info)
+    if contact_lines:
+        lines.extend(contact_lines)
     lines.append("")
 
 
@@ -71,22 +71,28 @@ def _add_skills(lines: List[str], skills: List[Dict[str, Any]]) -> None:
         lines.append("")
 
 
-def _render_contact_line(personal_info: Dict[str, Any]) -> str:
-    items: List[str] = []
+def _render_contact_table(personal_info: Dict[str, Any]) -> List[str]:
+    """Render contact information with Unicode icons."""
+    lines: List[str] = []
     email = personal_info.get("email")
     if email:
-        items.append(email)
+        lines.append(f'<p style="font-size: 9pt;">✉ {_escape_html(email)}</p>')
     phone = personal_info.get("phone")
     if phone:
-        items.append(phone)
+        lines.append(f'<p style="font-size: 9pt;">☎ {_escape_html(phone)}</p>')
     address = _format_address(personal_info.get("address"))
     if address:
-        items.append(address)
-    for key in ("linkedin", "github", "website"):
-        value = personal_info.get(key)
-        if value:
-            items.append(value)
-    return f"*{' | '.join(items)}*" if items else ""
+        lines.append(f'<p style="font-size: 9pt;">📍 {_escape_html(address)}</p>')
+    linkedin = personal_info.get("linkedin")
+    if linkedin:
+        lines.append(f'<p style="font-size: 9pt;">🔗 {_escape_html(linkedin)}</p>')
+    github = personal_info.get("github")
+    if github:
+        lines.append(f'<p style="font-size: 9pt;">💻 {_escape_html(github)}</p>')
+    website = personal_info.get("website")
+    if website:
+        lines.append(f'<p style="font-size: 9pt;">🌐 {_escape_html(website)}</p>')
+    return lines
 
 
 def _format_address(address: Any) -> str:
@@ -102,6 +108,15 @@ def _format_address(address: Any) -> str:
         address.get("country"),
     ]
     return ", ".join([part for part in parts if part])
+
+
+def _escape_html(value: str) -> str:
+    return (
+        str(value)
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+    )
 
 
 def _render_experience(exp: Dict[str, Any]) -> List[str]:
@@ -148,15 +163,26 @@ def _render_education(edu: Dict[str, Any]) -> List[str]:
 
 def _render_skills(skills: List[Dict[str, Any]]) -> List[str]:
     lines: List[str] = []
-    skills_by_category: Dict[str, List[str]] = {}
+    skills_by_category: Dict[str, List[Dict[str, str]]] = {}
     for skill in skills:
         category = skill.get("category") or "Other"
-        skills_by_category.setdefault(category, []).append(skill.get("name", ""))
+        name = skill.get("name", "")
+        if name:
+            skill_obj = {"name": name}
+            level = skill.get("level")
+            if level:
+                skill_obj["level"] = level
+            skills_by_category.setdefault(category, []).append(skill_obj)
 
-    for category, names in skills_by_category.items():
+    for category, skill_list in skills_by_category.items():
         lines.append(f"### {category}")
-        for name in [value for value in names if value]:
-            lines.append(f"- {name}")
+        for skill in skill_list:
+            name = skill.get("name", "")
+            level = skill.get("level")
+            if level:
+                lines.append(f"- {name} ({level})")
+            else:
+                lines.append(f"- {name}")
         lines.append("")
     return lines
 
