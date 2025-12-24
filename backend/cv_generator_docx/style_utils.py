@@ -42,4 +42,3 @@ def _parse_pt(value: str) -> float:
 
 def _cm_to_pt(value: str) -> float:
     return float(value.replace("cm", "").strip()) * 28.3465
-

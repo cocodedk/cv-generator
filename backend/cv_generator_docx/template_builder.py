@@ -1,6 +1,5 @@
 """DOCX template builder for themes."""
 from pathlib import Path
-from typing import Any, Dict
 from docx import Document
 from backend.themes import THEMES, validate_theme
 from backend.cv_generator_docx.style_utils import apply_character_style, apply_paragraph_style
@@ -135,6 +134,7 @@ def build_all_templates() -> None:
     """Build templates for all themes."""
     for theme in THEMES:
         build_template(theme, TEMPLATES_DIR / f"{theme}.docx")
+
 
 if __name__ == "__main__":
     build_all_templates()
