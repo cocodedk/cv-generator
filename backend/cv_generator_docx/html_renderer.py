@@ -88,6 +88,45 @@ def _format_address(address: Any) -> str:
     return ", ".join([part for part in parts if part])
 
 
+def _is_list_item(line: str) -> bool:
+    """Check if a line is a list item (bullet or numbered)."""
+    stripped = line.strip()
+    list_markers = ["-", "*", "•"]
+    if any(stripped.startswith(marker) for marker in list_markers):
+        return True
+    if stripped and stripped[0].isdigit() and len(stripped) > 1:
+        return stripped[1] in [".", ")"]
+    return False
+
+
+def _count_list_items(lines: List[str]) -> int:
+    """Count how many lines are list items."""
+    return sum(1 for line in lines if _is_list_item(line))
+
+
+def _clean_list_item(line: str) -> str:
+    """Remove list markers and numbered prefixes from a line."""
+    stripped = line.strip()
+    list_markers = ["-", "*", "•"]
+    for marker in list_markers:
+        if stripped.startswith(marker):
+            stripped = stripped[1:].strip()
+            break
+    if stripped and stripped[0].isdigit():
+        stripped = re.sub(r"^\d+[.)]\s*", "", stripped)
+    return stripped
+
+
+def _process_as_list(non_empty_lines: List[str]) -> List[str]:
+    """Process lines as a list, cleaning markers."""
+    items = []
+    for line in non_empty_lines:
+        cleaned = _clean_list_item(line)
+        if cleaned:
+            items.append(cleaned)
+    return items
+
+
 def _split_description(description: str) -> Dict[str, Any]:
     """
     Split description and detect format (list vs paragraph).
@@ -103,34 +142,11 @@ def _split_description(description: str) -> Dict[str, Any]:
         return {"format": "paragraph", "content": ""}
 
     # Check if it's a list: count lines starting with list markers
-    list_markers = ["-", "*", "•"]
-    list_count = 0
-    for line in non_empty_lines:
-        stripped = line.strip()
-        # Check for numbered list (1., 2., etc.) or bullet markers
-        if any(stripped.startswith(marker) for marker in list_markers):
-            list_count += 1
-        elif stripped and stripped[0].isdigit() and len(stripped) > 1 and stripped[1] in [".", ")"]:
-            list_count += 1
-
-    # If ≥50% of lines are list items, treat as list
+    list_count = _count_list_items(non_empty_lines)
     is_list = list_count >= len(non_empty_lines) * 0.5 and len(non_empty_lines) > 1
 
     if is_list:
-        # Process as list: clean and extract items
-        items = []
-        for line in non_empty_lines:
-            stripped = line.strip()
-            # Remove list markers
-            for marker in list_markers:
-                if stripped.startswith(marker):
-                    stripped = stripped[1:].strip()
-                    break
-            # Remove numbered list prefix (1., 2., etc.)
-            if stripped and stripped[0].isdigit():
-                stripped = re.sub(r"^\d+[.)]\s*", "", stripped)
-            if stripped:
-                items.append(stripped)
+        items = _process_as_list(non_empty_lines)
         return {"format": "list", "content": items}
 
     # Check for multiple paragraphs (double newlines)
