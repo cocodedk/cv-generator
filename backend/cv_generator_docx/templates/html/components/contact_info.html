@@ -1,0 +1,18 @@
+{% if personal_info.email %}
+<p class="contact-info">✉ {{ personal_info.email }}</p>
+{% endif %}
+{% if personal_info.phone %}
+<p class="contact-info">☎ {{ personal_info.phone }}</p>
+{% endif %}
+{% if personal_info.address %}
+<p class="contact-info">📍 {{ personal_info.address }}</p>
+{% endif %}
+{% if personal_info.linkedin %}
+<p class="contact-info">🔗 {{ personal_info.linkedin }}</p>
+{% endif %}
+{% if personal_info.github %}
+<p class="contact-info">💻 {{ personal_info.github }}</p>
+{% endif %}
+{% if personal_info.website %}
+<p class="contact-info">🌐 {{ personal_info.website }}</p>
+{% endif %}
