@@ -2,53 +2,65 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>{{ personal_info.name or 'CV' }}</title>
+    {# Empty title; pandoc may otherwise inject a DOCX title block. #}
+    <title></title>
 </head>
 <body>
-    <table style="width: 100%; border-collapse: collapse; border: 0;">
-        <tr>
-            <td style="vertical-align: top; border: 0;">
-                {% if personal_info.name %}
-                <h1>{{ personal_info.name }}</h1>
-                {% endif %}
-                {% if personal_info.title %}
-                <h2>{{ personal_info.title }}</h2>
-                {% endif %}
-            </td>
-            <td style="vertical-align: top; text-align: right; border: 0; width: 120px;">
-                {% if personal_info.photo %}
-                <img src="{{ personal_info.photo }}" alt="Photo" style="width: 100px; height: 100px; object-fit: cover; border: 1px solid #ccc;" />
-                {% else %}
-                <div style="width: 100px; height: 100px; border: 1px solid #ccc; background-color: #f0f0f0; display: inline-block;"></div>
-                {% endif %}
-            </td>
-        </tr>
-    </table>
+    <div>
+        <table style="width: 100%; border-collapse: collapse; border: 0;">
+            <colgroup>
+                <col style="width: 82%;" />
+                <col style="width: 18%;" />
+            </colgroup>
+            <tr>
+                <td style="vertical-align: top; border: 0; padding: 0;">
+                    {% if personal_info.name %}
+                    <h1>{{ personal_info.name }}</h1>
+                    {% endif %}
+                    {% if personal_info.title %}
+                    <p custom-style="Subtitle">{{ personal_info.title }}</p>
+                    {% endif %}
+                    {% if personal_info.summary %}
+                    <p>{{ personal_info.summary }}</p>
+                    {% endif %}
+                </td>
+                <td style="vertical-align: top; text-align: right; border: 0; width: 120px; padding: 0;">
+                    {% if personal_info.photo %}
+                    <img src="{{ personal_info.photo }}" alt="Photo" style="width: 95px; height: 95px; object-fit: cover; border: 1px solid #e5e7eb;" />
+                    {% else %}
+                    <div style="width: 95px; height: 95px; border: 1px solid #e5e7eb; background-color: #f3f4f6; display: inline-block;"></div>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="border: 0; padding: 4px 0 0;">
+                    {% include 'components/contact_info.html' %}
+                </td>
+            </tr>
+        </table>
 
-    {% include 'components/contact_info.html' %}
+        {% if experience %}
+        <h2>Experience</h2>
+        {% for exp in experience %}
+            <div>
+                {% include 'components/experience_item.html' %}
+            </div>
+        {% endfor %}
+        {% endif %}
 
-    {% if personal_info.summary %}
-    <h2>Summary</h2>
-    <p>{{ personal_info.summary }}</p>
-    {% endif %}
+        {% if education %}
+        <h2>Education</h2>
+        {% for edu in education %}
+            <div>
+                {% include 'components/education_item.html' %}
+            </div>
+        {% endfor %}
+        {% endif %}
 
-    {% if experience %}
-    <h2>Experience</h2>
-    {% for exp in experience %}
-        {% include 'components/experience_item.html' %}
-    {% endfor %}
-    {% endif %}
-
-    {% if education %}
-    <h2>Education</h2>
-    {% for edu in education %}
-        {% include 'components/education_item.html' %}
-    {% endfor %}
-    {% endif %}
-
-    {% if skills_by_category %}
-    <h2>Skills</h2>
-    {% include 'components/skills_list.html' %}
-    {% endif %}
+        {% if skills_by_category %}
+        <h2>Skills</h2>
+        {% include 'components/skills_list.html' %}
+        {% endif %}
+    </div>
 </body>
 </html>
