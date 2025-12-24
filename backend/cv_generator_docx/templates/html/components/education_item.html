@@ -2,5 +2,5 @@
 <h3>{% if edu.degree %}{{ edu.degree }}{% endif %}{% if edu.degree and edu.institution %}, {% endif %}{% if edu.institution %}{{ edu.institution }}{% endif %}</h3>
 {% endif %}
 {% if edu.year or edu.field or edu.gpa %}
-<p>{% if edu.year %}{{ edu.year }}{% endif %}{% if edu.year and edu.field %} | {% endif %}{% if edu.field %}{{ edu.field }}{% endif %}{% if (edu.year or edu.field) and edu.gpa %} | {% endif %}{% if edu.gpa %}GPA: {{ edu.gpa }}{% endif %}</p>
+<p><em>{% if edu.year %}{{ edu.year }}{% endif %}{% if edu.year and edu.field %} | {% endif %}{% if edu.field %}{{ edu.field }}{% endif %}{% if (edu.year or edu.field) and edu.gpa %} | {% endif %}{% if edu.gpa %}GPA: {{ edu.gpa }}{% endif %}</em></p>
 {% endif %}

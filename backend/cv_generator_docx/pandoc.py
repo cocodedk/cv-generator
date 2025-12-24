@@ -20,6 +20,8 @@ def convert_html_to_docx(
         "html",
         "-o",
         str(output_path),
+        "-M",
+        "title=",
         "--reference-doc",
         str(reference_docx),
     ]
@@ -40,6 +42,8 @@ def convert_markdown_to_docx(
         str(markdown_path),
         "-o",
         str(output_path),
+        "-M",
+        "title=",
         "--reference-doc",
         str(reference_docx),
     ]

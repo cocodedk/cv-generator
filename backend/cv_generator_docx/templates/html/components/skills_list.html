@@ -1,8 +1,34 @@
-{% for category, skills in skills_by_category.items() %}
-<h3>{{ category }}</h3>
-<ul>
-{% for skill in skills %}
-<li>{% if skill.level %}{{ skill.name }} ({{ skill.level }}){% else %}{{ skill.name }}{% endif %}</li>
-{% endfor %}
-</ul>
-{% endfor %}
+<table style="width: 100%; border-collapse: collapse; border: 0;">
+    <colgroup>
+        <col style="width: 28%;" />
+        <col style="width: 72%;" />
+    </colgroup>
+    {% for category, skills in skills_by_category.items() %}
+    <tr>
+        <td style="vertical-align: top; border: 0; padding: 2px 8px 2px 0;">
+            <p custom-style="Skill Category">{{ category }}</p>
+        </td>
+        <td style="vertical-align: top; border: 0; padding: 2px 0;">
+            <p custom-style="Skill Items">
+            {% for skill in skills -%}
+                {%- if skill.level -%}
+                    {%- if skill.level|lower == 'expert' -%}
+                        <span custom-style="Skill Highlight">{{ skill.name }}</span>
+                        <span custom-style="Skill Level"> · {{ skill.level }}</span>
+                    {%- elif skill.level|lower in ['advanced', 'advance'] -%}
+                        <strong>{{ skill.name }}</strong>
+                        <span custom-style="Skill Level"> · {{ skill.level }}</span>
+                    {%- else -%}
+                        {{ skill.name }}
+                        <span custom-style="Skill Level"> · {{ skill.level }}</span>
+                    {%- endif -%}
+                {%- else -%}
+                    {{ skill.name }}
+                {%- endif -%}
+                {%- if not loop.last -%}, {% endif -%}
+            {%- endfor %}
+            </p>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
