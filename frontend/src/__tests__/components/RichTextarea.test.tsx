@@ -136,5 +136,7 @@ describe('stripHtml', () => {
     const div = document.createElement('div')
     div.innerHTML = '&nbsp;'
     expect(div.textContent || div.innerText).toBe('\u00A0') // Non-breaking space
+    // Test stripHtml function directly
+    expect(stripHtml('&nbsp;')).toBe('\u00A0')
   })
 })

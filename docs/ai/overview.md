@@ -13,8 +13,8 @@ The user stays in control: AI returns a draft + issues/questions, and the UI let
 3. User pastes JD + selects options (target role, length, style).
 4. Backend loads the saved master profile (`GET /api/profile` / `queries.get_profile()`).
 5. Backend returns a `CVData` draft (validated) + `warnings/questions`.
-5. Frontend applies the draft into the existing form (react-hook-form `reset()`).
-6. User edits and then saves CV using existing endpoints (`/api/save-cv`, `/api/cv/{id}`).
+6. Frontend applies the draft into the existing form (react-hook-form `reset()`).
+7. User edits and then saves CV using existing endpoints (`/api/save-cv`, `/api/cv/{id}`).
 
 ## How Profile Data Is Used
 

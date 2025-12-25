@@ -4,7 +4,7 @@ import re
 from typing import Iterable, List, Set
 
 
-_WORD_RE = re.compile(r"[a-zA-Z][a-zA-Z0-9.+#/-]{1,}")
+_WORD_RE = re.compile(r"[a-zA-Z][a-zA-Z0-9.+#/-]*")
 
 
 def normalize_text(value: str) -> str:

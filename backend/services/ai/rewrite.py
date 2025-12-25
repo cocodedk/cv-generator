@@ -18,8 +18,8 @@ def rewrite_cv_bullets(cv: CVData) -> CVData:
     rewritten_experiences: List[Experience] = []
     for experience in cv.experience:
         rewritten_projects: List[Project] = []
-        for project in experience.projects:
-            rewritten_highlights = [_rewrite_highlight(highlight) for highlight in project.highlights]
+        for project in (experience.projects or []):
+            rewritten_highlights = [_rewrite_highlight(highlight) for highlight in (project.highlights or [])]
             rewritten_projects.append(Project(**project.model_dump(exclude={"highlights"}), highlights=rewritten_highlights))
         rewritten_experiences.append(Experience(**experience.model_dump(exclude={"projects"}), projects=rewritten_projects))
 

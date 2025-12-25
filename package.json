@@ -30,6 +30,9 @@
     "react-hook-form": "^7.49.2",
     "react-quill": "^2.0.0"
   },
+  "_comment": {
+    "react-quill-security": "react-quill has stored XSS vulnerability (GHSA-4943-9vgg-gr5r). All rich-text inputs must be sanitized server-side. Backend uses Jinja2 autoescape for rendering, but stored HTML should be sanitized before persistence."
+  },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
     "@testing-library/jest-dom": "^6.1.5",

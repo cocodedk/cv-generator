@@ -36,6 +36,11 @@ export default function ProjectEditor({
   onRemove,
 }: ProjectEditorProps) {
   const base = `experience.${experienceIndex}.projects.${projectIndex}` as const
+  const nameField = useController({
+    control,
+    name: `${base}.name` as const,
+    rules: { required: 'Project name is required' },
+  })
   const technologies = useController({ control, name: `${base}.technologies` as const })
   const highlights = useController({ control, name: `${base}.highlights` as const })
 
@@ -65,9 +70,12 @@ export default function ProjectEditor({
           <input
             id={`project-name-${experienceIndex}-${projectIndex}`}
             type="text"
-            {...register(`${base}.name` as const, { required: 'Project name is required' })}
+            {...nameField.field}
             className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
           />
+          {nameField.fieldState.error?.message && (
+            <p className="mt-1 text-xs text-red-600">{nameField.fieldState.error.message}</p>
+          )}
         </div>
 
         <div>

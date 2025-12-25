@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { Message } from '../app_helpers/useMessage'
 
 interface NotificationModalProps {
@@ -6,12 +7,77 @@ interface NotificationModalProps {
 }
 
 export default function NotificationModal({ message, onClose }: NotificationModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const previousFocusRef = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    if (!message) {
+      return
+    }
+
+    // Save the previously focused element
+    previousFocusRef.current = document.activeElement as HTMLElement
+
+    // Move focus to the close button
+    if (closeButtonRef.current) {
+      closeButtonRef.current.focus()
+    }
+
+    // Handle Escape key
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose()
+      }
+    }
+
+    // Handle Tab key to trap focus within modal
+    const handleTab = (e: KeyboardEvent) => {
+      if (!modalRef.current) {
+        return
+      }
+
+      const focusableElements = modalRef.current.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+      const firstElement = focusableElements[0] as HTMLElement
+      const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement
+
+      if (e.shiftKey) {
+        // Shift + Tab
+        if (document.activeElement === firstElement) {
+          e.preventDefault()
+          lastElement.focus()
+        }
+      } else {
+        // Tab
+        if (document.activeElement === lastElement) {
+          e.preventDefault()
+          firstElement.focus()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleEscape)
+    document.addEventListener('keydown', handleTab)
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape)
+      document.removeEventListener('keydown', handleTab)
+      // Restore focus to the previously focused element
+      if (previousFocusRef.current) {
+        previousFocusRef.current.focus()
+      }
+    }
+  }, [message, onClose])
+
   if (!message) {
     return null
   }
 
   const isError = message.type === 'error'
   const isArray = Array.isArray(message.text)
+  const headerId = `notification-modal-header-${message.type}`
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -24,6 +90,10 @@ export default function NotificationModal({ message, onClose }: NotificationModa
 
       {/* Modal */}
       <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={headerId}
         className={`relative w-full max-w-md rounded-lg shadow-xl ${
           isError
             ? 'bg-red-50 dark:bg-red-900/30 border-2 border-red-200 dark:border-red-800'
@@ -33,6 +103,7 @@ export default function NotificationModal({ message, onClose }: NotificationModa
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <h3
+            id={headerId}
             className={`text-lg font-semibold ${
               isError ? 'text-red-800 dark:text-red-200' : 'text-green-800 dark:text-green-200'
             }`}
@@ -40,6 +111,7 @@ export default function NotificationModal({ message, onClose }: NotificationModa
             {isError ? 'Error' : 'Success'}
           </h3>
           <button
+            ref={closeButtonRef}
             onClick={onClose}
             className={`rounded-md p-1 transition-colors ${
               isError

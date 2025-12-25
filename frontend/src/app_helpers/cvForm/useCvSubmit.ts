@@ -76,7 +76,9 @@ function _scrollToField(fieldPath: string) {
         // Add error styling
         element.classList.add('border-red-500', 'ring-2', 'ring-red-500')
         setTimeout(() => {
-          element.classList.remove('ring-2', 'ring-red-500')
+          if (element) {
+            element.classList.remove('border-red-500', 'ring-2', 'ring-red-500')
+          }
         }, 3000)
       }
     }, 100)

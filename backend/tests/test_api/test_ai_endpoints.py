@@ -17,7 +17,7 @@ class TestGenerateCvDraft:
             "skills": sample_cv_data["skills"],
             "updated_at": "2024-01-01T00:00:00",
         }
-        with patch("backend.database.queries.get_profile", return_value=profile_data):
+        with patch("backend.app_helpers.routes.ai.queries.get_profile", return_value=profile_data):
             response = await client.post(
                 "/api/ai/generate-cv",
                 json={
@@ -37,7 +37,7 @@ class TestGenerateCvDraft:
             assert "React" in skill_names
 
     async def test_generate_cv_draft_profile_missing(self, client, mock_neo4j_connection):
-        with patch("backend.database.queries.get_profile", return_value=None):
+        with patch("backend.app_helpers.routes.ai.queries.get_profile", return_value=None):
             response = await client.post(
                 "/api/ai/generate-cv",
                 json={"job_description": "We require FastAPI and React."},
