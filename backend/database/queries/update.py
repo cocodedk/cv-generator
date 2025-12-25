@@ -22,9 +22,10 @@ def _delete_cv_relationships(tx, cv_id: str) -> None:
     MATCH (cv:CV {id: $cv_id})
     OPTIONAL MATCH (old_person:Person)-[:BELONGS_TO_CV]->(cv)
     OPTIONAL MATCH (old_person)-[:HAS_EXPERIENCE]->(exp:Experience)-[:BELONGS_TO_CV]->(cv)
+    OPTIONAL MATCH (exp)-[:HAS_PROJECT]->(proj:Project)-[:BELONGS_TO_CV]->(cv)
     OPTIONAL MATCH (old_person)-[:HAS_EDUCATION]->(edu:Education)-[:BELONGS_TO_CV]->(cv)
     OPTIONAL MATCH (old_person)-[:HAS_SKILL]->(skill:Skill)-[:BELONGS_TO_CV]->(cv)
-    DETACH DELETE exp, edu, skill, old_person
+    DETACH DELETE proj, exp, edu, skill, old_person
     """
     tx.run(query, cv_id=cv_id)
 
@@ -86,6 +87,17 @@ def _create_experience_nodes(tx, cv_id: str, experiences: list) -> None:
     })
     CREATE (person)-[:HAS_EXPERIENCE]->(experience)
     CREATE (experience)-[:BELONGS_TO_CV]->(cv)
+    WITH cv, experience, exp
+    UNWIND COALESCE(exp.projects, []) AS proj
+    CREATE (project:Project {
+        name: proj.name,
+        description: proj.description,
+        url: proj.url,
+        technologies: COALESCE(proj.technologies, []),
+        highlights: COALESCE(proj.highlights, [])
+    })
+    CREATE (experience)-[:HAS_PROJECT]->(project)
+    CREATE (project)-[:BELONGS_TO_CV]->(cv)
     """
     tx.run(query, cv_id=cv_id, experiences=experiences)
 

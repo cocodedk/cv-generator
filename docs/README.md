@@ -22,6 +22,7 @@ Welcome to the CV Generator documentation. This documentation is organized by to
 - [Database Schema](backend/database-schema.md) - Neo4j graph schema
 - [CV Generation](backend/cv-generation.md) - DOCX document generation
 - [DOCX Generation](backend/docx-generation.md) - Markdown -> DOCX pipeline option
+- [Print HTML Generation](backend/print-html-generation.md) - Browser-printable HTML output
 - [Data Models](backend/models.md) - Pydantic models
 
 ### Frontend

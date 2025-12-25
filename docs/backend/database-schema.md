@@ -8,16 +8,20 @@ The CV Generator uses Neo4j graph database to store CV data as nodes and relatio
 graph LR
     CV[CV Node] -->|BELONGS_TO_CV| Person[Person Node]
     Person -->|HAS_EXPERIENCE| Exp[Experience Node]
+    Exp -->|HAS_PROJECT| Proj[Project Node]
     Person -->|HAS_EDUCATION| Edu[Education Node]
     Person -->|HAS_SKILL| Skill[Skill Node]
     Exp -->|BELONGS_TO_CV| CV
+    Proj -->|BELONGS_TO_CV| CV
     Edu -->|BELONGS_TO_CV| CV
     Skill -->|BELONGS_TO_CV| CV
     Profile[Profile Node] -->|BELONGS_TO_PROFILE| Person2[Person Node]
     Person2 -->|HAS_EXPERIENCE| Exp2[Experience Node]
+    Exp2 -->|HAS_PROJECT| Proj2[Project Node]
     Person2 -->|HAS_EDUCATION| Edu2[Education Node]
     Person2 -->|HAS_SKILL| Skill2[Skill Node]
     Exp2 -->|BELONGS_TO_PROFILE| Profile
+    Proj2 -->|BELONGS_TO_PROFILE| Profile
     Edu2 -->|BELONGS_TO_PROFILE| Profile
     Skill2 -->|BELONGS_TO_PROFILE| Profile
 ```
@@ -66,8 +70,24 @@ graph LR
 - `company` (string): Company name
 - `start_date` (string): Start date (YYYY-MM)
 - `end_date` (string, optional): End date (YYYY-MM or "Present")
-- `description` (string, optional): Job description
+- `description` (string, optional): Short role description
 - `location` (string, optional): Job location
+
+**Relationships**:
+- `BELONGS_TO_CV` → CV node
+- `BELONGS_TO_PROFILE` → Profile node (for master profile)
+- `HAS_PROJECT` → Project nodes
+
+### Project Node
+
+**Label**: `Project`
+
+**Properties**:
+- `name` (string): Project name
+- `description` (string, optional): Short project description
+- `url` (string, optional): Project URL
+- `technologies` (list[string], optional): Technologies used
+- `highlights` (list[string], optional): Bullet highlights
 
 **Relationships**:
 - `BELONGS_TO_CV` → CV node

@@ -13,7 +13,25 @@ describe('useCvSubmit', () => {
   const mockSetLoading = vi.fn()
   const cvData: CVData = {
     personal_info: { name: 'John Doe' },
-    experience: [],
+    experience: [
+      {
+        title: 'Developer',
+        company: 'ACME',
+        start_date: '2020-01',
+        end_date: '2021-01',
+        description: 'Short role summary.',
+        location: 'Remote',
+        projects: [
+          {
+            name: 'Platform',
+            description: 'Internal tooling',
+            url: 'https://example.com',
+            technologies: ['FastAPI'],
+            highlights: ['Reduced build times'],
+          },
+        ],
+      },
+    ],
     education: [],
     skills: [],
   }

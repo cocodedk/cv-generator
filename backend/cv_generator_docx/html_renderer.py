@@ -31,37 +31,8 @@ def _prepare_template_data(cv_data: Dict[str, Any]) -> Dict[str, Any]:
     if address:
         personal_info["address"] = _format_address(address)
 
-    # Preprocess experience descriptions
-    experience = []
-    for exp in cv_data.get("experience", []):
-        exp_copy = exp.copy()
-        description = exp.get("description", "")
-        if description:
-            desc_data = _split_description(description)
-            exp_copy["description_format"] = desc_data["format"]
-            if desc_data["format"] == "list":
-                exp_copy["description_lines"] = desc_data["content"]
-            elif desc_data["format"] == "paragraphs":
-                exp_copy["description_paragraphs"] = desc_data["content"]
-            else:  # paragraph
-                exp_copy["description_text"] = desc_data["content"]
-        else:
-            # Default to paragraph format for empty descriptions
-            exp_copy["description_format"] = "paragraph"
-            exp_copy["description_text"] = ""
-        experience.append(exp_copy)
-
-    # Preprocess skills by category
-    skills_by_category: Dict[str, List[Dict[str, str]]] = {}
-    for skill in cv_data.get("skills", []):
-        category = skill.get("category") or "Other"
-        name = skill.get("name", "")
-        if name:
-            skill_obj = {"name": name}
-            level = skill.get("level")
-            if level:
-                skill_obj["level"] = level
-            skills_by_category.setdefault(category, []).append(skill_obj)
+    experience = _prepare_experience(cv_data.get("experience", []))
+    skills_by_category = _prepare_skills(cv_data.get("skills", []))
 
     return {
         "personal_info": personal_info,
@@ -70,6 +41,82 @@ def _prepare_template_data(cv_data: Dict[str, Any]) -> Dict[str, Any]:
         "skills_by_category": skills_by_category,
         "theme": cv_data.get("theme", "classic"),
     }
+
+
+def _prepare_experience(experience_list: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Prepare experience items for template rendering."""
+    experience = []
+    for exp in experience_list:
+        exp_copy = exp.copy()
+        _process_experience_description(exp_copy, exp.get("description", ""))
+        exp_copy["projects"] = _prepare_projects(exp.get("projects") or [])
+        experience.append(exp_copy)
+    return experience
+
+
+def _process_experience_description(exp_copy: Dict[str, Any], description: str) -> None:
+    """Process and format experience description."""
+    if description:
+        desc_data = _split_description(description)
+        exp_copy["description_format"] = desc_data["format"]
+        if desc_data["format"] == "list":
+            exp_copy["description_lines"] = desc_data["content"]
+        elif desc_data["format"] == "paragraphs":
+            exp_copy["description_paragraphs"] = desc_data["content"]
+        else:  # paragraph
+            exp_copy["description_text"] = desc_data["content"]
+    else:
+        # Default to paragraph format for empty descriptions
+        exp_copy["description_format"] = "paragraph"
+        exp_copy["description_text"] = ""
+
+
+def _prepare_projects(projects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Prepare project items for template rendering."""
+    prepared_projects = []
+    for project in projects:
+        proj_copy = project.copy()
+        proj_copy["highlights"] = _normalize_highlights(proj_copy.get("highlights") or [])
+        proj_copy["technologies"] = _normalize_technologies(proj_copy.get("technologies") or [])
+        prepared_projects.append(proj_copy)
+    return prepared_projects
+
+
+def _normalize_highlights(highlights: Any) -> List[str]:
+    """Normalize highlights to a list of strings."""
+    if isinstance(highlights, str):
+        return [
+            _clean_list_item(line)
+            for line in highlights.splitlines()
+            if _clean_list_item(line)
+        ]
+    return highlights
+
+
+def _normalize_technologies(technologies: Any) -> List[str]:
+    """Normalize technologies to a list of strings."""
+    if isinstance(technologies, str):
+        return [
+            tech.strip()
+            for tech in technologies.split(",")
+            if tech.strip()
+        ]
+    return technologies
+
+
+def _prepare_skills(skills: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, str]]]:
+    """Prepare skills grouped by category."""
+    skills_by_category: Dict[str, List[Dict[str, str]]] = {}
+    for skill in skills:
+        category = skill.get("category") or "Other"
+        name = skill.get("name", "")
+        if name:
+            skill_obj = {"name": name}
+            level = skill.get("level")
+            if level:
+                skill_obj["level"] = level
+            skills_by_category.setdefault(category, []).append(skill_obj)
+    return skills_by_category
 
 
 def _format_address(address: Any) -> str:

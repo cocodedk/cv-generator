@@ -68,8 +68,16 @@ class TestUpdateCV:
                     "company": "New Corp",
                     "start_date": "2021-01",
                     "end_date": "2024-12",
-                    "description": "Led multiple teams",
+                    "description": "Led teams across multiple initiatives.",
                     "location": "San Francisco",
+                    "projects": [
+                        {
+                            "name": "Migration Program",
+                            "description": "Moved legacy services to a new platform.",
+                            "technologies": ["Python", "Neo4j"],
+                            "highlights": ["Delivered the migration with zero downtime."],
+                        }
+                    ],
                 }
             ]
             updated_data["education"] = []

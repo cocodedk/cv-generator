@@ -15,6 +15,7 @@ This application simplifies the CV creation process by:
 
 - **Web Interface**: Modern React UI with Tailwind CSS for creating and managing CVs
 - **DOCX Generation**: Generate professional Word-compatible documents
+- **Print HTML**: Browser-printable HTML output for preview and printing
 - **CV Storage**: Neo4j graph database for storing and managing CV data
 - **CRUD Operations**: Create, read, update, and delete CVs via REST API
 - **Search**: Search CVs by name, email, or other criteria
@@ -28,7 +29,7 @@ This application simplifies the CV creation process by:
 - **Frontend**: React 18, TypeScript, Tailwind CSS, Vite
 - **Backend**: Python 3.11, FastAPI, Uvicorn
 - **Database**: Neo4j 5.15 (graph database)
-- **Document Generation**: Pandoc + python-docx
+- **Document Generation**: Pandoc + python-docx (DOCX), Jinja2 templates (Print HTML)
 - **Containerization**: Docker, Docker Compose
 
 ## Architecture

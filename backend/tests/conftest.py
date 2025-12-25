@@ -85,8 +85,20 @@ def sample_cv_data() -> Dict[str, Any]:
                 "company": "Tech Corp",
                 "start_date": "2020-01",
                 "end_date": "2023-12",
-                "description": "Led development team",
+                "description": "Led a small team delivering product features.",
                 "location": "Remote",
+                "projects": [
+                    {
+                        "name": "Internal Platform",
+                        "description": "Unified services into a single developer platform.",
+                        "technologies": ["FastAPI", "PostgreSQL", "React"],
+                        "highlights": [
+                            "Reduced onboarding time by standardizing templates and tooling.",
+                            "Improved reliability with automated health checks and alerting.",
+                        ],
+                        "url": "https://example.com/platform",
+                    }
+                ],
             }
         ],
         "education": [

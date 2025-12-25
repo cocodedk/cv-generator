@@ -68,7 +68,7 @@ Form section: Name (required), Title, Email, Phone, Address components, LinkedIn
 ### Experience
 
 **Location**: `frontend/src/components/Experience.tsx`
-Dynamic array: Add/remove entries, validation, date handling. Fields: Title, Company (required), Start/End dates, Location, Description.
+Dynamic array: Add/remove entries, validation, date handling. Fields: Title, Company (required), Start/End dates, Location, Role Summary (short), Projects (name/description/url/tech/highlights).
 
 ### Education
 

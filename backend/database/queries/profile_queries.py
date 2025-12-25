@@ -4,15 +4,18 @@ CALL {
     OPTIONAL MATCH (profile:Profile)
     OPTIONAL MATCH (person:Person)-[:BELONGS_TO_PROFILE]->(profile)
     OPTIONAL MATCH (person)-[:HAS_EXPERIENCE]->(exp:Experience)-[:BELONGS_TO_PROFILE]->(profile)
+    OPTIONAL MATCH (exp)-[:HAS_PROJECT]->(proj:Project)-[:BELONGS_TO_PROFILE]->(profile)
     OPTIONAL MATCH (person)-[:HAS_EDUCATION]->(edu:Education)-[:BELONGS_TO_PROFILE]->(profile)
     OPTIONAL MATCH (person)-[:HAS_SKILL]->(skill:Skill)-[:BELONGS_TO_PROFILE]->(profile)
     WITH [p IN collect(DISTINCT profile) WHERE p IS NOT NULL] AS profiles,
          [p IN collect(DISTINCT person) WHERE p IS NOT NULL] AS persons,
          [e IN collect(DISTINCT exp) WHERE e IS NOT NULL] AS experiences,
+         [p IN collect(DISTINCT proj) WHERE p IS NOT NULL] AS projects,
          [e IN collect(DISTINCT edu) WHERE e IS NOT NULL] AS educations,
          [s IN collect(DISTINCT skill) WHERE s IS NOT NULL] AS skills
     FOREACH (p IN profiles | DETACH DELETE p)
     FOREACH (p IN persons | DETACH DELETE p)
+    FOREACH (p IN projects | DETACH DELETE p)
     FOREACH (e IN experiences | DETACH DELETE e)
     FOREACH (e IN educations | DETACH DELETE e)
     FOREACH (s IN skills | DETACH DELETE s)
@@ -35,6 +38,17 @@ FOREACH (exp IN COALESCE($experiences, []) |
         description: exp.description, location: exp.location }})
     CREATE (newPerson)-[:HAS_EXPERIENCE]->(experience)
     CREATE (experience)-[:BELONGS_TO_PROFILE]->(newProfile)
+    FOREACH (proj IN COALESCE(exp.projects, []) |
+        CREATE (project:Project {{
+            name: proj.name,
+            description: proj.description,
+            url: proj.url,
+            technologies: COALESCE(proj.technologies, []),
+            highlights: COALESCE(proj.highlights, [])
+        }})
+        CREATE (experience)-[:HAS_PROJECT]->(project)
+        CREATE (project)-[:BELONGS_TO_PROFILE]->(newProfile)
+    )
 )
 WITH newProfile, newPerson
 FOREACH (edu IN COALESCE($educations, []) |
@@ -55,26 +69,48 @@ RETURN newProfile
 GET_QUERY = """
 MATCH (profile:Profile)
 OPTIONAL MATCH (person:Person)-[:BELONGS_TO_PROFILE]->(profile)
-OPTIONAL MATCH (person)-[:HAS_EXPERIENCE]->(exp:Experience)-[:BELONGS_TO_PROFILE]->(profile)
-OPTIONAL MATCH (person)-[:HAS_EDUCATION]->(edu:Education)-[:BELONGS_TO_PROFILE]->(profile)
-OPTIONAL MATCH (person)-[:HAS_SKILL]->(skill:Skill)-[:BELONGS_TO_PROFILE]->(profile)
-RETURN profile, person, collect(DISTINCT exp) AS experiences,
-       collect(DISTINCT edu) AS educations, collect(DISTINCT skill) AS skills
+CALL {
+    WITH profile, person
+    OPTIONAL MATCH (person)-[:HAS_EXPERIENCE]->(exp:Experience)-[:BELONGS_TO_PROFILE]->(profile)
+    WITH profile, exp
+    OPTIONAL MATCH (exp)-[:HAS_PROJECT]->(proj:Project)-[:BELONGS_TO_PROFILE]->(profile)
+    WITH exp, collect(DISTINCT proj) AS projects
+    RETURN collect(
+        CASE
+            WHEN exp IS NULL THEN NULL
+            ELSE exp{.*, projects: [p IN projects | p{.*}]}
+        END
+    ) AS experiences
+}
+CALL {
+    WITH profile, person
+    OPTIONAL MATCH (person)-[:HAS_EDUCATION]->(edu:Education)-[:BELONGS_TO_PROFILE]->(profile)
+    RETURN collect(DISTINCT edu) AS educations
+}
+CALL {
+    WITH profile, person
+    OPTIONAL MATCH (person)-[:HAS_SKILL]->(skill:Skill)-[:BELONGS_TO_PROFILE]->(profile)
+    RETURN collect(DISTINCT skill) AS skills
+}
+RETURN profile, person, experiences, educations, skills
 """
 
 DELETE_QUERY = """
 OPTIONAL MATCH (profile:Profile)
 OPTIONAL MATCH (person:Person)-[:BELONGS_TO_PROFILE]->(profile)
 OPTIONAL MATCH (person)-[:HAS_EXPERIENCE]->(exp:Experience)-[:BELONGS_TO_PROFILE]->(profile)
+OPTIONAL MATCH (exp)-[:HAS_PROJECT]->(proj:Project)-[:BELONGS_TO_PROFILE]->(profile)
 OPTIONAL MATCH (person)-[:HAS_EDUCATION]->(edu:Education)-[:BELONGS_TO_PROFILE]->(profile)
 OPTIONAL MATCH (person)-[:HAS_SKILL]->(skill:Skill)-[:BELONGS_TO_PROFILE]->(profile)
 WITH [p IN collect(DISTINCT profile) WHERE p IS NOT NULL] AS profiles,
      [p IN collect(DISTINCT person) WHERE p IS NOT NULL] AS persons,
      [e IN collect(DISTINCT exp) WHERE e IS NOT NULL] AS experiences,
+     [p IN collect(DISTINCT proj) WHERE p IS NOT NULL] AS projects,
      [e IN collect(DISTINCT edu) WHERE e IS NOT NULL] AS educations,
      [s IN collect(DISTINCT skill) WHERE s IS NOT NULL] AS skills
 FOREACH (p IN profiles | DETACH DELETE p)
 FOREACH (p IN persons | DETACH DELETE p)
+FOREACH (p IN projects | DETACH DELETE p)
 FOREACH (e IN experiences | DETACH DELETE e)
 FOREACH (e IN educations | DETACH DELETE e)
 FOREACH (s IN skills | DETACH DELETE s)

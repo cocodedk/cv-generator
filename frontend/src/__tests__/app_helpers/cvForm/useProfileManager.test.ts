@@ -112,7 +112,15 @@ describe('useProfileManager', () => {
   it('applies selected profile', async () => {
     const profileData = {
       personal_info: { name: 'John Doe' },
-      experience: [{ title: 'Dev' }, { title: 'Lead' }],
+      experience: [
+        {
+          title: 'Dev',
+          company: 'ACME',
+          start_date: '2020-01',
+          projects: [{ name: 'Portal', highlights: ['Launched v2'] }],
+        },
+        { title: 'Lead' },
+      ],
       education: [{ degree: 'BS' }],
       skills: [],
     }
@@ -131,12 +139,30 @@ describe('useProfileManager', () => {
       result.current.loadProfile()
     })
 
+    await waitFor(() => {
+      expect(result.current.profileData).toBeTruthy()
+      expect(result.current.selectedExperiences.has(0)).toBe(true)
+      expect(result.current.selectedExperiences.has(1)).toBe(true)
+    })
+
     await act(async () => {
       result.current.handleExperienceToggle(0, false)
+    })
+
+    await waitFor(() => {
+      expect(result.current.selectedExperiences.has(0)).toBe(false)
+      expect(result.current.selectedExperiences.has(1)).toBe(true)
+    })
+
+    await act(async () => {
       result.current.applySelectedProfile()
     })
 
-    expect(mockReset).toHaveBeenCalled()
+    expect(mockReset).toHaveBeenCalledWith(
+      expect.objectContaining({
+        experience: [{ title: 'Lead' }],
+      })
+    )
     expect(mockOnSuccess).toHaveBeenCalledWith('Profile data loaded successfully!')
   })
 

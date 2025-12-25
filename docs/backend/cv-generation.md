@@ -2,7 +2,9 @@
 
 The CV Generator creates `.docx` documents from CV data using a Markdown -> Pandoc pipeline.
 
-For pipeline details and template guidance, see `docs/backend/docx-generation.md`.
+The system also supports browser-printable HTML output. See [Print HTML Generation](print-html-generation.md) for details.
+
+For pipeline details and template guidance, see [DOCX Generation](docx-generation.md).
 
 ## Generation Process
 
@@ -34,7 +36,8 @@ Contains personal information:
 Lists work experience with:
 - Job title and company
 - Date range and location
-- Job description
+- Short role description
+- Related projects (with highlights and tech)
 
 ### Education Section
 
@@ -70,6 +73,12 @@ The generation logic is in:
 - `backend/cv_generator_docx/generator.py`: Main DOCX generation class
 - `backend/cv_generator_docx/markdown_renderer.py`: Markdown rendering
 - `backend/cv_generator_docx/template_builder.py`: Template generation
+
+## Output Formats
+
+The CV Generator supports two output formats:
+- **DOCX**: Word-compatible documents (see [DOCX Generation](docx-generation.md))
+- **Print HTML**: Browser-printable HTML (see [Print HTML Generation](print-html-generation.md))
 
 ## Customization
 

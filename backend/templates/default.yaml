@@ -17,14 +17,28 @@ experience:
     start_date: "2020-01"
     end_date: "Present"
     location: "San Francisco, CA"
-    description: "Led development of microservices architecture. Mentored junior developers."
+    description: "Led delivery for core platform initiatives."
+    projects:
+      - name: "Microservices Platform"
+        description: "Split a monolith into reliable services."
+        technologies: ["Python", "FastAPI", "Docker", "Kubernetes"]
+        highlights:
+          - "Improved deployment frequency with CI/CD and containerization."
+          - "Reduced incident rate by adding health checks and monitoring."
+        url: "https://example.com/microservices"
 
   - title: "Software Engineer"
     company: "Startup Co."
     start_date: "2018-06"
     end_date: "2019-12"
     location: "Remote"
-    description: "Developed RESTful APIs and React frontend applications."
+    description: "Built product features end-to-end."
+    projects:
+      - name: "Customer Portal"
+        description: "Self-service web app for account management."
+        technologies: ["React", "TypeScript", "REST"]
+        highlights:
+          - "Shipped onboarding flow that increased activation."
 
 education:
   - degree: "Bachelor of Science"

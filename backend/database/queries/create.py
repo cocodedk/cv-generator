@@ -50,6 +50,17 @@ def create_cv(cv_data: Dict[str, Any]) -> str:
     })
     CREATE (person)-[:HAS_EXPERIENCE]->(experience)
     CREATE (experience)-[:BELONGS_TO_CV]->(cv)
+    WITH cv, person, experience, exp
+    UNWIND COALESCE(exp.projects, []) AS proj
+    CREATE (project:Project {
+        name: proj.name,
+        description: proj.description,
+        url: proj.url,
+        technologies: COALESCE(proj.technologies, []),
+        highlights: COALESCE(proj.highlights, [])
+    })
+    CREATE (experience)-[:HAS_PROJECT]->(project)
+    CREATE (project)-[:BELONGS_TO_CV]->(cv)
 
     // Create Education nodes
     WITH cv, person

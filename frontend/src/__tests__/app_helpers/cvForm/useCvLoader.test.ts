@@ -18,7 +18,20 @@ describe('useCvLoader', () => {
   it('loads CV successfully', async () => {
     const cvData = {
       personal_info: { name: 'John Doe' },
-      experience: [{ title: 'Dev' }],
+      experience: [
+        {
+          title: 'Dev',
+          company: 'ACME',
+          start_date: '2020-01',
+          projects: [
+            {
+              name: 'Billing Revamp',
+              technologies: ['React', 'TypeScript'],
+              highlights: ['Shipped new checkout'],
+            },
+          ],
+        },
+      ],
       education: [],
       skills: [],
     }
@@ -35,7 +48,19 @@ describe('useCvLoader', () => {
 
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith('/api/cv/test-id')
-      expect(mockReset).toHaveBeenCalled()
+      expect(mockReset).toHaveBeenCalledWith(
+        expect.objectContaining({
+          experience: [
+            expect.objectContaining({
+              projects: [
+                expect.objectContaining({
+                  name: 'Billing Revamp',
+                }),
+              ],
+            }),
+          ],
+        })
+      )
     })
   })
 

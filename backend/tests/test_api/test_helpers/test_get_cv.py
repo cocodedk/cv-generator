@@ -13,7 +13,14 @@ class TestGetCV:
         cv_data = {
             "cv_id": "test-id",
             "personal_info": {"name": "John Doe"},
-            "experience": [],
+            "experience": [
+                {
+                    "title": "Dev",
+                    "company": "ACME",
+                    "start_date": "2020-01",
+                    "projects": [{"name": "Portal"}],
+                }
+            ],
             "education": [],
             "skills": [],
         }
@@ -22,6 +29,7 @@ class TestGetCV:
             assert response.status_code == 200
             data = response.json()
             assert data["cv_id"] == "test-id"
+            assert data["experience"][0]["projects"][0]["name"] == "Portal"
 
     async def test_get_cv_not_found(self, client, mock_neo4j_connection):
         """Test CV not found."""

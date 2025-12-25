@@ -20,6 +20,14 @@ export interface PersonalInfo {
   summary?: string
 }
 
+export interface Project {
+  name: string
+  description?: string
+  highlights?: string[]
+  technologies?: string[]
+  url?: string
+}
+
 export interface Experience {
   title: string
   company: string
@@ -27,6 +35,7 @@ export interface Experience {
   end_date?: string
   description?: string
   location?: string
+  projects?: Project[]
 }
 
 export interface Education {
