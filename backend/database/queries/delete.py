@@ -10,9 +10,10 @@ def delete_cv(cv_id: str) -> bool:
     MATCH (cv:CV {id: $cv_id})
     OPTIONAL MATCH (person:Person)-[:BELONGS_TO_CV]->(cv)
     OPTIONAL MATCH (person)-[:HAS_EXPERIENCE]->(exp:Experience)-[:BELONGS_TO_CV]->(cv)
+    OPTIONAL MATCH (exp)-[:HAS_PROJECT]->(proj:Project)-[:BELONGS_TO_CV]->(cv)
     OPTIONAL MATCH (person)-[:HAS_EDUCATION]->(edu:Education)-[:BELONGS_TO_CV]->(cv)
     OPTIONAL MATCH (person)-[:HAS_SKILL]->(skill:Skill)-[:BELONGS_TO_CV]->(cv)
-    DETACH DELETE exp, edu, skill, person, cv
+    DETACH DELETE proj, exp, edu, skill, person, cv
     RETURN count(cv) AS deleted
     """
 

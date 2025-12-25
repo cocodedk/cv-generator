@@ -23,7 +23,18 @@ interface PersonalInfo {
 ```typescript
 interface Experience {
   title: string; company: string; start_date: string; end_date?: string;
-  description?: string; location?: string;
+  description?: string; location?: string; projects?: Project[];
+}
+```
+
+### Project
+```typescript
+interface Project {
+  name: string;
+  description?: string;
+  highlights?: string[];
+  technologies?: string[];
+  url?: string;
 }
 ```
 

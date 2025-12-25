@@ -18,12 +18,18 @@ class TestSaveProfile:
             "education": sample_cv_data["education"],
             "skills": sample_cv_data["skills"],
         }
-        with patch("backend.database.queries.save_profile", return_value=True):
+        with patch("backend.database.queries.save_profile", return_value=True) as mock_save:
             response = await client.post("/api/profile", json=profile_data)
             assert response.status_code == 200
             data = response.json()
             assert data["status"] == "success"
             assert "message" in data
+            call_args = mock_save.call_args
+            assert call_args is not None
+            assert (
+                call_args[0][0]["experience"][0]["projects"][0]["name"]
+                == "Internal Platform"
+            )
 
     async def test_save_profile_validation_error(self, client):
         """Test profile save with invalid data."""

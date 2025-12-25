@@ -133,6 +133,34 @@ sequenceDiagram
     API->>Database: Create CV nodes (independent from Profile)
 ```
 
+## Print HTML Generation Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant API
+    participant Generator
+    participant Database
+
+    User->>Frontend: Request print HTML
+    Frontend->>API: POST /api/render-print-html
+    API->>API: Validate with Pydantic
+    API->>Generator: Render HTML from CV data
+    Generator->>Generator: Apply theme styling
+    Generator-->>API: Return HTML content
+    API-->>Frontend: Return HTML response
+    Frontend->>User: Display print-ready HTML
+
+    Note over User,Database: Alternative: GET /api/cv/{cv_id}/print-html
+    Frontend->>API: GET /api/cv/{cv_id}/print-html
+    API->>Database: Query CV by ID
+    Database-->>API: Return CV data
+    API->>Generator: Render HTML from CV data
+    Generator-->>API: Return HTML content
+    API-->>Frontend: Return HTML response
+```
+
 ## Error Handling
 
 All endpoints: validation errors (400), not found (404), server errors (500). Frontend displays error messages.

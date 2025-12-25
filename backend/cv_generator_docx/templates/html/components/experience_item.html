@@ -45,8 +45,26 @@
 {% endfor %}
 {% elif exp.description_text %}
 <p custom-style="Exp Body">{{ exp.description_text }}</p>
-{% else %}
-{# Fallback for backward compatibility #}
-<p custom-style="Exp Body">{{ exp.description }}</p>
 {% endif %}
+{% endif %}
+
+{% if exp.projects %}
+<p custom-style="Exp Body"><strong>Projects</strong></p>
+{% for project in exp.projects %}
+<p custom-style="Exp Body">
+  <strong>{{ project.name }}</strong>
+  {% if project.description %} — {{ project.description }}{% endif %}
+  {% if project.url %} ({{ project.url }}){% endif %}
+</p>
+{% if project.technologies %}
+<p custom-style="Exp Meta">Tech: {{ project.technologies | join(', ') }}</p>
+{% endif %}
+{% if project.highlights %}
+<ul>
+{% for highlight in project.highlights %}
+<li>{{ highlight }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+{% endfor %}
 {% endif %}

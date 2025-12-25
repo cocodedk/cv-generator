@@ -59,6 +59,19 @@ Complete REST API endpoint documentation for the CV Generator backend.
 **Response**: `CVResponse`
 **Errors**: 404 if CV not found
 
+### Print HTML Endpoints
+
+**POST** `/api/render-print-html` - Render browser-printable HTML from CV data payload.
+**Request**: `CVData` (theme defaults to "classic" if not provided)
+**Response**: HTML content (A4 print-ready format)
+**Errors**: 500 (server error)
+
+**GET** `/api/cv/{cv_id}/print-html` - Render browser-printable HTML for existing CV.
+**Response**: HTML content (A4 print-ready format)
+**Errors**: 404 (CV not found), 500 (server error)
+
+See [Print HTML Generation](print-html-generation.md) for details.
+
 ### Profile Endpoints
 
 **POST** `/api/profile` - Save or update master profile.
@@ -73,6 +86,10 @@ Complete REST API endpoint documentation for the CV Generator backend.
 **DELETE** `/api/profile` - Delete master profile.
 **Response**: `ProfileResponse` with status and message
 **Errors**: 404 (profile not found), 500 (server error)
+
+## Rate Limiting
+
+Rate limits (per IP): Profile (30/min), CV save/list (20/min), DOCX generation (10/min), Print HTML (20-30/min). Returns 429 when exceeded.
 
 ## Interactive Documentation
 

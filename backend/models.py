@@ -26,6 +26,16 @@ class PersonalInfo(BaseModel):
     summary: Optional[str] = None
 
 
+class Project(BaseModel):
+    """Project model nested under an experience."""
+
+    name: str = Field(..., min_length=1, max_length=200)
+    description: Optional[str] = None
+    highlights: List[str] = Field(default_factory=list)
+    technologies: List[str] = Field(default_factory=list)
+    url: Optional[str] = None
+
+
 class Experience(BaseModel):
     """Work experience model."""
 
@@ -35,8 +45,13 @@ class Experience(BaseModel):
     end_date: Optional[str] = Field(
         None, description="End date in YYYY-MM format or 'Present'"
     )
-    description: Optional[str] = None
+    description: Optional[str] = Field(
+        None,
+        max_length=300,
+        description="Keep this short; put details under projects.",
+    )
     location: Optional[str] = None
+    projects: List[Project] = Field(default_factory=list)
 
 
 class Education(BaseModel):

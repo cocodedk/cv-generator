@@ -10,12 +10,15 @@ class TestSaveCV:
 
     async def test_save_cv_success(self, client, sample_cv_data, mock_neo4j_connection):
         """Test successful CV save."""
-        with patch("backend.database.queries.create_cv", return_value="test-cv-id"):
+        with patch("backend.database.queries.create_cv", return_value="test-cv-id") as mock_create:
             response = await client.post("/api/save-cv", json=sample_cv_data)
             assert response.status_code == 200
             data = response.json()
             assert data["cv_id"] == "test-cv-id"
             assert data["status"] == "success"
+            call_args = mock_create.call_args
+            assert call_args is not None
+            assert call_args[0][0]["experience"][0]["projects"][0]["name"] == "Internal Platform"
 
     async def test_save_cv_validation_error(self, client):
         """Test CV save with invalid data."""

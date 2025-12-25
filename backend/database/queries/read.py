@@ -10,14 +10,30 @@ def get_cv_by_id(cv_id: str) -> Optional[Dict[str, Any]]:
     query = """
     MATCH (cv:CV {id: $cv_id})
     OPTIONAL MATCH (person:Person)-[:BELONGS_TO_CV]->(cv)
-    OPTIONAL MATCH (person)-[:HAS_EXPERIENCE]->(exp:Experience)-[:BELONGS_TO_CV]->(cv)
-    OPTIONAL MATCH (person)-[:HAS_EDUCATION]->(edu:Education)-[:BELONGS_TO_CV]->(cv)
-    OPTIONAL MATCH (person)-[:HAS_SKILL]->(skill:Skill)-[:BELONGS_TO_CV]->(cv)
-
-    RETURN cv, person,
-           collect(DISTINCT exp) AS experiences,
-           collect(DISTINCT edu) AS educations,
-           collect(DISTINCT skill) AS skills
+    CALL {
+        WITH cv, person
+        OPTIONAL MATCH (person)-[:HAS_EXPERIENCE]->(exp:Experience)-[:BELONGS_TO_CV]->(cv)
+        WITH cv, exp
+        OPTIONAL MATCH (exp)-[:HAS_PROJECT]->(proj:Project)-[:BELONGS_TO_CV]->(cv)
+        WITH exp, collect(DISTINCT proj) AS projects
+        RETURN collect(
+            CASE
+                WHEN exp IS NULL THEN NULL
+                ELSE exp{.*, projects: [p IN projects | p{.*}]}
+            END
+        ) AS experiences
+    }
+    CALL {
+        WITH cv, person
+        OPTIONAL MATCH (person)-[:HAS_EDUCATION]->(edu:Education)-[:BELONGS_TO_CV]->(cv)
+        RETURN collect(DISTINCT edu) AS educations
+    }
+    CALL {
+        WITH cv, person
+        OPTIONAL MATCH (person)-[:HAS_SKILL]->(skill:Skill)-[:BELONGS_TO_CV]->(cv)
+        RETURN collect(DISTINCT skill) AS skills
+    }
+    RETURN cv, person, experiences, educations, skills
     """
 
     database = Neo4jConnection.get_database()
@@ -81,14 +97,30 @@ def get_cv_by_filename(filename: str) -> Optional[Dict[str, Any]]:
     query = """
     MATCH (cv:CV {filename: $filename})
     OPTIONAL MATCH (person:Person)-[:BELONGS_TO_CV]->(cv)
-    OPTIONAL MATCH (person)-[:HAS_EXPERIENCE]->(exp:Experience)-[:BELONGS_TO_CV]->(cv)
-    OPTIONAL MATCH (person)-[:HAS_EDUCATION]->(edu:Education)-[:BELONGS_TO_CV]->(cv)
-    OPTIONAL MATCH (person)-[:HAS_SKILL]->(skill:Skill)-[:BELONGS_TO_CV]->(cv)
-
-    RETURN cv, person,
-           collect(DISTINCT exp) AS experiences,
-           collect(DISTINCT edu) AS educations,
-           collect(DISTINCT skill) AS skills
+    CALL {
+        WITH cv, person
+        OPTIONAL MATCH (person)-[:HAS_EXPERIENCE]->(exp:Experience)-[:BELONGS_TO_CV]->(cv)
+        WITH cv, exp
+        OPTIONAL MATCH (exp)-[:HAS_PROJECT]->(proj:Project)-[:BELONGS_TO_CV]->(cv)
+        WITH exp, collect(DISTINCT proj) AS projects
+        RETURN collect(
+            CASE
+                WHEN exp IS NULL THEN NULL
+                ELSE exp{.*, projects: [p IN projects | p{.*}]}
+            END
+        ) AS experiences
+    }
+    CALL {
+        WITH cv, person
+        OPTIONAL MATCH (person)-[:HAS_EDUCATION]->(edu:Education)-[:BELONGS_TO_CV]->(cv)
+        RETURN collect(DISTINCT edu) AS educations
+    }
+    CALL {
+        WITH cv, person
+        OPTIONAL MATCH (person)-[:HAS_SKILL]->(skill:Skill)-[:BELONGS_TO_CV]->(cv)
+        RETURN collect(DISTINCT skill) AS skills
+    }
+    RETURN cv, person, experiences, educations, skills
     """
 
     database = Neo4jConnection.get_database()

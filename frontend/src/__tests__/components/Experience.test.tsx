@@ -45,6 +45,28 @@ describe('Experience', () => {
       expect(screen.getByLabelText(/job title/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/company/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/start date/i)).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: /projects/i })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /add project/i })).toBeInTheDocument()
+    })
+  })
+
+  it('adds a project under an experience', async () => {
+    const user = userEvent.setup()
+    render(<ExperienceWrapper />)
+
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /add experience/i }))
+    })
+
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /add project/i }))
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText(/project 1/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/project name/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/technologies/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/highlights/i)).toBeInTheDocument()
     })
   })
 
@@ -63,6 +85,7 @@ describe('Experience', () => {
               end_date: '',
               description: '',
               location: '',
+              projects: [],
             },
           ],
         },

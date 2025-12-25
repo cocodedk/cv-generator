@@ -34,8 +34,19 @@ class Experience(BaseModel):
     company: str  # Required, 1-200 chars
     start_date: str  # YYYY-MM format
     end_date: Optional[str] = None  # YYYY-MM or "Present"
-    description: Optional[str] = None
+    description: Optional[str] = None  # Short (max 300 chars)
     location: Optional[str] = None
+    projects: List[Project] = []
+```
+
+### Project
+```python
+class Project(BaseModel):
+    name: str  # Required, 1-200 chars
+    description: Optional[str] = None
+    highlights: List[str] = []
+    technologies: List[str] = []
+    url: Optional[str] = None
 ```
 
 ### Education
@@ -65,6 +76,7 @@ class CVData(BaseModel):
     experience: List[Experience] = []
     education: List[Education] = []
     skills: List[Skill] = []
+    theme: Optional[str] = "classic"  # classic, modern, minimal, elegant, or accented
 ```
 
 ### CVResponse
@@ -97,7 +109,7 @@ class ProfileData(BaseModel):
     skills: List[Skill] = []
 ```
 
-Same structure as `CVData` but used for master profile storage. Does not include `theme` field.
+Same structure as `CVData` but used for master profile storage. **Does not include `theme` field** - themes are applied when generating CVs from profile data.
 
 ### ProfileResponse
 ```python

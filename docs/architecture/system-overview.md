@@ -9,8 +9,9 @@ graph TB
     User[User Browser] --> Frontend[React Frontend<br/>Port 5173]
     Frontend --> API[FastAPI Backend<br/>Port 8000]
     API --> Neo4j[Neo4j Database<br/>Ports 7474/7687]
-    API --> Generator[CV Generator<br/>DOCX Creation]
+    API --> Generator[CV Generator<br/>DOCX & HTML Creation]
     Generator --> Files[DOCX Files<br/>backend/output/]
+    Generator --> HTML[Print HTML<br/>Browser Output]
 ```
 
 ## Components
@@ -41,6 +42,7 @@ graph TB
 - Business logic orchestration
 - Database operations
 - DOCX document generation
+- Print HTML generation
 
 ### Data Layer
 

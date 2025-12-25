@@ -25,9 +25,30 @@
       {% endfor %}
     {% elif exp.description_text %}
       <p>{{ exp.description_text }}</p>
-    {% else %}
-      <p>{{ exp.description }}</p>
     {% endif %}
+  </div>
+  {% endif %}
+
+  {% if exp.projects %}
+  <div class="proj">
+    <div class="proj-title">Projects</div>
+    {% for project in exp.projects %}
+      <div class="proj-item">
+        <div class="proj-head">
+          <span class="proj-name">{{ project.name }}</span>
+          {% if project.url %}<span class="proj-url">{{ project.url }}</span>{% endif %}
+        </div>
+        {% if project.description %}<div class="proj-desc">{{ project.description }}</div>{% endif %}
+        {% if project.technologies %}<div class="proj-tech">{{ project.technologies | join(', ') }}</div>{% endif %}
+        {% if project.highlights %}
+          <ul class="proj-list">
+          {% for highlight in project.highlights %}
+            <li>{{ highlight }}</li>
+          {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+    {% endfor %}
   </div>
   {% endif %}
 </article>

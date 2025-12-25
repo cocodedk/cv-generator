@@ -4,6 +4,7 @@ from pydantic import ValidationError
 from backend.models import (
     Address,
     PersonalInfo,
+    Project,
     Experience,
     Education,
     Skill,
@@ -69,6 +70,7 @@ class TestExperience:
         exp = Experience(title="Developer", company="Tech Corp", start_date="2020-01")
         assert exp.title == "Developer"
         assert exp.company == "Tech Corp"
+        assert exp.projects == []
 
     def test_required_fields(self):
         """Test required fields."""
@@ -79,6 +81,24 @@ class TestExperience:
         """Test that end_date is optional."""
         exp = Experience(title="Developer", company="Tech Corp", start_date="2020-01")
         assert exp.end_date is None
+
+
+class TestProject:
+    """Test Project model."""
+
+    def test_valid_project(self):
+        project = Project(
+            name="Billing Revamp",
+            description="Rebuilt the billing pipeline.",
+            technologies=["Python", "PostgreSQL"],
+            highlights=["Reduced failed charges by 30%"],
+        )
+        assert project.name == "Billing Revamp"
+        assert project.technologies == ["Python", "PostgreSQL"]
+
+    def test_project_name_required(self):
+        with pytest.raises(ValidationError):
+            Project()
 
 
 class TestEducation:
@@ -119,6 +139,7 @@ class TestCVData:
         cv = CVData(**sample_cv_data)
         assert cv.personal_info.name == "John Doe"
         assert len(cv.experience) == 1
+        assert len(cv.experience[0].projects) == 1
         assert len(cv.education) == 1
         assert len(cv.skills) == 2
 
