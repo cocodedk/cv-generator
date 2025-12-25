@@ -53,10 +53,12 @@ describe('PersonalInfo', () => {
     expect(screen.getByLabelText(/country/i)).toBeInTheDocument()
   })
 
-  it('renders summary textarea', () => {
+  it('renders summary rich text editor', () => {
     render(<PersonalInfoWrapper />)
 
     expect(screen.getByLabelText(/professional summary/i)).toBeInTheDocument()
+    // Check that RichTextarea (ReactQuill) is rendered
+    expect(document.querySelector('.ql-editor')).toBeInTheDocument()
   })
 
   it('displays validation error for required name field', () => {

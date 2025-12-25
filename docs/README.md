@@ -28,6 +28,7 @@ Welcome to the CV Generator documentation. This documentation is organized by to
 ### Frontend
 
 - [Components](frontend/components.md) - React component structure
+- [Rich Text Editor](frontend/rich-text-editor.md) - RichTextarea component and HTML handling
 - [TypeScript Types](frontend/types.md) - Type definitions
 - [State Management](frontend/state-management.md) - Form and app state
 

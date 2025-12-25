@@ -49,6 +49,8 @@ describe('Experience', () => {
       expect(screen.getByLabelText(/job title/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/company/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/start date/i)).toBeInTheDocument()
+      // RichTextarea for role summary is present (check by label or by quill editor)
+      expect(screen.getByLabelText(/role summary/i)).toBeInTheDocument()
       expect(screen.getByRole('heading', { name: /projects/i })).toBeInTheDocument()
       expect(screen.getByRole('button', { name: /add project/i })).toBeInTheDocument()
     })

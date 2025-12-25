@@ -136,3 +136,15 @@ test('renders form', () => {
 ## Pre-commit Hooks
 
 Tests run automatically before each commit. See [Development Workflow](workflow.md).
+
+## Recent Test Additions
+
+### Backend Tests
+- HTML content validation tests for `Experience.description` field
+- Plain text length validation (HTML stripping)
+- HTML entity handling in validation
+
+### Frontend Tests
+- RichTextarea component tests (rendering, onChange, validation, character counting)
+- HTML stripping utility tests
+- Updated component tests to reflect RichTextarea usage

@@ -134,6 +134,7 @@ export default function ExperienceItem({
 
       <div>
         <label
+          id={`experience-description-${index}-label`}
           htmlFor={`experience-description-${index}`}
           className="block text-sm font-medium text-gray-700 dark:text-gray-300"
         >

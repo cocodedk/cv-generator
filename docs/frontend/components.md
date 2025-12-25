@@ -63,12 +63,12 @@ Main form component for CV data entry.
 ### PersonalInfo
 
 **Location**: `frontend/src/components/PersonalInfo.tsx`
-Form section: Name (required), Title, Email, Phone, Address components, LinkedIn/GitHub/Website, Summary.
+Form section: Name (required), Title, Email, Phone, Address components, LinkedIn/GitHub/Website, Summary (rich text editor).
 
 ### Experience
 
 **Location**: `frontend/src/components/Experience.tsx`
-Dynamic array: Add/remove entries, validation, date handling. Fields: Title, Company (required), Start/End dates, Location, Role Summary (short), Projects (name/description/url/tech/highlights).
+Dynamic array: Add/remove entries, validation, date handling. Fields: Title, Company (required), Start/End dates, Location, Role Summary (rich text, 300 char limit), Projects (name/description/url/tech/highlights).
 
 ### Education
 
@@ -130,6 +130,35 @@ Header actions for Profile Manager (reload and delete).
 
 **Location**: `frontend/src/components/ErrorBoundary.tsx`
 React error boundary for graceful error handling.
+
+### RichTextarea
+
+**Location**: `frontend/src/components/RichTextarea.tsx`
+
+Reusable rich text editor component using ReactQuill.
+
+**Features**:
+- HTML formatting toolbar (bold, italic, underline, strike, headers, lists, links)
+- Character counter (counts plain text, excludes HTML tags)
+- Max length validation
+- Error state styling
+- Dark mode support
+- Customizable rows/height
+
+**Usage**:
+- Personal info summary (4 rows)
+- Experience descriptions (10 rows, 300 char limit)
+- Project highlights (3 rows)
+
+**Props**:
+- `id`: Unique identifier
+- `value`: HTML content string
+- `onChange`: Callback with HTML content
+- `placeholder`: Placeholder text
+- `rows`: Number of rows (default: 4)
+- `error`: Error object for validation
+- `maxLength`: Maximum plain text length
+- `className`: Additional CSS classes
 
 ## Form Management
 
