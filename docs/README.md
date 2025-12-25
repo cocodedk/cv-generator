@@ -42,6 +42,13 @@ Welcome to the CV Generator documentation. This documentation is organized by to
 - [Docker Setup](deployment/docker.md) - Docker configuration
 - [Production Deployment](deployment/production.md) - Production deployment guide
 
+### AI (Planned)
+
+- [AI Overview](ai/overview.md) - User flow and guardrails
+- [AI Configuration](ai/configuration.md) - `.env` variables and provider setup
+- [AI API](ai/api.md) - Planned endpoints and payloads
+- [AI Rollout](ai/rollout.md) - Incremental implementation plan
+
 ### Troubleshooting
 
 - [Common Issues](troubleshooting/common-issues.md) - Common problems and solutions
