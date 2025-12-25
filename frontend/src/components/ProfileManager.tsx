@@ -106,8 +106,8 @@ export default function ProfileManager({ onSuccess, onError, setLoading }: Profi
         onDelete={handleDelete}
       />
       <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-8">
-        <PersonalInfo register={register} errors={errors} />
-        <Experience control={control} register={register} />
+        <PersonalInfo register={register} errors={errors} control={control} />
+        <Experience control={control} register={register} errors={errors} />
         <Education control={control} register={register} />
         <Skills control={control} register={register} />
 

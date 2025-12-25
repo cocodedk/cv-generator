@@ -8,6 +8,7 @@ import { CVData } from '../../types/cv'
 function PersonalInfoWrapper() {
   const {
     register,
+    control,
     formState: { errors },
   } = useForm<CVData>({
     defaultValues: {
@@ -26,7 +27,7 @@ function PersonalInfoWrapper() {
     },
   })
 
-  return <PersonalInfo register={register} errors={errors} />
+  return <PersonalInfo register={register} errors={errors} control={control} />
 }
 
 describe('PersonalInfo', () => {
@@ -62,6 +63,7 @@ describe('PersonalInfo', () => {
     function PersonalInfoWithError() {
       const {
         register,
+        control,
         formState: { errors },
       } = useForm<CVData>({
         defaultValues: {
@@ -74,7 +76,7 @@ describe('PersonalInfo', () => {
         name: { type: 'required', message: 'Name is required' },
       } as any
 
-      return <PersonalInfo register={register} errors={errors} />
+      return <PersonalInfo register={register} errors={errors} control={control} />
     }
 
     render(<PersonalInfoWithError />)

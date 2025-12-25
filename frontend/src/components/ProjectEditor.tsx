@@ -1,5 +1,6 @@
 import { Control, UseFormRegister, useController } from 'react-hook-form'
 import { CVData } from '../types/cv'
+import RichTextarea from './RichTextarea'
 
 interface ProjectEditorProps {
   control: Control<CVData>
@@ -118,17 +119,26 @@ export default function ProjectEditor({
 
       <div>
         <label
+          id={`project-highlights-${experienceIndex}-${projectIndex}-label`}
           htmlFor={`project-highlights-${experienceIndex}-${projectIndex}`}
           className="block text-xs font-medium text-gray-700 dark:text-gray-300"
         >
-          Highlights (one per line)
+          Highlights
         </label>
-        <textarea
+        <RichTextarea
           id={`project-highlights-${experienceIndex}-${projectIndex}`}
-          rows={3}
           value={listToText(highlights.field.value, '\n')}
-          onChange={e => highlights.field.onChange(highlightsFromText(e.target.value))}
-          className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
+          onChange={value => {
+            // Convert rich text back to plain text lines for highlights array
+            const plainText = value
+              .replace(/<[^>]*>/g, '')
+              .replace(/&nbsp;/g, ' ')
+              .trim()
+            highlights.field.onChange(highlightsFromText(plainText))
+          }}
+          rows={3}
+          placeholder="Enter highlights (one per line)..."
+          className="mt-1"
         />
       </div>
     </div>

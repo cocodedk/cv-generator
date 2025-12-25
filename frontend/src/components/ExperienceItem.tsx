@@ -1,6 +1,7 @@
-import { Control, UseFormRegister, FieldErrors } from 'react-hook-form'
+import { Control, UseFormRegister, FieldErrors, useController } from 'react-hook-form'
 import { CVData } from '../types/cv'
 import ExperienceProjects from './ExperienceProjects'
+import RichTextarea, { stripHtml } from './RichTextarea'
 
 interface ExperienceItemProps {
   control: Control<CVData>
@@ -18,6 +19,21 @@ export default function ExperienceItem({
   errors,
 }: ExperienceItemProps) {
   const descriptionError = errors?.experience?.[index]?.description
+  const descriptionController = useController({
+    control,
+    name: `experience.${index}.description` as const,
+    rules: {
+      validate: (value: string | undefined) => {
+        if (!value) return true
+        const textLength = stripHtml(value).length
+        return (
+          textLength <= 300 ||
+          'Maximum 300 characters allowed. Please shorten or move details to projects.'
+        )
+      },
+    },
+  })
+
   return (
     <div className="border border-gray-200 rounded-lg p-4 space-y-4 dark:border-gray-800 dark:bg-gray-900/40">
       <div className="flex justify-between items-center">
@@ -123,21 +139,16 @@ export default function ExperienceItem({
         >
           Role Summary (short)
         </label>
-        <textarea
+        <RichTextarea
           id={`experience-description-${index}`}
-          rows={2}
-          {...register(`experience.${index}.description` as const)}
-          className={`mt-1 block w-full rounded-md bg-gray-50 text-gray-900 shadow-sm focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:focus:ring-blue-400 ${
-            descriptionError
-              ? 'border-red-500 ring-2 ring-red-500 focus:border-red-500'
-              : 'border-gray-300 focus:border-blue-500 dark:border-gray-700 dark:focus:border-blue-400'
-          }`}
+          value={descriptionController.field.value || ''}
+          onChange={descriptionController.field.onChange}
+          rows={10}
+          placeholder="Brief summary of your role..."
+          error={descriptionError}
+          maxLength={300}
+          className="mt-1"
         />
-        {descriptionError && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-            {descriptionError.message as string}
-          </p>
-        )}
       </div>
 
       <ExperienceProjects control={control} register={register} experienceIndex={index} />

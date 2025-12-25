@@ -117,7 +117,7 @@ export default function CVForm({ onSuccess, onError, setLoading, cvId }: CVFormP
                 <option value="accented">Accented</option>
               </select>
             </div>
-            <PersonalInfo register={register} errors={errors} />
+            <PersonalInfo register={register} errors={errors} control={control} />
             <Experience control={control} register={register} errors={errors} />
             <Education control={control} register={register} />
             <Skills control={control} register={register} />
