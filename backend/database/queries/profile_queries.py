@@ -25,7 +25,7 @@ CALL {
 
 CREATE_QUERY = f"""{_DELETE_SUBQUERY}
 CREATE (newProfile:Profile {{ updated_at: $updated_at }})
-CREATE (newPerson:Person {{ name: $name, email: $email, phone: $phone,
+CREATE (newPerson:Person {{ name: $name, title: $title, email: $email, phone: $phone,
     address_street: $address_street, address_city: $address_city,
     address_state: $address_state, address_zip: $address_zip,
     address_country: $address_country, linkedin: $linkedin,

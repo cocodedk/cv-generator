@@ -3,7 +3,7 @@ import CVForm from './components/CVForm'
 import CVList from './components/CVList'
 import ProfileManager from './components/ProfileManager'
 import Navigation from './components/Navigation'
-import MessageDisplay from './components/MessageDisplay'
+import NotificationModal from './components/NotificationModal'
 import { useHashRouting } from './app_helpers/useHashRouting'
 import { useTheme } from './app_helpers/useTheme'
 import { useMessage } from './app_helpers/useMessage'
@@ -12,7 +12,7 @@ import './index.css'
 function App() {
   const { viewMode, cvId } = useHashRouting()
   const { isDark, setIsDark } = useTheme()
-  const { message, showMessage } = useMessage()
+  const { message, showMessage, clearMessage } = useMessage()
   const [_loading, setLoading] = useState(false)
 
   const handleSuccess = useCallback(
@@ -20,7 +20,10 @@ function App() {
     [showMessage]
   )
 
-  const handleError = useCallback((message: string) => showMessage('error', message), [showMessage])
+  const handleError = useCallback(
+    (message: string | string[]) => showMessage('error', message),
+    [showMessage]
+  )
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -30,7 +33,7 @@ function App() {
         onThemeToggle={() => setIsDark(current => !current)}
       />
 
-      <MessageDisplay message={message} />
+      <NotificationModal message={message} onClose={clearMessage} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {viewMode === 'form' || viewMode === 'edit' ? (

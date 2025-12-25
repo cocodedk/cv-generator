@@ -37,6 +37,7 @@ def _create_person_node(tx, cv_id: str, personal_info: Dict[str, Any]) -> None:
     MATCH (cv:CV {id: $cv_id})
     CREATE (person:Person {
         name: $name,
+        title: $title,
         email: $email,
         phone: $phone,
         address_street: $address_street,
@@ -55,6 +56,7 @@ def _create_person_node(tx, cv_id: str, personal_info: Dict[str, Any]) -> None:
         query,
         cv_id=cv_id,
         name=personal_info.get("name", ""),
+        title=personal_info.get("title"),
         email=personal_info.get("email"),
         phone=personal_info.get("phone"),
         address_street=address.get("street"),

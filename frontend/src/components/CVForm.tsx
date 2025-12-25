@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import PersonalInfo from './PersonalInfo'
 import Experience from './Experience'
@@ -9,26 +10,30 @@ import { useProfileManager } from '../app_helpers/cvForm/useProfileManager'
 import { useCvSubmit } from '../app_helpers/cvForm/useCvSubmit'
 import ProfileLoaderModal from '../app_helpers/cvForm/ProfileLoaderModal'
 import { defaultCvData } from '../app_helpers/cvForm/cvFormDefaults'
+import AiGenerateModal from './ai/AiGenerateModal'
+import CvFormHeader from './CvFormHeader'
 
 interface CVFormProps {
   onSuccess: (message: string) => void
-  onError: (message: string) => void
+  onError: (message: string | string[]) => void
   setLoading: (loading: boolean) => void
   cvId?: string | null
 }
 
 export default function CVForm({ onSuccess, onError, setLoading, cvId }: CVFormProps) {
   const isEditMode = !!cvId
+  const [showAiModal, setShowAiModal] = useState(false)
   const {
     register,
     handleSubmit,
     control,
     reset,
+    getValues,
+    setError,
     formState: { errors },
   } = useForm<CVData>({
     defaultValues: defaultCvData,
   })
-
   const { isLoadingCv } = useCvLoader({ cvId, reset, onError, setLoading })
 
   const {
@@ -50,10 +55,22 @@ export default function CVForm({ onSuccess, onError, setLoading, cvId }: CVFormP
     onSuccess,
     onError,
     setLoading,
+    setError,
   })
-
   return (
     <>
+      {showAiModal && (
+        <AiGenerateModal
+          onClose={() => setShowAiModal(false)}
+          onApply={draft => {
+            const currentTheme = getValues('theme')
+            reset({ ...draft, theme: currentTheme || draft.theme })
+            onSuccess('Draft applied. Review and save when ready.')
+          }}
+          onError={onError}
+          setLoading={setLoading}
+        />
+      )}
       {showProfileLoader && profileData && (
         <ProfileLoaderModal
           profileData={profileData}
@@ -74,29 +91,12 @@ export default function CVForm({ onSuccess, onError, setLoading, cvId }: CVFormP
 
       {!isLoadingCv && (
         <div className="bg-white shadow rounded-lg dark:bg-gray-900 dark:border dark:border-gray-800">
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                {isEditMode ? 'Edit CV' : 'Create Your CV'}
-              </h2>
-              <div className="flex space-x-2">
-                <button
-                  type="button"
-                  onClick={loadProfile}
-                  className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                >
-                  Load from Profile
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSubmit(saveToProfile)}
-                  className="px-4 py-2 text-sm font-medium text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
-                >
-                  Save to Profile
-                </button>
-              </div>
-            </div>
-          </div>
+          <CvFormHeader
+            title={isEditMode ? 'Edit CV' : 'Create Your CV'}
+            onLoadProfile={loadProfile}
+            onSaveProfile={handleSubmit(saveToProfile)}
+            onGenerateFromJd={() => setShowAiModal(true)}
+          />
           <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-8">
             <div className="grid gap-2">
               <label
@@ -118,7 +118,7 @@ export default function CVForm({ onSuccess, onError, setLoading, cvId }: CVFormP
               </select>
             </div>
             <PersonalInfo register={register} errors={errors} />
-            <Experience control={control} register={register} />
+            <Experience control={control} register={register} errors={errors} />
             <Education control={control} register={register} />
             <Skills control={control} register={register} />
 

@@ -1,7 +1,11 @@
 #!/bin/bash
 
 # CV Generator - Run All Tests
-# This script runs both backend and frontend tests
+# This script runs backend and frontend tests
+#
+# Usage:
+#   ./scripts/run-tests.sh           # Run all tests
+#   ./scripts/run-tests.sh --help    # Show help
 
 set -e
 
@@ -16,6 +20,35 @@ NC='\033[0m' # No Color
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$PROJECT_ROOT"
+
+# Parse command-line arguments
+SHOW_HELP=0
+
+for arg in "$@"; do
+    case $arg in
+        --help|-h)
+            SHOW_HELP=1
+            shift
+            ;;
+        *)
+            echo -e "${RED}Unknown option: $arg${NC}"
+            echo "Use --help to see usage information"
+            exit 1
+            ;;
+    esac
+done
+
+# Show help if requested
+if [ $SHOW_HELP -eq 1 ]; then
+    echo "CV Generator Test Runner"
+    echo ""
+    echo "Usage:"
+    echo "  ./scripts/run-tests.sh              Run all tests (backend, frontend)"
+    echo "  ./scripts/run-tests.sh --help       Show this help message"
+    echo ""
+    echo "Note: For E2E tests, use: ./scripts/run-e2e-tests.sh"
+    exit 0
+fi
 
 echo -e "${BLUE}🧪 Running CV Generator Tests...${NC}"
 echo ""
@@ -85,6 +118,9 @@ run_frontend_tests() {
 }
 
 # Run tests
+# Temporarily disable set -e to allow capturing exit codes
+set +e
+
 echo -e "${BLUE}════════════════════════════════════════${NC}"
 run_backend_tests
 BACKEND_EXIT=$?
@@ -93,6 +129,9 @@ echo ""
 echo -e "${BLUE}════════════════════════════════════════${NC}"
 run_frontend_tests
 FRONTEND_EXIT=$?
+
+# Re-enable set -e for the rest of the script
+set -e
 
 # Summary
 echo ""
@@ -115,7 +154,12 @@ fi
 echo ""
 
 # Exit with appropriate code
-if [ $BACKEND_PASSED -eq 1 ] && [ $FRONTEND_PASSED -eq 1 ]; then
+ALL_PASSED=1
+if [ $BACKEND_PASSED -ne 1 ] || [ $FRONTEND_PASSED -ne 1 ]; then
+    ALL_PASSED=0
+fi
+
+if [ $ALL_PASSED -eq 1 ]; then
     echo -e "${GREEN}🎉 All tests passed!${NC}"
     exit 0
 else

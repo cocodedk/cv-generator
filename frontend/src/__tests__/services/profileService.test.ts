@@ -70,12 +70,12 @@ describe('profileService', () => {
     it('throws error on failure', async () => {
       const error = {
         response: {
-          data: { detail: 'Save failed' },
+          data: { detail: 'Failed to save profile' },
         },
       }
       mockedAxios.post.mockRejectedValue(error)
 
-      await expect(saveProfile({} as any)).rejects.toThrow('Save failed')
+      await expect(saveProfile({} as any)).rejects.toThrow('Failed to save profile')
     })
   })
 

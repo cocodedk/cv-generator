@@ -7,14 +7,18 @@ import { CVData } from '../../types/cv'
 
 // Wrapper component to provide form context
 function ExperienceWrapper() {
-  const { control, register } = useForm<CVData>({
+  const {
+    control,
+    register,
+    formState: { errors },
+  } = useForm<CVData>({
     defaultValues: {
       personal_info: { name: 'Test' },
       experience: [],
     },
   })
 
-  return <Experience control={control} register={register} />
+  return <Experience control={control} register={register} errors={errors} />
 }
 
 describe('Experience', () => {
@@ -74,7 +78,11 @@ describe('Experience', () => {
     const user = userEvent.setup()
 
     function ExperienceWithData() {
-      const { control, register } = useForm<CVData>({
+      const {
+        control,
+        register,
+        formState: { errors },
+      } = useForm<CVData>({
         defaultValues: {
           personal_info: { name: 'Test' },
           experience: [
@@ -91,7 +99,7 @@ describe('Experience', () => {
         },
       })
 
-      return <Experience control={control} register={register} />
+      return <Experience control={control} register={register} errors={errors} />
     }
 
     render(<ExperienceWithData />)

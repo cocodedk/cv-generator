@@ -1,6 +1,6 @@
 """Pydantic models for CV data validation."""
 from typing import Optional, List
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 class Address(BaseModel):
@@ -17,6 +17,7 @@ class PersonalInfo(BaseModel):
     """Personal information model."""
 
     name: str = Field(..., min_length=1, max_length=200)
+    title: Optional[str] = None
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
     address: Optional[Address] = None
@@ -24,6 +25,13 @@ class PersonalInfo(BaseModel):
     github: Optional[str] = None
     website: Optional[str] = None
     summary: Optional[str] = None
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def _empty_email_to_none(cls, value: object) -> object:
+        if value == "":
+            return None
+        return value
 
 
 class Project(BaseModel):

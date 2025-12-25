@@ -1,4 +1,4 @@
-import { Control, UseFormRegister } from 'react-hook-form'
+import { Control, UseFormRegister, FieldErrors } from 'react-hook-form'
 import { CVData } from '../types/cv'
 import ExperienceProjects from './ExperienceProjects'
 
@@ -7,6 +7,7 @@ interface ExperienceItemProps {
   register: UseFormRegister<CVData>
   index: number
   onRemove: () => void
+  errors: FieldErrors<CVData>
 }
 
 export default function ExperienceItem({
@@ -14,7 +15,9 @@ export default function ExperienceItem({
   register,
   index,
   onRemove,
+  errors,
 }: ExperienceItemProps) {
+  const descriptionError = errors?.experience?.[index]?.description
   return (
     <div className="border border-gray-200 rounded-lg p-4 space-y-4 dark:border-gray-800 dark:bg-gray-900/40">
       <div className="flex justify-between items-center">
@@ -124,8 +127,17 @@ export default function ExperienceItem({
           id={`experience-description-${index}`}
           rows={2}
           {...register(`experience.${index}.description` as const)}
-          className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
+          className={`mt-1 block w-full rounded-md bg-gray-50 text-gray-900 shadow-sm focus:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:focus:ring-blue-400 ${
+            descriptionError
+              ? 'border-red-500 ring-2 ring-red-500 focus:border-red-500'
+              : 'border-gray-300 focus:border-blue-500 dark:border-gray-700 dark:focus:border-blue-400'
+          }`}
         />
+        {descriptionError && (
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+            {descriptionError.message as string}
+          </p>
+        )}
       </div>
 
       <ExperienceProjects control={control} register={register} experienceIndex={index} />

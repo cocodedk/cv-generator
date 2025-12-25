@@ -1,6 +1,7 @@
 /** Profile API service for managing profile operations. */
 import axios from 'axios'
 import { ProfileData, ProfileResponse } from '../types/cv'
+import { normalizeProfileDataForApi } from '../app_helpers/cvForm/normalizeCvData'
 
 /**
  * Get the master profile from the server.
@@ -27,7 +28,8 @@ export async function getProfile(): Promise<ProfileData | null> {
  */
 export async function saveProfile(profileData: ProfileData): Promise<ProfileResponse> {
   try {
-    const response = await axios.post<ProfileResponse>('/api/profile', profileData)
+    const payload = normalizeProfileDataForApi(profileData)
+    const response = await axios.post<ProfileResponse>('/api/profile', payload)
     return response.data
   } catch (error: any) {
     throw new Error(error.response?.data?.detail || 'Failed to save profile')

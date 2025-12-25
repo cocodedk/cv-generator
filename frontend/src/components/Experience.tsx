@@ -1,13 +1,14 @@
-import { useFieldArray, Control, UseFormRegister } from 'react-hook-form'
+import { useFieldArray, Control, UseFormRegister, FieldErrors } from 'react-hook-form'
 import { CVData } from '../types/cv'
 import ExperienceItem from './ExperienceItem'
 
 interface ExperienceProps {
   control: Control<CVData>
   register: UseFormRegister<CVData>
+  errors: FieldErrors<CVData>
 }
 
-export default function Experience({ control, register }: ExperienceProps) {
+export default function Experience({ control, register, errors }: ExperienceProps) {
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'experience',
@@ -51,6 +52,7 @@ export default function Experience({ control, register }: ExperienceProps) {
           register={register}
           index={index}
           onRemove={() => remove(index)}
+          errors={errors}
         />
       ))}
     </div>

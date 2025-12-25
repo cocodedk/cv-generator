@@ -66,6 +66,15 @@ export const clickSaveToProfileButton = async () => {
   return saveButton
 }
 
+export const clickGenerateFromJdButton = async () => {
+  const user = userEvent.setup()
+  const generateButton = screen.getByRole('button', { name: /generate from jd/i })
+  await act(async () => {
+    await user.click(generateButton)
+  })
+  return generateButton
+}
+
 export const waitForFormToLoad = async () => {
   await waitFor(() => {
     expect(screen.getByText('Create Your CV')).toBeInTheDocument()

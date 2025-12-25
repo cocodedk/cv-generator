@@ -39,6 +39,24 @@ Testing strategy and how to run tests for the CV Generator.
 
 **Configuration**: `frontend/vitest.config.ts`
 
+### End-to-End Tests
+
+**Location**: `tests/e2e/`
+
+**Test Files**:
+- `ai-cv-generation.spec.ts`: AI CV generation end-to-end flow tests
+
+**Helpers**: `tests/e2e/helpers/`
+- `constants.ts`: Test constants (URLs, timeouts)
+- `urlUtils.ts`: URL parsing utilities
+- `apiCleanup.ts`: API cleanup functions
+- `cleanupManager.ts`: Resource cleanup management
+- `aiGeneration.ts`: AI generation test helpers
+
+**Framework**: Playwright
+
+**Configuration**: `playwright.config.ts`
+
 ## Running Tests
 
 ### Backend Tests
@@ -66,6 +84,25 @@ cd frontend && npx vitest run
 
 **Watch mode**: `cd frontend && npx vitest`
 **With coverage**: `cd frontend && npx vitest run --coverage`
+
+### End-to-End Tests
+
+**Prerequisites**: Backend and frontend must be running, and a profile must exist in the database.
+
+**Run all E2E tests**:
+```bash
+npx playwright test
+```
+
+**Run specific test file**:
+```bash
+npx playwright test tests/e2e/ai-cv-generation.spec.ts
+```
+
+**Run in headed mode** (see browser):
+```bash
+npx playwright test --headed
+```
 
 ### All Tests
 

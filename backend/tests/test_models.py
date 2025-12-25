@@ -61,6 +61,11 @@ class TestPersonalInfo:
         with pytest.raises(ValidationError):
             PersonalInfo(name="John Doe", email="invalid-email")
 
+    def test_empty_email_is_allowed(self):
+        """Test that empty-string email is treated as missing."""
+        info = PersonalInfo(name="John Doe", email="")
+        assert info.email is None
+
 
 class TestExperience:
     """Test Experience model."""

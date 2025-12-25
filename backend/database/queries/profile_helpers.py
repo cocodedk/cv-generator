@@ -9,6 +9,7 @@ def build_save_params(profile_data: Dict[str, Any], updated_at: str) -> Dict[str
     return {
         "updated_at": updated_at,
         "name": personal_info.get("name", ""),
+        "title": personal_info.get("title"),
         "email": personal_info.get("email"),
         "phone": personal_info.get("phone"),
         "address_street": address.get("street"),
@@ -49,6 +50,7 @@ def process_profile_record(record: Any) -> Optional[Dict[str, Any]]:
         "updated_at": record["profile"].get("updated_at"),
         "personal_info": {
             "name": person.get("name"),
+            "title": person.get("title"),
             "email": person.get("email"),
             "phone": person.get("phone"),
             "address": build_address(person),
