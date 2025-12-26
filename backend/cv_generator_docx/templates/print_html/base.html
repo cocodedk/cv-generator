@@ -2,10 +2,47 @@
 <style>
 :root{--page-w:210mm;--page-h:297mm;--pad:14mm;--ink:#0f172a;--muted:#475569;--light:#e2e8f0;--paper:#fff;--accent:#0f766e;--accent-2:#1e40af;}
 {% if theme_css %}{{ theme_css }}{% endif %}
-@page{size:A4;margin:0}html,body{height:100%}body{margin:0;background:#f1f5f9;color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";line-height:1.4;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+@page{size:A4;margin:0}html,body{height:100%}body{margin:0;background:#f1f5f9;color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";line-height:1.4}
 .hint{width:var(--page-w);margin:8mm auto 0;font-size:12px;color:#64748b}
-.sheet{width:var(--page-w);min-height:var(--page-h);margin:10mm auto;background:var(--paper);box-shadow:0 10px 30px rgba(15,23,42,.12)}
-.page{padding:var(--pad)}
+.sheet{width:var(--page-w);min-height:var(--page-h);margin:10mm auto;background:var(--paper);box-shadow:0 10px 30px rgba(15,23,42,.12);position:relative;overflow:hidden}
+.sheet:before{content:"";position:absolute;top:0;left:0;right:0;bottom:0;background-image:repeating-linear-gradient(45deg,transparent,transparent 15mm,rgba(15,118,110,.015) 15mm,rgba(15,118,110,.015) 30mm);pointer-events:none;z-index:0}
+.sheet:after{content:"";position:absolute;top:-80mm;right:-80mm;width:300mm;height:300mm;background:radial-gradient(circle,rgba(15,118,110,.012) 0%,transparent 60%);border-radius:50%;pointer-events:none;z-index:0}
+.bg-text{position:absolute;top:0;left:0;right:0;bottom:0;min-height:297mm;pointer-events:none;z-index:0;user-select:none}
+.bg-text-item{position:absolute;font-size:80px;font-weight:900;color:rgba(15,118,110,.03);white-space:nowrap;transform:rotate(-45deg)}
+.bg-text-item:nth-child(1){top:20mm;left:-20mm}
+.bg-text-item:nth-child(2){top:20mm;left:60mm}
+.bg-text-item:nth-child(3){top:20mm;left:140mm}
+.bg-text-item:nth-child(4){top:20mm;left:220mm}
+.bg-text-item:nth-child(5){top:80mm;left:-20mm}
+.bg-text-item:nth-child(6){top:80mm;left:60mm}
+.bg-text-item:nth-child(7){top:80mm;left:140mm}
+.bg-text-item:nth-child(8){top:80mm;left:220mm}
+.bg-text-item:nth-child(9){top:140mm;left:-20mm}
+.bg-text-item:nth-child(10){top:140mm;left:60mm}
+.bg-text-item:nth-child(11){top:140mm;left:140mm}
+.bg-text-item:nth-child(12){top:140mm;left:220mm}
+.bg-text-item:nth-child(13){top:200mm;left:-20mm}
+.bg-text-item:nth-child(14){top:200mm;left:60mm}
+.bg-text-item:nth-child(15){top:200mm;left:140mm}
+.bg-text-item:nth-child(16){top:200mm;left:220mm}
+.bg-text-item:nth-child(17){top:260mm;left:-20mm}
+.bg-text-item:nth-child(18){top:260mm;left:60mm}
+.bg-text-item:nth-child(19){top:260mm;left:140mm}
+.bg-text-item:nth-child(20){top:260mm;left:220mm}
+.bg-text-item:nth-child(21){top:320mm;left:-20mm}
+.bg-text-item:nth-child(22){top:320mm;left:60mm}
+.bg-text-item:nth-child(23){top:320mm;left:140mm}
+.bg-text-item:nth-child(24){top:320mm;left:220mm}
+.bg-text-item:nth-child(25){top:380mm;left:-20mm}
+.bg-text-item:nth-child(26){top:380mm;left:60mm}
+.bg-text-item:nth-child(27){top:380mm;left:140mm}
+.bg-text-item:nth-child(28){top:380mm;left:220mm}
+.page{padding:var(--pad);position:relative;z-index:1}
+.attribution{text-align:center;font-size:9px;color:var(--muted);padding:2mm 0;border-top:1px solid var(--light);border-bottom:1px solid var(--light);margin:0}
+.attribution a{color:var(--accent);text-decoration:none;font-weight:600}
+.attribution a:hover{text-decoration:underline}
+.attribution-top{margin-bottom:4mm;border-bottom:1px solid var(--light);border-top:0}
+.attribution-bottom{margin-top:4mm;border-top:1px solid var(--light);border-bottom:0}
 .header{display:grid;grid-template-columns:1fr auto;gap:12mm;align-items:start;padding-bottom:6mm;border-bottom:1px solid var(--light)}
 .name{font-size:28px;letter-spacing:-.3px;margin:0;line-height:1.15}
 .headline{margin-top:4px;color:var(--muted);font-size:18px;font-weight:600;line-height:1.3}
@@ -13,27 +50,29 @@
 .photo{width:34mm;height:34mm;border-radius:10mm;object-fit:cover;border:1px solid var(--light);background:#f8fafc;display:block;margin-left:auto}
 .contact{margin:6mm 0 0;padding:0;list-style:none;display:grid;gap:2.2mm;justify-items:end;font-size:11px;color:var(--muted)}.contact a{color:inherit;text-decoration:none}.contact a:hover{text-decoration:underline}
 .grid{margin-top:8mm;display:grid;grid-template-columns:1.65fr 1fr;gap:10mm;align-items:start}
-.section{margin-bottom:8mm;break-inside:avoid}
+.section{margin-bottom:8mm}
 .section-title{display:flex;align-items:baseline;gap:8px;margin:0 0 4mm;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--accent)}.section-title:after{content:"";height:1px;flex:1;background:linear-gradient(90deg,var(--light),rgba(226,232,240,0))}
-.exp-item{padding:4mm 0;border-bottom:1px solid rgba(226,232,240,.8);break-inside:avoid}.exp-item:last-child{border-bottom:0}
+.exp-item{padding:4mm 0;border-bottom:1px solid rgba(226,232,240,.8)}.exp-item:last-child{border-bottom:0}
 .exp-top{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:baseline}
 .exp-role{font-size:13px;font-weight:750;margin:0}.exp-company{font-size:12px;font-weight:700;color:var(--accent-2);margin:0;text-align:right;white-space:nowrap}
 .exp-meta{margin-top:1.5mm;display:grid;grid-template-columns:1fr auto;gap:10px;font-size:11px;color:var(--muted)}
 .exp-desc{margin-top:3mm;font-size:11.5px;color:var(--ink)}.exp-desc p{margin:0 0 2.2mm}.exp-desc ul{margin:0;padding-left:4.2mm;display:grid;gap:1.8mm}.exp-desc li{margin:0}.proj{margin-top:3.5mm}.proj-title{font-size:11px;font-weight:800;letter-spacing:.5px;color:var(--muted);margin:0 0 2mm}.proj-item{margin:0 0 3mm}.proj-item:last-child{margin-bottom:0}.proj-head{display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}.proj-name{font-size:11.5px;font-weight:800;color:var(--ink)}.proj-url{font-size:10.8px;color:var(--muted)}.proj-desc{margin-top:1mm;font-size:11.2px;color:var(--ink)}.proj-tech{margin-top:.8mm;font-size:10.8px;color:var(--muted)}.proj-list{margin:1.8mm 0 0;padding-left:4.2mm;display:grid;gap:1.6mm}.proj-list li{margin:0}
-.skills{display:grid;gap:4mm}.skill-cat{break-inside:avoid}.skill-cat-title{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);font-weight:700;margin:0 0 2mm}
+.skills{display:grid;gap:4mm}.skill-cat-title{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);font-weight:700;margin:0 0 2mm}
 .chips{display:flex;flex-wrap:wrap;gap:2mm}
 .chip{font-size:10.8px;padding:1.3mm 2.8mm;border-radius:999px;border:1px solid var(--light);background:#f8fafc;color:var(--ink);white-space:nowrap}
 .chip--expert{border-color:rgba(15,118,110,.45);background:rgba(15,118,110,.08);color:#0f3d3b;font-weight:700}
 .chip--adv{border-color:rgba(30,64,175,.35);background:rgba(30,64,175,.06);color:#0f1f46;font-weight:650}
-.edu-item{padding:3mm 0;border-bottom:1px solid rgba(226,232,240,.8);break-inside:avoid}.edu-item:last-child{border-bottom:0}
+.edu-item{padding:3mm 0;border-bottom:1px solid rgba(226,232,240,.8)}.edu-item:last-child{border-bottom:0}
 .edu-degree{margin:0;font-size:12px;font-weight:750}.edu-meta{margin-top:1.2mm;font-size:11px;color:var(--muted)}
-@media print{body{background:#fff}.hint{display:none}.sheet{margin:0;box-shadow:none}.page{padding:var(--pad)}a{color:inherit;text-decoration:none}}
+@media print{.hint{display:none}}
 </style></head>
-<body><div class="hint">A4 preview (open print dialog and select A4).</div><div class="sheet"><div class="page">
+<body><div class="hint">A4 preview (open print dialog and select A4).</div><div class="sheet"><div class="bg-text"><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div><div class="bg-text-item">cocode.dk</div></div><div class="page">
+<div class="attribution attribution-top"><a href="https://github.com/cocodedk/cv-generator" target="_blank" rel="noopener noreferrer">Generated by cocode.dk Open Source CV Generator</a></div>
 <header class="header"><div>{% if personal_info.name %}<h1 class="name">{{ personal_info.name }}</h1>{% endif %}{% if personal_info.title %}<div class="headline">{{ personal_info.title }}</div>{% endif %}{% if personal_info.summary %}<div class="summary">{{ personal_info.summary | safe }}</div>{% endif %}</div>
 <div>{% if personal_info.photo %}<img class="photo" src="{{ personal_info.photo }}" alt="Photo"/>{% endif %}
 <ul class="contact">{% if personal_info.email %}<li><a href="mailto:{{ personal_info.email }}">{{ personal_info.email }}</a></li>{% endif %}{% if personal_info.phone %}<li>{{ personal_info.phone }}</li>{% endif %}{% if personal_info.website %}<li><a href="{{ personal_info.website }}">{{ personal_info.website }}</a></li>{% endif %}{% if personal_info.linkedin %}<li><a href="{{ personal_info.linkedin }}">{{ personal_info.linkedin }}</a></li>{% endif %}{% if personal_info.github %}<li><a href="{{ personal_info.github }}">{{ personal_info.github }}</a></li>{% endif %}{% if personal_info.address %}<li>{{ personal_info.address }}</li>{% endif %}</ul></div></header>
 <div class="grid"><main>{% if experience %}<section class="section"><h2 class="section-title">Experience</h2>{% for exp in experience %}{% include "components/experience_item.html" %}{% endfor %}</section>{% endif %}</main>
 <aside>{% if skills_by_category %}<section class="section"><h2 class="section-title">Skills</h2>{% include "components/skills_list.html" %}</section>{% endif %}
 {% if education %}<section class="section"><h2 class="section-title">Education</h2>{% for edu in education %}{% include "components/education_item.html" %}{% endfor %}</section>{% endif %}</aside></div>
+<div class="attribution attribution-bottom"><a href="https://github.com/cocodedk/cv-generator" target="_blank" rel="noopener noreferrer">Generated by cocode.dk Open Source CV Generator</a></div>
 </div></div></body></html>
