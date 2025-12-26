@@ -12,12 +12,18 @@ Testing strategy and how to run tests for the CV Generator.
 - `test_models.py`: Pydantic model validation tests
 - `test_generator.py`: CVGenerator class tests
 - `test_database/test_queries.py`: Database query tests
-- `test_database/test_profile_queries.py`: Profile query tests (mocked)
+- `test_database/test_profile_queries.py`: Profile query tests documentation (refactored)
+- `test_database/test_profile_queries_save.py`: Profile save and update tests (mocked)
+- `test_database/test_profile_queries_get.py`: Profile retrieval tests (mocked)
+- `test_database/test_profile_queries_delete.py`: Profile deletion tests (mocked)
 - `test_database/test_profile_queries_integration.py`: Profile CRUD integration (live Neo4j)
 - `test_api/test_health.py`: Health check endpoint tests
 - `test_api/test_cv_endpoints.py`: CV CRUD endpoint tests
 - `test_api/test_profile_endpoints.py`: Profile endpoint tests
 - `test_api/test_download.py`: File download endpoint tests
+
+**Test Helpers**:
+- `test_database/helpers/profile_queries/mocks.py`: Shared mock setup utilities for profile query tests
 
 **Framework**: pytest
 
@@ -152,6 +158,11 @@ Tests run automatically before each commit. See [Development Workflow](workflow.
 - HTML content validation tests for `Experience.description` field
 - Plain text length validation (HTML stripping)
 - HTML entity handling in validation
+- Profile query tests refactored into smaller, focused test files:
+  - Save and update tests separated into `test_profile_queries_save.py`
+  - Retrieval tests separated into `test_profile_queries_get.py`
+  - Deletion tests separated into `test_profile_queries_delete.py`
+  - Shared test helpers and mocks in `helpers/profile_queries/mocks.py`
 
 ### Frontend Tests
 - RichTextarea component tests (rendering, onChange, validation, character counting)

@@ -59,6 +59,41 @@ Define a JD “target spec” (keywords + responsibilities), then score each pro
 - Drop lowest-scoring highlights first; never invent new ones.
 - If a highlight implies an outcome/metric not present in the profile, add a question instead of a number.
 
+## Endpoint: Rewrite Text
+
+`POST /api/ai/rewrite`
+
+Rewrites text using an LLM based on a user-provided prompt. This endpoint is used by the RichTextarea component's AI rewrite feature.
+
+### Request (JSON)
+
+- `text`: string (required, 1-10000 characters) - The text to rewrite
+- `prompt`: string (required, 1-500 characters) - User's instruction for rewriting (e.g., "Make it more professional", "Make it shorter", "Improve clarity")
+
+### Response (JSON)
+
+- `rewritten_text`: string - The rewritten text
+
+### Error Handling
+
+- `400`: Invalid request (missing fields, validation errors)
+- `422`: Validation error (text/prompt length out of range)
+- `503`: LLM service not configured (missing `AI_ENABLED`, `AI_BASE_URL`, or `AI_API_KEY`)
+- `500`: Server error (LLM API failure, network error)
+
+### Rate Limiting
+
+20 requests per minute per IP address.
+
+### Configuration
+
+Requires AI environment variables to be set:
+- `AI_ENABLED=true`
+- `AI_BASE_URL` (OpenAI-compatible API URL)
+- `AI_API_KEY` (API key for the LLM provider)
+
+See [AI Configuration](configuration.md) for details.
+
 ## Endpoint: Critique CV (Optional)
 
 `POST /api/ai/critique-cv`

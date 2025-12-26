@@ -158,3 +158,16 @@ class ProfileResponse(BaseModel):
 
     status: str = "success"
     message: Optional[str] = None
+
+
+class ProfileListItem(BaseModel):
+    """Profile list item with basic info."""
+
+    name: str
+    updated_at: str
+
+
+class ProfileListResponse(BaseModel):
+    """Response model for profile list."""
+
+    profiles: List[ProfileListItem]

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Control, UseFormRegister, useController } from 'react-hook-form'
 import { CVData } from '../types/cv'
 import RichTextarea from './RichTextarea'
@@ -45,6 +46,16 @@ export default function ProjectEditor({
   })
   const technologies = useController({ control, name: `${base}.technologies` as const })
   const highlights = useController({ control, name: `${base}.highlights` as const })
+
+  // Local state for technologies text input to allow free typing
+  const [technologiesText, setTechnologiesText] = useState(
+    listToText(technologies.field.value, ', ')
+  )
+
+  // Sync local state when form value changes externally
+  useEffect(() => {
+    setTechnologiesText(listToText(technologies.field.value, ', '))
+  }, [technologies.field.value])
 
   return (
     <div className="border border-gray-200 rounded-md p-3 space-y-3 dark:border-gray-800 dark:bg-gray-900/30">
@@ -121,8 +132,9 @@ export default function ProjectEditor({
         <input
           id={`project-tech-${experienceIndex}-${projectIndex}`}
           type="text"
-          value={listToText(technologies.field.value, ', ')}
-          onChange={e => technologies.field.onChange(technologiesFromText(e.target.value))}
+          value={technologiesText}
+          onChange={e => setTechnologiesText(e.target.value)}
+          onBlur={() => technologies.field.onChange(technologiesFromText(technologiesText))}
           className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
         />
       </div>

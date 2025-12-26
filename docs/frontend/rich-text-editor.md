@@ -55,10 +55,17 @@ The component enforces max length by:
 
 When enabled via the `showAiAssist` prop, RichTextarea shows two helper actions:
 
-- **AI rewrite**: light rewrite for clarity (safe, deterministic transformations)
-- **AI bullets**: converts sentences into bullet points + applies the same rewrites
+- **AI rewrite**: Opens a modal to enter a custom prompt, then uses an LLM to rewrite text based on user instruction (e.g., "Make it more professional", "Make it shorter", "Improve clarity"). Requires LLM configuration (see [AI Configuration](../ai/configuration.md)).
+- **AI bullets**: Converts sentences into bullet points using heuristic-based transformations (no LLM required, works offline)
 
-This is an in-form helper intended to speed up editing. It does not require a job description.
+**AI Rewrite Modal**:
+- Prompt input textarea with placeholder examples
+- Cancel and Rewrite buttons
+- Loading state during LLM API call
+- Error display if rewrite fails
+- Converts plain text LLM response back to HTML for editor
+
+This is an in-form helper intended to speed up editing. AI rewrite requires LLM configuration, while AI bullets works without any external services.
 For the JD-based draft flow, see `docs/ai/overview.md`.
 
 See [Backend Models](../backend/models.md) for server-side validation details.

@@ -147,7 +147,11 @@ Reusable rich text editor component using TipTap (ProseMirror).
 - Error state styling
 - Dark mode support
 - Customizable rows/height
-- Optional “AI Assist” actions (rewrite/bullets)
+- Optional "AI Assist" actions (rewrite/bullets)
+
+**AI Assist Features**:
+- **AI Rewrite**: Opens a modal to enter a custom prompt, then calls LLM API to rewrite text based on user instruction
+- **AI Bullets**: Converts sentences into bullet points using heuristic-based transformations (no LLM required)
 
 **Usage**:
 - Personal info summary (4 rows) - used in CVForm and ProfileManager
@@ -164,6 +168,14 @@ Reusable rich text editor component using TipTap (ProseMirror).
 - `maxLength`: Maximum plain text length
 - `className`: Additional CSS classes
 - `showAiAssist`: Show AI rewrite/bullets actions (used in Edit CV mode and Profile page)
+
+**AI Rewrite Flow**:
+1. User clicks "AI rewrite" button
+2. Modal opens with prompt textarea
+3. User enters instruction (e.g., "Make it more professional")
+4. On submit, calls `/api/ai/rewrite` endpoint
+5. LLM response is converted to HTML and inserted into editor
+6. Modal closes and editor content is updated
 
 ## Form Management
 

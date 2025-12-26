@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react'
 import { ViewMode } from './types'
-import { hashToViewMode, viewModeToHash, extractCvIdFromHash } from './hashRouting'
+import {
+  hashToViewMode,
+  viewModeToHash,
+  extractCvIdFromHash,
+  extractProfileUpdatedAtFromHash,
+} from './hashRouting'
 
 export const useHashRouting = () => {
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
@@ -15,28 +20,45 @@ export const useHashRouting = () => {
     }
     return extractCvIdFromHash(window.location.hash)
   })
+  const [profileUpdatedAt, setProfileUpdatedAt] = useState<string | null>(() => {
+    if (typeof window === 'undefined') {
+      return null
+    }
+    return extractProfileUpdatedAtFromHash(window.location.hash)
+  })
 
   useEffect(() => {
     const currentHash = window.location.hash
     const hashViewMode = hashToViewMode(currentHash)
     const hashCvId = extractCvIdFromHash(currentHash)
-    const expectedHash = viewModeToHash(viewMode, cvId || undefined)
+    const hashProfileUpdatedAt = extractProfileUpdatedAtFromHash(currentHash)
+    const expectedHash = viewModeToHash(viewMode, cvId || undefined, profileUpdatedAt || undefined)
 
-    if (hashViewMode !== viewMode || hashCvId !== cvId) {
+    if (
+      hashViewMode !== viewMode ||
+      hashCvId !== cvId ||
+      hashProfileUpdatedAt !== profileUpdatedAt
+    ) {
       const normalizedCurrentHash = currentHash.replace(/^#/, '')
       if (normalizedCurrentHash !== expectedHash) {
         window.location.hash = expectedHash
       }
     }
-  }, [viewMode, cvId])
+  }, [viewMode, cvId, profileUpdatedAt])
 
   useEffect(() => {
     const handleHashChange = () => {
       const newViewMode = hashToViewMode(window.location.hash)
       const newCvId = extractCvIdFromHash(window.location.hash)
-      if (newViewMode !== viewMode || newCvId !== cvId) {
+      const newProfileUpdatedAt = extractProfileUpdatedAtFromHash(window.location.hash)
+      if (
+        newViewMode !== viewMode ||
+        newCvId !== cvId ||
+        newProfileUpdatedAt !== profileUpdatedAt
+      ) {
         setViewMode(newViewMode)
         setCvId(newCvId)
+        setProfileUpdatedAt(newProfileUpdatedAt)
       }
     }
 
@@ -44,7 +66,7 @@ export const useHashRouting = () => {
     return () => {
       window.removeEventListener('hashchange', handleHashChange)
     }
-  }, [viewMode, cvId])
+  }, [viewMode, cvId, profileUpdatedAt])
 
-  return { viewMode, cvId }
+  return { viewMode, cvId, profileUpdatedAt }
 }

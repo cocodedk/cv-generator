@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import CVForm from './components/CVForm'
 import CVList from './components/CVList'
+import ProfileList from './components/ProfileList'
 import ProfileManager from './components/ProfileManager'
 import Navigation from './components/Navigation'
 import NotificationModal from './components/NotificationModal'
@@ -12,7 +13,7 @@ import { BRANDING } from './app_helpers/branding'
 import './index.css'
 
 function App() {
-  const { viewMode, cvId } = useHashRouting()
+  const { viewMode, cvId, profileUpdatedAt } = useHashRouting()
   const { isDark, setIsDark } = useTheme()
   const { message, showMessage, clearMessage } = useMessage()
   const [_loading, setLoading] = useState(false)
@@ -51,6 +52,8 @@ function App() {
           />
         ) : viewMode === 'list' ? (
           <CVList onError={handleError} />
+        ) : viewMode === 'profile-list' ? (
+          <ProfileList onError={handleError} />
         ) : (
           <ProfileManager onSuccess={handleSuccess} onError={handleError} setLoading={setLoading} />
         )}

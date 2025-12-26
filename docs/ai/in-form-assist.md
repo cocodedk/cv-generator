@@ -6,8 +6,8 @@ The Edit CV page and Profile page include per-field "AI Assist" actions for rich
 
 Each rich-text field can show two buttons:
 
-- **AI rewrite**: cleans up phrasing and capitalization using safe, deterministic transformations.
-- **AI bullets**: converts sentences into bullets and applies the same rewrites.
+- **AI rewrite**: Opens a modal to enter a custom prompt, then uses an LLM to rewrite text based on user instruction (e.g., "Make it more professional", "Make it shorter", "Improve clarity"). Requires LLM configuration.
+- **AI bullets**: Converts sentences into bullet points using heuristic-based transformations (no LLM required, works offline).
 
 This feature is intended as a fast editing helper while you are refining a CV or your master profile.
 
@@ -18,9 +18,10 @@ This feature is intended as a fast editing helper while you are refining a CV or
 
 ## Important Notes
 
-- No job description is required.
-- The behavior is heuristics-only (no provider calls).
-- Output is still HTML (Quill content). For project highlights, the HTML is converted back into a string array.
+- **AI rewrite**: Requires LLM configuration (`AI_ENABLED=true`, `AI_BASE_URL`, `AI_API_KEY`). See [AI Configuration](configuration.md) for setup details.
+- **AI bullets**: No job description or LLM configuration required. Uses heuristic-based transformations.
+- Output is HTML (TipTap/ProseMirror content). For project highlights, the HTML is converted back into a string array.
+- AI rewrite calls `/api/ai/rewrite` endpoint with user's prompt and current text.
 
 Related:
 - JD-based draft generation: `docs/ai/overview.md`

@@ -90,3 +90,12 @@ export interface ProfileResponse {
   status: string
   message?: string
 }
+
+export interface ProfileListItem {
+  name: string
+  updated_at: string
+}
+
+export interface ProfileListResponse {
+  profiles: ProfileListItem[]
+}

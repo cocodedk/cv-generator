@@ -71,7 +71,7 @@ describe('RichTextarea', () => {
     expect(screen.getByText(/4 \/ 300 characters/)).toBeInTheDocument()
   })
 
-  it('prevents input when maxLength is exceeded', async () => {
+  it('shows warning when maxLength is exceeded', async () => {
     const onChange = vi.fn()
     const longText = 'x'.repeat(301)
     render(
@@ -109,6 +109,146 @@ describe('RichTextarea', () => {
       const minHeight = parseInt(editor.style.minHeight || '')
       expect(minHeight).toBeGreaterThanOrEqual(200) // 10 rows * ~20px
     }
+  })
+
+  it('does not clear text after typing', async () => {
+    const onChange = vi.fn()
+    const user = userEvent.setup()
+    const { rerender } = render(<RichTextarea id="test-textarea" value="" onChange={onChange} />)
+
+    const editor = document.querySelector('.ql-editor') as HTMLElement
+    expect(editor).toBeInTheDocument()
+
+    // Focus and type text
+    editor.focus()
+    await act(async () => {
+      await user.type(editor, 'Test content')
+    })
+
+    // Wait for onChange to be called
+    await waitFor(() => {
+      expect(onChange).toHaveBeenCalled()
+    })
+
+    // Get the HTML that was emitted
+    const emittedHtml = onChange.mock.calls[onChange.mock.calls.length - 1][0]
+
+    // Simulate React Hook Form updating the value prop (this is what causes the race condition)
+    rerender(<RichTextarea id="test-textarea" value={emittedHtml} onChange={onChange} />)
+
+    // Wait a bit to ensure useEffect has run
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 10))
+    })
+
+    // Text should still be in the editor (not cleared)
+    expect(editor.textContent).toContain('Test content')
+  })
+
+  it('does not clear text after pasting', async () => {
+    const onChange = vi.fn()
+    const user = userEvent.setup()
+    const { rerender } = render(<RichTextarea id="test-textarea" value="" onChange={onChange} />)
+
+    const editor = document.querySelector('.ql-editor') as HTMLElement
+    expect(editor).toBeInTheDocument()
+
+    // Focus and type text (simulating paste by typing quickly)
+    editor.focus()
+    await act(async () => {
+      // Simulate paste by typing text quickly (TipTap treats rapid input similarly)
+      await user.type(editor, 'Pasted content', { delay: 0 })
+    })
+
+    // Wait for onChange to be called
+    await waitFor(() => {
+      expect(onChange).toHaveBeenCalled()
+    })
+
+    // Get the HTML that was emitted
+    const emittedHtml = onChange.mock.calls[onChange.mock.calls.length - 1]?.[0] || ''
+
+    if (emittedHtml) {
+      // Simulate React Hook Form updating the value prop (race condition scenario)
+      rerender(<RichTextarea id="test-textarea" value={emittedHtml} onChange={onChange} />)
+
+      // Wait a bit to ensure useEffect has run
+      await act(async () => {
+        await new Promise(resolve => setTimeout(resolve, 10))
+      })
+
+      // Text should still be in the editor (not cleared)
+      expect(editor.textContent).toContain('Pasted content')
+    }
+  })
+
+  it('updates editor content when value changes externally (form reset)', async () => {
+    const onChange = vi.fn()
+    const { rerender } = render(
+      <RichTextarea id="test-textarea" value="<p>Initial content</p>" onChange={onChange} />
+    )
+
+    const editor = document.querySelector('.ql-editor') as HTMLElement
+    expect(editor).toBeInTheDocument()
+    expect(editor.textContent).toContain('Initial content')
+
+    // Simulate form reset (external update)
+    rerender(<RichTextarea id="test-textarea" value="" onChange={onChange} />)
+
+    await waitFor(() => {
+      expect(editor.textContent).toBe('')
+    })
+  })
+
+  it('updates editor content when value changes externally (profile load)', async () => {
+    const onChange = vi.fn()
+    const { rerender } = render(<RichTextarea id="test-textarea" value="" onChange={onChange} />)
+
+    const editor = document.querySelector('.ql-editor') as HTMLElement
+    expect(editor).toBeInTheDocument()
+
+    // Simulate profile load (external update)
+    const profileContent = '<p>Loaded from profile</p>'
+    rerender(<RichTextarea id="test-textarea" value={profileContent} onChange={onChange} />)
+
+    await waitFor(() => {
+      expect(editor.textContent).toContain('Loaded from profile')
+    })
+  })
+
+  it('handles HTML normalization differences without clearing content', async () => {
+    const onChange = vi.fn()
+    const user = userEvent.setup()
+    const { rerender } = render(<RichTextarea id="test-textarea" value="" onChange={onChange} />)
+
+    const editor = document.querySelector('.ql-editor') as HTMLElement
+    expect(editor).toBeInTheDocument()
+
+    // Type text
+    editor.focus()
+    await act(async () => {
+      await user.type(editor, 'Normalized test')
+    })
+
+    await waitFor(() => {
+      expect(onChange).toHaveBeenCalled()
+    })
+
+    const emittedHtml = onChange.mock.calls[onChange.mock.calls.length - 1][0]
+
+    // Simulate React Hook Form normalizing the HTML (e.g., different whitespace or tag format)
+    // TipTap might emit '<p>Normalized test</p>' but RHF might store '<p>Normalized test</p> ' (with trailing space)
+    // or vice versa - the plain text should match, so we should skip the update
+    const normalizedHtml = emittedHtml.trim() + ' ' // Add trailing space to simulate normalization
+
+    rerender(<RichTextarea id="test-textarea" value={normalizedHtml} onChange={onChange} />)
+
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 10))
+    })
+
+    // Text should still be in the editor despite HTML format difference
+    expect(editor.textContent).toContain('Normalized test')
   })
 })
 

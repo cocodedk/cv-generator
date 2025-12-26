@@ -15,6 +15,9 @@ The application uses Docker Compose with two services:
   - `./backend:/app/backend`: Backend code (for development)
   - `./backend/output:/app/backend/output`: Generated DOCX files
 - **Environment variables**: From `.env` file or docker-compose.yml
+  - Database: `NEO4J_URI`, `NEO4J_USER`, `NEO4J_PASSWORD`, `NEO4J_DATABASE`
+  - CORS: `CORS_ORIGINS`
+  - AI (optional): `AI_ENABLED`, `AI_BASE_URL`, `AI_API_KEY`, `AI_MODEL`, `AI_TEMPERATURE`, `AI_REQUEST_TIMEOUT_S`
 - **Depends on**: `neo4j` service
 
 ### Neo4j Service (`neo4j`)

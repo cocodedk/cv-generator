@@ -7,7 +7,6 @@ import Placeholder from '@tiptap/extension-placeholder'
 import { buildAiRewriteHtml } from '../app_helpers/ai/aiTextAssist'
 import { rewriteText } from '../services/aiService'
 import RichTextToolbar from './richText/RichTextToolbar'
-import { MaxLength } from './richText/maxLengthExtension'
 
 interface RichTextareaProps {
   id: string
@@ -40,6 +39,7 @@ export default function RichTextarea({
 }: RichTextareaProps) {
   const minHeight = rows * 24
   const lastKnownHtmlRef = useRef<string>(value || '')
+  const lastEmittedValueRef = useRef<string>(value || '')
   const [textLength, setTextLength] = useState(() => stripHtml(value || '').length)
   const [showPromptModal, setShowPromptModal] = useState(false)
   const [prompt, setPrompt] = useState('')
@@ -52,9 +52,8 @@ export default function RichTextarea({
       Underline,
       Link.configure({ openOnClick: false, autolink: false }),
       Placeholder.configure({ placeholder: placeholder || '' }),
-      MaxLength.configure({ maxLength: maxLength || null }),
     ],
-    [maxLength, placeholder]
+    [placeholder]
   )
 
   const editor = useEditor({
@@ -77,6 +76,7 @@ export default function RichTextarea({
     onUpdate: ({ editor: currentEditor }) => {
       const html = currentEditor.getHTML()
       lastKnownHtmlRef.current = html
+      lastEmittedValueRef.current = html
       setTextLength(currentEditor.getText().length)
       onChange(html)
     },
@@ -84,9 +84,65 @@ export default function RichTextarea({
 
   useEffect(() => {
     if (!editor) return
-    if ((value || '') === lastKnownHtmlRef.current) return
-    lastKnownHtmlRef.current = value || ''
-    editor.commands.setContent(value || '', false)
+
+    // Get current editor content
+    const currentHtml = editor.getHTML()
+    const currentText = editor.getText()
+    const normalizedValue = value || ''
+    const valueText = stripHtml(normalizedValue)
+    const isFocused = editor.isFocused
+
+    // CRITICAL: If editor is focused and user is typing/pasting, prioritize preserving editor content
+    // This prevents clearing text during active editing sessions
+    if (isFocused) {
+      // If plain text matches, skip update (handles HTML normalization)
+      if (valueText === currentText && currentText.length > 0) {
+        // Update refs to keep them in sync even if HTML format differs
+        if (normalizedValue !== lastEmittedValueRef.current) {
+          lastEmittedValueRef.current = normalizedValue
+          lastKnownHtmlRef.current = normalizedValue
+        }
+        return
+      }
+      // If HTML matches exactly, definitely skip
+      if (normalizedValue === currentHtml) {
+        return
+      }
+    }
+
+    // Skip update if:
+    // 1. Value HTML matches what we last emitted (this update came from our onChange)
+    //    This is the primary safeguard against race conditions
+    if (normalizedValue === lastEmittedValueRef.current) {
+      return
+    }
+
+    // 2. Value HTML matches current editor content (already in sync)
+    if (normalizedValue === currentHtml) {
+      lastKnownHtmlRef.current = normalizedValue
+      lastEmittedValueRef.current = normalizedValue
+      return
+    }
+
+    // 3. Value HTML matches last known value (already synced)
+    if (normalizedValue === lastKnownHtmlRef.current) {
+      return
+    }
+
+    // 4. Plain text content matches (handles HTML normalization differences)
+    // Only apply this check if we have meaningful content
+    if (valueText === currentText && valueText.length > 0 && currentText.length > 0) {
+      // Update refs to keep them in sync even if HTML format differs
+      lastEmittedValueRef.current = normalizedValue
+      lastKnownHtmlRef.current = normalizedValue
+      return
+    }
+
+    // This is an external update (form reset, profile load, etc.)
+    // Only update if the value is actually different from what's in the editor
+    lastKnownHtmlRef.current = normalizedValue
+    lastEmittedValueRef.current = normalizedValue
+    editor.commands.setContent(normalizedValue, false)
     setTextLength(editor.getText().length)
   }, [editor, value])
 
@@ -105,6 +161,7 @@ export default function RichTextarea({
       const next = buildAiRewriteHtml(currentHtml || '', { mode, maxLength })
       if (!stripHtml(next || '').trim()) return
       lastKnownHtmlRef.current = next
+      lastEmittedValueRef.current = next
       editor.commands.setContent(next, false)
       setTextLength(editor.getText().length)
       onChange(next)
@@ -143,6 +200,7 @@ export default function RichTextarea({
           .join('') || '<p></p>'
 
       lastKnownHtmlRef.current = rewrittenHtml
+      lastEmittedValueRef.current = rewrittenHtml
       editor.commands.setContent(rewrittenHtml, false)
       setTextLength(editor.getText().length)
       onChange(rewrittenHtml)

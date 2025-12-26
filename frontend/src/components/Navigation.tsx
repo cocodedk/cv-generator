@@ -59,10 +59,22 @@ export default function Navigation({ viewMode, isDark, onThemeToggle }: Navigati
             </button>
             <button
               onClick={() => {
+                window.location.hash = 'profile-list'
+              }}
+              className={`px-4 py-2 rounded-md text-sm font-medium ${
+                viewMode === 'profile-list'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800'
+              }`}
+            >
+              My Profiles
+            </button>
+            <button
+              onClick={() => {
                 window.location.hash = 'profile'
               }}
               className={`px-4 py-2 rounded-md text-sm font-medium ${
-                viewMode === 'profile'
+                viewMode === 'profile' || viewMode === 'profile-edit'
                   ? 'bg-blue-600 text-white'
                   : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800'
               }`}

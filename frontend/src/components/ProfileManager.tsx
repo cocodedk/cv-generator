@@ -5,9 +5,16 @@ import Experience from './Experience'
 import Education from './Education'
 import Skills from './Skills'
 import ProfileHeader from './ProfileHeader'
+import ProfileSelectionModal from './ProfileSelectionModal'
 import { ProfileData } from '../types/cv'
-import { getProfile, saveProfile, deleteProfile } from '../services/profileService'
+import {
+  getProfile,
+  getProfileByUpdatedAt,
+  saveProfile,
+  deleteProfile,
+} from '../services/profileService'
 import { defaultProfileData } from '../constants/profileDefaults'
+import { useHashRouting } from '../app_helpers/useHashRouting'
 
 interface ProfileManagerProps {
   onSuccess: (message: string) => void
@@ -16,9 +23,11 @@ interface ProfileManagerProps {
 }
 
 export default function ProfileManager({ onSuccess, onError, setLoading }: ProfileManagerProps) {
+  const { profileUpdatedAt } = useHashRouting()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [hasProfile, setHasProfile] = useState(false)
   const [isLoadingProfile, setIsLoadingProfile] = useState(true)
+  const [showProfileSelectionModal, setShowProfileSelectionModal] = useState(false)
   const {
     register,
     handleSubmit,
@@ -30,27 +39,40 @@ export default function ProfileManager({ onSuccess, onError, setLoading }: Profi
   })
 
   useEffect(() => {
-    loadProfile()
-  }, [])
+    loadInitialProfile()
+  }, [profileUpdatedAt])
 
   const loadProfile = async () => {
+    setShowProfileSelectionModal(true)
+  }
+
+  const handleProfileSelected = (profile: ProfileData) => {
+    reset(profile)
+    setHasProfile(true)
+    onSuccess('Profile loaded successfully!')
+  }
+
+  const loadInitialProfile = async () => {
     setIsLoadingProfile(true)
     try {
-      const profile = await getProfile()
+      let profile: ProfileData | null = null
+      if (profileUpdatedAt) {
+        // Load specific profile from hash
+        profile = await getProfileByUpdatedAt(profileUpdatedAt)
+      } else {
+        // Load most recent profile
+        profile = await getProfile()
+      }
       if (profile) {
         reset(profile)
         setHasProfile(true)
-        onSuccess('Profile loaded successfully!')
       } else {
         reset(defaultProfileData)
         setHasProfile(false)
-        onSuccess(
-          'No profile found. Fill out the form below and click "Save Profile" to create one.'
-        )
       }
     } catch (error: any) {
-      onError(`Failed to load profile: ${error.message}`)
       setHasProfile(false)
+      onError(`Failed to load profile: ${error.message || 'Unknown error'}`)
     } finally {
       setIsLoadingProfile(false)
     }
@@ -98,36 +120,44 @@ export default function ProfileManager({ onSuccess, onError, setLoading }: Profi
   }
 
   return (
-    <div className="bg-white shadow rounded-lg dark:bg-gray-900 dark:border dark:border-gray-800">
-      <ProfileHeader
-        hasProfile={hasProfile}
-        isLoadingProfile={isLoadingProfile}
-        onLoad={loadProfile}
-        onDelete={handleDelete}
-      />
-      <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-8">
-        <PersonalInfo register={register} errors={errors} control={control} showAiAssist={true} />
-        <Experience control={control} register={register} errors={errors} showAiAssist={true} />
-        <Education control={control} register={register} />
-        <Skills control={control} register={register} />
+    <>
+      <div className="bg-white shadow rounded-lg dark:bg-gray-900 dark:border dark:border-gray-800">
+        <ProfileHeader
+          hasProfile={hasProfile}
+          isLoadingProfile={isLoadingProfile}
+          onLoad={loadProfile}
+          onDelete={handleDelete}
+        />
+        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-8">
+          <PersonalInfo register={register} errors={errors} control={control} showAiAssist={true} />
+          <Experience control={control} register={register} errors={errors} showAiAssist={true} />
+          <Education control={control} register={register} />
+          <Skills control={control} register={register} />
 
-        <div className="flex justify-end space-x-4">
-          <button
-            type="button"
-            onClick={() => reset()}
-            className="px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
-          >
-            Reset
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed dark:hover:bg-blue-500"
-          >
-            {isSubmitting ? 'Saving...' : hasProfile ? 'Update Profile' : 'Save Profile'}
-          </button>
-        </div>
-      </form>
-    </div>
+          <div className="flex justify-end space-x-4">
+            <button
+              type="button"
+              onClick={() => reset()}
+              className="px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
+            >
+              Reset
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed dark:hover:bg-blue-500"
+            >
+              {isSubmitting ? 'Saving...' : hasProfile ? 'Update Profile' : 'Save Profile'}
+            </button>
+          </div>
+        </form>
+      </div>
+      <ProfileSelectionModal
+        isOpen={showProfileSelectionModal}
+        onClose={() => setShowProfileSelectionModal(false)}
+        onSelect={handleProfileSelected}
+        onError={onError}
+      />
+    </>
   )
 }
