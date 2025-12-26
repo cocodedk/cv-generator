@@ -8,6 +8,7 @@ interface ProjectEditorProps {
   experienceIndex: number
   projectIndex: number
   onRemove: () => void
+  showAiAssist?: boolean
 }
 
 function listToText(value: unknown, separator: string) {
@@ -34,6 +35,7 @@ export default function ProjectEditor({
   experienceIndex,
   projectIndex,
   onRemove,
+  showAiAssist,
 }: ProjectEditorProps) {
   const base = `experience.${experienceIndex}.projects.${projectIndex}` as const
   const nameField = useController({
@@ -139,6 +141,9 @@ export default function ProjectEditor({
           onChange={value => {
             // Convert rich text back to plain text lines for highlights array
             const plainText = value
+              .replace(/<br\s*\/?>/g, '\n')
+              .replace(/<\/li>/g, '\n')
+              .replace(/<\/p>/g, '\n')
               .replace(/<[^>]*>/g, '')
               .replace(/&nbsp;/g, ' ')
               .trim()
@@ -147,6 +152,7 @@ export default function ProjectEditor({
           rows={3}
           placeholder="Enter highlights (one per line)..."
           className="mt-1"
+          showAiAssist={showAiAssist}
         />
       </div>
     </div>

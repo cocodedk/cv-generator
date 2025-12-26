@@ -5,7 +5,7 @@ import CVForm from '../../../components/CVForm'
 
 export interface CVFormProps {
   onSuccess: (message: string) => void
-  onError: (message: string) => void
+  onError: (message: string | string[]) => void
   setLoading: (loading: boolean) => void
   cvId?: string | null
 }

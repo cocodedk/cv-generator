@@ -54,6 +54,7 @@ Main form component for CV data entry.
 - File download after generation
 - Load from Profile button with selective item selection
 - Save to Profile button
+- Per-field AI Assist in Edit CV mode (rich-text fields)
 
 **Props**:
 - `onSuccess`: Callback for successful submission
@@ -135,7 +136,7 @@ React error boundary for graceful error handling.
 
 **Location**: `frontend/src/components/RichTextarea.tsx`
 
-Reusable rich text editor component using ReactQuill.
+Reusable rich text editor component using TipTap (ProseMirror).
 
 **Features**:
 - HTML formatting toolbar (bold, italic, underline, strike, headers, lists, links)
@@ -144,6 +145,7 @@ Reusable rich text editor component using ReactQuill.
 - Error state styling
 - Dark mode support
 - Customizable rows/height
+- Optional “AI Assist” actions (rewrite/bullets)
 
 **Usage**:
 - Personal info summary (4 rows)
@@ -159,6 +161,7 @@ Reusable rich text editor component using ReactQuill.
 - `error`: Error object for validation
 - `maxLength`: Maximum plain text length
 - `className`: Additional CSS classes
+- `showAiAssist`: Show AI rewrite/bullets actions (used in Edit CV)
 
 ## Form Management
 

@@ -1,4 +1,4 @@
-# AI API (Planned)
+# AI API
 
 This feature adds a small, isolated API surface that returns validated CV drafts.
 
@@ -71,4 +71,4 @@ Returns issues only (no rewrites) for the current form payload + JD:
 
 - `400`: invalid JD / invalid payload
 - `422`: draft did not validate as `CVData`
-- `503`: AI disabled or provider unavailable
+- `503`: (future) provider unavailable when provider-backed generation is enabled

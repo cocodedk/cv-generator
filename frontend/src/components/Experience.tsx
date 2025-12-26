@@ -6,9 +6,10 @@ interface ExperienceProps {
   control: Control<CVData>
   register: UseFormRegister<CVData>
   errors: FieldErrors<CVData>
+  showAiAssist?: boolean
 }
 
-export default function Experience({ control, register, errors }: ExperienceProps) {
+export default function Experience({ control, register, errors, showAiAssist }: ExperienceProps) {
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'experience',
@@ -53,6 +54,7 @@ export default function Experience({ control, register, errors }: ExperienceProp
           index={index}
           onRemove={() => remove(index)}
           errors={errors}
+          showAiAssist={showAiAssist}
         />
       ))}
     </div>

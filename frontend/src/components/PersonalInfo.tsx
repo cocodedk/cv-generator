@@ -6,9 +6,15 @@ interface PersonalInfoProps {
   register: UseFormRegister<CVData>
   errors: FieldErrors<CVData>
   control: Control<CVData>
+  showAiAssist?: boolean
 }
 
-export default function PersonalInfo({ register, errors, control }: PersonalInfoProps) {
+export default function PersonalInfo({
+  register,
+  errors,
+  control,
+  showAiAssist,
+}: PersonalInfoProps) {
   const summaryController = useController({ control, name: 'personal_info.summary' })
   return (
     <div className="space-y-4">
@@ -224,6 +230,7 @@ export default function PersonalInfo({ register, errors, control }: PersonalInfo
           rows={4}
           placeholder="Brief summary of your professional background..."
           className="mt-1"
+          showAiAssist={showAiAssist}
         />
       </div>
     </div>

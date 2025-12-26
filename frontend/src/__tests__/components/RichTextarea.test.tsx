@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import RichTextarea, { stripHtml } from '../../components/RichTextarea'
 
@@ -15,8 +15,7 @@ describe('RichTextarea', () => {
       />
     )
 
-    // RichTextarea uses ReactQuill which renders in a specific way
-    // We can check for the placeholder by looking for the quill editor
+    // RichTextarea renders a contentEditable editor surface
     expect(document.querySelector('.ql-editor')).toBeInTheDocument()
   })
 
@@ -37,9 +36,11 @@ describe('RichTextarea', () => {
     const editor = document.querySelector('.ql-editor') as HTMLElement
     if (editor) {
       editor.focus()
-      await user.type(editor, 'New content')
+      await act(async () => {
+        await user.type(editor, 'New content')
+      })
 
-      // ReactQuill may call onChange multiple times during typing
+      // Editor may call onChange multiple times during typing
       await waitFor(() => {
         expect(onChange).toHaveBeenCalled()
       })
@@ -105,8 +106,7 @@ describe('RichTextarea', () => {
     const editor = document.querySelector('.ql-editor') as HTMLElement
     if (editor) {
       // min-height should be approximately rows * 24
-      const style = window.getComputedStyle(editor)
-      const minHeight = parseInt(style.minHeight)
+      const minHeight = parseInt(editor.style.minHeight || '')
       expect(minHeight).toBeGreaterThanOrEqual(200) // 10 rows * ~20px
     }
   })

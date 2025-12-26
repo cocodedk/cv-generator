@@ -9,6 +9,7 @@ interface ExperienceItemProps {
   index: number
   onRemove: () => void
   errors: FieldErrors<CVData>
+  showAiAssist?: boolean
 }
 
 export default function ExperienceItem({
@@ -17,6 +18,7 @@ export default function ExperienceItem({
   index,
   onRemove,
   errors,
+  showAiAssist,
 }: ExperienceItemProps) {
   const descriptionError = errors?.experience?.[index]?.description
   const descriptionController = useController({
@@ -149,10 +151,16 @@ export default function ExperienceItem({
           error={descriptionError}
           maxLength={300}
           className="mt-1"
+          showAiAssist={showAiAssist}
         />
       </div>
 
-      <ExperienceProjects control={control} register={register} experienceIndex={index} />
+      <ExperienceProjects
+        control={control}
+        register={register}
+        experienceIndex={index}
+        showAiAssist={showAiAssist}
+      />
     </div>
   )
 }

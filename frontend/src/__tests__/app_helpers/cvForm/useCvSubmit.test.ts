@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import axios from 'axios'
+import { UseFormSetError } from 'react-hook-form'
 import { useCvSubmit } from '../../../app_helpers/cvForm/useCvSubmit'
 import { CVData } from '../../../types/cv'
 
@@ -11,6 +12,7 @@ describe('useCvSubmit', () => {
   const mockOnSuccess = vi.fn()
   const mockOnError = vi.fn()
   const mockSetLoading = vi.fn()
+  const mockSetError = vi.fn() as unknown as UseFormSetError<CVData>
   const cvData: CVData = {
     personal_info: { name: 'John Doe' },
     experience: [
@@ -54,6 +56,7 @@ describe('useCvSubmit', () => {
         onSuccess: mockOnSuccess,
         onError: mockOnError,
         setLoading: mockSetLoading,
+        setError: mockSetError,
       })
     )
 
@@ -83,6 +86,7 @@ describe('useCvSubmit', () => {
         onSuccess: mockOnSuccess,
         onError: mockOnError,
         setLoading: mockSetLoading,
+        setError: mockSetError,
       })
     )
 
@@ -109,6 +113,7 @@ describe('useCvSubmit', () => {
         onSuccess: mockOnSuccess,
         onError: mockOnError,
         setLoading: mockSetLoading,
+        setError: mockSetError,
       })
     )
 
@@ -134,6 +139,7 @@ describe('useCvSubmit', () => {
         onSuccess: mockOnSuccess,
         onError: mockOnError,
         setLoading: mockSetLoading,
+        setError: mockSetError,
       })
     )
 
@@ -157,6 +163,7 @@ describe('useCvSubmit', () => {
         onSuccess: mockOnSuccess,
         onError: mockOnError,
         setLoading: mockSetLoading,
+        setError: mockSetError,
       })
     )
 

@@ -43,11 +43,12 @@ Welcome to the CV Generator documentation. This documentation is organized by to
 - [Docker Setup](deployment/docker.md) - Docker configuration
 - [Production Deployment](deployment/production.md) - Production deployment guide
 
-### AI (Planned)
+### AI
 
-- [AI Overview](ai/overview.md) - User flow and guardrails
+- [AI Overview](ai/overview.md) - JD-based draft flow and guardrails
+- [In-Form AI Assist](ai/in-form-assist.md) - Per-field rewrite/bullets helpers (Edit CV)
 - [AI Configuration](ai/configuration.md) - `.env` variables and provider setup
-- [AI API](ai/api.md) - Planned endpoints and payloads
+- [AI API](ai/api.md) - Endpoints and payloads
 - [AI Rollout](ai/rollout.md) - Incremental implementation plan
 
 ### Troubleshooting

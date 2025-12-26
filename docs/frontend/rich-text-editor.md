@@ -6,13 +6,14 @@ The CV Generator uses a rich text editor for textarea fields to allow HTML forma
 
 **Location**: `frontend/src/components/RichTextarea.tsx`
 
-Reusable component built on ReactQuill that provides:
+Reusable component built on TipTap (ProseMirror) that provides:
 - HTML formatting toolbar (bold, italic, underline, strike, headers, lists, links)
 - Character counter (counts plain text, excludes HTML tags)
 - Max length validation
 - Error state styling
 - Dark mode support
 - Customizable rows/height
+- Optional in-form “AI Assist” actions (see below)
 
 ## Usage
 
@@ -49,5 +50,15 @@ The component enforces max length by:
 2. Counting plain text characters
 3. Preventing input if limit exceeded
 4. Displaying character count with error styling when exceeded
+
+## AI Assist (Edit CV)
+
+When enabled via the `showAiAssist` prop, RichTextarea shows two helper actions:
+
+- **AI rewrite**: light rewrite for clarity (safe, deterministic transformations)
+- **AI bullets**: converts sentences into bullet points + applies the same rewrites
+
+This is an in-form helper intended to speed up editing. It does not require a job description.
+For the JD-based draft flow, see `docs/ai/overview.md`.
 
 See [Backend Models](../backend/models.md) for server-side validation details.

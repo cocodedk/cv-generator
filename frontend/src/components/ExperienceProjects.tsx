@@ -6,12 +6,14 @@ interface ExperienceProjectsProps {
   control: Control<CVData>
   register: UseFormRegister<CVData>
   experienceIndex: number
+  showAiAssist?: boolean
 }
 
 export default function ExperienceProjects({
   control,
   register,
   experienceIndex,
+  showAiAssist,
 }: ExperienceProjectsProps) {
   const { fields, append, remove } = useFieldArray({
     control,
@@ -53,6 +55,7 @@ export default function ExperienceProjects({
           experienceIndex={experienceIndex}
           projectIndex={projectIndex}
           onRemove={() => remove(projectIndex)}
+          showAiAssist={showAiAssist}
         />
       ))}
     </div>

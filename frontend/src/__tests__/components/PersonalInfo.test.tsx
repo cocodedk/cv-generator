@@ -57,7 +57,7 @@ describe('PersonalInfo', () => {
     render(<PersonalInfoWrapper />)
 
     expect(screen.getByLabelText(/professional summary/i)).toBeInTheDocument()
-    // Check that RichTextarea (ReactQuill) is rendered
+    // Check that RichTextarea is rendered
     expect(document.querySelector('.ql-editor')).toBeInTheDocument()
   })
 

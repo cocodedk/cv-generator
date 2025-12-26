@@ -24,14 +24,18 @@
     "format:frontend": "prettier --write \"frontend/src/**/*.{ts,tsx,css}\""
   },
   "dependencies": {
+    "@tiptap/extension-link": "^2.27.1",
+    "@tiptap/extension-placeholder": "^2.27.1",
+    "@tiptap/extension-underline": "^2.27.1",
+    "@tiptap/react": "^2.27.1",
+    "@tiptap/starter-kit": "^2.27.1",
     "axios": "^1.6.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-hook-form": "^7.49.2",
-    "react-quill": "^2.0.0"
+    "react-hook-form": "^7.49.2"
   },
   "_comment": {
-    "react-quill-security": "react-quill has stored XSS vulnerability (GHSA-4943-9vgg-gr5r). All rich-text inputs must be sanitized server-side. Backend uses Jinja2 autoescape for rendering, but stored HTML should be sanitized before persistence."
+    "rich-text-html-security": "Rich-text fields store HTML. All stored HTML should be sanitized server-side before persistence/rendering to avoid stored XSS."
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",

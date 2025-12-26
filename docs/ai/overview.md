@@ -1,4 +1,4 @@
-# AI CV Drafting (Plan)
+# AI CV Drafting
 
 This feature generates a CV draft from:
 1) your saved master profile, and
@@ -33,4 +33,8 @@ The profile is treated as the only source of truth for claims. The generator:
 
 ## Provider Compatibility
 
-Use an OpenAI-compatible HTTP API (base URL + key + model). See `docs/ai/configuration.md`.
+The current implementation is heuristics-first. Optional provider-backed generation can be added behind a flag.
+See `docs/ai/configuration.md`.
+
+Related:
+- In-form editing helpers (per-field): `docs/ai/in-form-assist.md`
