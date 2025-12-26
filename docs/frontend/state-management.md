@@ -60,7 +60,7 @@ Most state is managed at component level using React hooks:
 
 Navigation state is managed via URL hash using `useHashRouting` hook:
 
-**Location**: `frontend/src/app_helpers/hashRouting.ts`
+**Location**: `frontend/src/app_helpers/useHashRouting.ts`
 
 **View Modes**:
 - `form`: New CV form
@@ -81,6 +81,12 @@ Navigation state is managed via URL hash using `useHashRouting` hook:
 **URL Encoding**: Profile timestamps are URL-encoded in hash to handle special
 characters (e.g., colons in ISO timestamps). The `extractProfileUpdatedAtFromHash`
 function automatically decodes them.
+
+**State Synchronization**:
+- Initial state is derived from hash on mount
+- Hash changes trigger state updates via `hashchange` event listener
+- State updates do not modify hash to prevent feedback loops
+- Uses ref tracking to prevent state update cycles
 
 ### Global State
 

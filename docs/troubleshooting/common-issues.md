@@ -36,6 +36,8 @@ Common problems and their solutions when working with the CV Generator.
 
 **Profile Deleted by Tests**: Fixed - Tests now track and delete only their own test profiles. Integration tests verify profiles are test profiles before deletion, and E2E tests track test profile timestamps to delete only the specific profile they created. See [Test Cleanup Safety](../development/testing.md#test-cleanup-safety) for details.
 
+**Duplicate API Calls on CV Load**: Fixed - Loading `#edit/:id` was causing multiple duplicate API calls due to state synchronization cycles in `useHashRouting` and lack of request deduplication in `useCvLoader`. The fix stabilizes hash routing state updates and adds request deduplication to prevent simultaneous calls for the same CV ID. See [Duplicate API Calls Investigation](duplicate-api-calls-investigation.md) for details.
+
 ## File Generation Issues
 
 **DOCX Not Generated**: Check `backend/output/` exists, verify permissions, check logs, verify CV data.

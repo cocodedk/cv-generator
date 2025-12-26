@@ -14,6 +14,7 @@ interface UseCvLoaderProps {
 export function useCvLoader({ cvId, reset, onError, setLoading }: UseCvLoaderProps) {
   const [isLoadingCv, setIsLoadingCv] = useState(false)
   const callbacksRef = useRef({ onError, setLoading, reset })
+  const loadingRef = useRef<Set<string>>(new Set())
 
   useEffect(() => {
     callbacksRef.current = { onError, setLoading, reset }
@@ -22,6 +23,12 @@ export function useCvLoader({ cvId, reset, onError, setLoading }: UseCvLoaderPro
   useEffect(() => {
     const loadCvData = async () => {
       if (!cvId) return
+
+      if (loadingRef.current.has(cvId)) {
+        return
+      }
+
+      loadingRef.current.add(cvId)
       setIsLoadingCv(true)
       callbacksRef.current.setLoading(true)
       try {
@@ -41,6 +48,7 @@ export function useCvLoader({ cvId, reset, onError, setLoading }: UseCvLoaderPro
           callbacksRef.current.onError(error.response?.data?.detail || 'Failed to load CV')
         }
       } finally {
+        loadingRef.current.delete(cvId)
         setIsLoadingCv(false)
         callbacksRef.current.setLoading(false)
       }

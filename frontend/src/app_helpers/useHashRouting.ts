@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { ViewMode } from './types'
 import {
   hashToViewMode,
@@ -27,46 +27,47 @@ export const useHashRouting = () => {
     return extractProfileUpdatedAtFromHash(window.location.hash)
   })
 
+  const isUpdatingFromHashChangeRef = useRef(false)
+
   useEffect(() => {
+    if (isUpdatingFromHashChangeRef.current) {
+      isUpdatingFromHashChangeRef.current = false
+      return
+    }
+
     const currentHash = window.location.hash
     const hashViewMode = hashToViewMode(currentHash)
     const hashCvId = extractCvIdFromHash(currentHash)
     const hashProfileUpdatedAt = extractProfileUpdatedAtFromHash(currentHash)
-    const expectedHash = viewModeToHash(viewMode, cvId || undefined, profileUpdatedAt || undefined)
 
     if (
       hashViewMode !== viewMode ||
       hashCvId !== cvId ||
       hashProfileUpdatedAt !== profileUpdatedAt
     ) {
-      const normalizedCurrentHash = currentHash.replace(/^#/, '')
-      if (normalizedCurrentHash !== expectedHash) {
-        window.location.hash = expectedHash
-      }
+      setViewMode(hashViewMode)
+      setCvId(hashCvId)
+      setProfileUpdatedAt(hashProfileUpdatedAt)
     }
-  }, [viewMode, cvId, profileUpdatedAt])
+  }, [])
 
   useEffect(() => {
     const handleHashChange = () => {
+      isUpdatingFromHashChangeRef.current = true
       const newViewMode = hashToViewMode(window.location.hash)
       const newCvId = extractCvIdFromHash(window.location.hash)
       const newProfileUpdatedAt = extractProfileUpdatedAtFromHash(window.location.hash)
-      if (
-        newViewMode !== viewMode ||
-        newCvId !== cvId ||
-        newProfileUpdatedAt !== profileUpdatedAt
-      ) {
-        setViewMode(newViewMode)
-        setCvId(newCvId)
-        setProfileUpdatedAt(newProfileUpdatedAt)
-      }
+
+      setViewMode(newViewMode)
+      setCvId(newCvId)
+      setProfileUpdatedAt(newProfileUpdatedAt)
     }
 
     window.addEventListener('hashchange', handleHashChange)
     return () => {
       window.removeEventListener('hashchange', handleHashChange)
     }
-  }, [viewMode, cvId, profileUpdatedAt])
+  }, [])
 
   return { viewMode, cvId, profileUpdatedAt }
 }
