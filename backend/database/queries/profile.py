@@ -1,10 +1,7 @@
 """Profile queries for master profile management."""
 from typing import Optional, Dict, Any
-from datetime import datetime
 from backend.database.connection import Neo4jConnection
 from backend.database.queries.profile_queries import (
-    CREATE_QUERY,
-    UPDATE_QUERY,
     GET_QUERY,
     DELETE_QUERY,
     DELETE_PROFILE_BY_UPDATED_AT_QUERY,
@@ -12,7 +9,6 @@ from backend.database.queries.profile_queries import (
     GET_PROFILE_BY_UPDATED_AT_QUERY,
 )
 from backend.database.queries.profile_helpers import (
-    build_save_params,
     process_profile_record,
 )
 
@@ -26,30 +22,16 @@ def _check_profile_exists(tx) -> bool:
 
 def create_profile(profile_data: Dict[str, Any]) -> bool:
     """Create a new master profile in Neo4j."""
-    driver = Neo4jConnection.get_driver()
-    database = Neo4jConnection.get_database()
-    params = build_save_params(profile_data, datetime.utcnow().isoformat())
-    with driver.session(database=database) as session:
-
-        def work(tx):
-            result = tx.run(CREATE_QUERY, **params)
-            return result.single() is not None
-
-        return session.execute_write(work)
+    # Use the fixed create_profile from profile_create module
+    from backend.database.queries.profile_create.create import create_profile as create_profile_fixed
+    return create_profile_fixed(profile_data)
 
 
 def update_profile(profile_data: Dict[str, Any]) -> bool:
     """Update existing master profile in Neo4j."""
-    driver = Neo4jConnection.get_driver()
-    database = Neo4jConnection.get_database()
-    params = build_save_params(profile_data, datetime.utcnow().isoformat())
-    with driver.session(database=database) as session:
-
-        def work(tx):
-            result = tx.run(UPDATE_QUERY, **params)
-            return result.single() is not None
-
-        return session.execute_write(work)
+    # Use the fixed update_profile from profile_update module
+    from backend.database.queries.profile_update.update import update_profile as update_profile_fixed
+    return update_profile_fixed(profile_data)
 
 
 def save_profile(profile_data: Dict[str, Any]) -> bool:

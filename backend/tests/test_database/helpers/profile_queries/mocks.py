@@ -41,3 +41,20 @@ def create_mock_tx_with_result(result_value):
     mock_result.single.return_value = result_value
     mock_tx.run.return_value = mock_result
     return mock_tx, mock_result
+
+
+def create_mock_tx_with_multiple_results(result_values):
+    """Create a mock transaction that returns different results for multiple calls.
+
+    Args:
+        result_values: List of result values to return in order for each tx.run() call
+    """
+    mock_tx = Mock()
+    mock_results = []
+    for result_value in result_values:
+        mock_result = Mock()
+        mock_result.single.return_value = result_value
+        mock_result.consume.return_value = None
+        mock_results.append(mock_result)
+    mock_tx.run.side_effect = mock_results
+    return mock_tx, mock_results

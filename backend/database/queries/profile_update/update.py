@@ -6,6 +6,8 @@ from backend.database.queries.profile_helpers import build_save_params
 from backend.database.queries.profile_update.delete import (
     update_profile_timestamp,
     delete_profile_nodes,
+    verify_person_deletion,
+    verify_single_person,
 )
 from backend.database.queries.profile_update.person import create_person_node
 from backend.database.queries.profile_update.experience import create_experience_nodes
@@ -29,17 +31,23 @@ def update_profile(profile_data: Dict[str, Any]) -> bool:
             # Delete old nodes
             delete_profile_nodes(tx, updated_at)
 
-            # Create new Person node
-            create_person_node(tx, updated_at, params)
+            # Verify deletion succeeded (fail hard)
+            verify_person_deletion(tx, updated_at)
 
-            # Create Experience nodes with Projects
-            create_experience_nodes(tx, updated_at, params.get("experiences", []))
+            # Create new Person node and capture its elementId
+            person_element_id = create_person_node(tx, updated_at, params)
 
-            # Create Education nodes
-            create_education_nodes(tx, updated_at, params.get("educations", []))
+            # Verify exactly one Person exists (optional but good)
+            verify_single_person(tx, updated_at)
 
-            # Create Skill nodes
-            create_skill_nodes(tx, updated_at, params.get("skills", []))
+            # Create Experience nodes bound to the new Person
+            create_experience_nodes(tx, updated_at, person_element_id, params.get("experiences", []))
+
+            # Create Education nodes bound to the new Person
+            create_education_nodes(tx, updated_at, person_element_id, params.get("educations", []))
+
+            # Create Skill nodes bound to the new Person
+            create_skill_nodes(tx, updated_at, person_element_id, params.get("skills", []))
 
             # Verify profile was updated
             verify_query = "MATCH (profile:Profile { updated_at: $updated_at }) RETURN profile"

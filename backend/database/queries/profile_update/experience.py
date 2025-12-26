@@ -1,14 +1,13 @@
 """Experience node creation for profile update."""
-from typing import Dict, Any
 
 
-def create_experience_nodes(tx, updated_at: str, experiences: list):
+def create_experience_nodes(tx, updated_at: str, person_element_id: str, experiences: list):
     """Create Experience nodes with Projects and link to Profile and Person."""
     if not experiences:
         return
     query = """
     MATCH (profile:Profile { updated_at: $updated_at })
-    MATCH (person:Person)-[:BELONGS_TO_PROFILE]->(profile)
+    MATCH (person:Person) WHERE elementId(person) = $person_element_id
     UNWIND $experiences AS exp
     CREATE (experience:Experience {
         title: exp.title,
@@ -32,4 +31,4 @@ def create_experience_nodes(tx, updated_at: str, experiences: list):
     CREATE (experience)-[:HAS_PROJECT]->(project)
     CREATE (project)-[:BELONGS_TO_PROFILE]->(profile)
     """
-    tx.run(query, updated_at=updated_at, experiences=experiences)
+    tx.run(query, updated_at=updated_at, person_element_id=person_element_id, experiences=experiences)

@@ -13,10 +13,16 @@ Testing strategy and how to run tests for the CV Generator.
 - `test_generator.py`: CVGenerator class tests
 - `test_database/test_queries.py`: Database query tests
 - `test_database/test_profile_queries.py`: Profile query tests documentation (refactored)
-- `test_database/test_profile_queries_save.py`: Profile save and update tests (mocked)
+- `test_database/test_profile_queries_save/`: Profile save and update tests (mocked, refactored into subfolder):
+  - `test_save_profile.py`: save_profile function tests
+  - `test_create_profile.py`: create_profile function tests
+  - `test_update_profile.py`: update_profile function tests
 - `test_database/test_profile_queries_get.py`: Profile retrieval tests (mocked)
 - `test_database/test_profile_queries_delete.py`: Profile deletion tests (mocked)
-- `test_database/test_profile_queries_integration.py`: Profile CRUD integration (live Neo4j)
+- `test_database/test_profile_queries_integration/`: Profile CRUD integration tests (live Neo4j, refactored into subfolder):
+  - `test_crud.py`: CRUD roundtrip tests
+  - `test_duplicate_person_regression.py`: Duplicate Person node prevention regression tests
+  - `helpers.py`: Shared helper functions (skip_if_no_neo4j, is_test_profile)
 - `test_api/test_health.py`: Health check endpoint tests
 - `test_api/test_cv_endpoints.py`: CV CRUD endpoint tests
 - `test_api/test_profile_endpoints.py`: Profile endpoint tests
@@ -186,9 +192,16 @@ The hook will guide you through:
 - Plain text length validation (HTML stripping)
 - HTML entity handling in validation
 - Profile query tests refactored into smaller, focused test files:
-  - Save and update tests separated into `test_profile_queries_save.py`
+  - Save and update tests separated into `test_profile_queries_save/` subfolder:
+    - `test_save_profile.py`: save_profile tests (142 lines)
+    - `test_create_profile.py`: create_profile tests (40 lines)
+    - `test_update_profile.py`: update_profile tests (52 lines)
   - Retrieval tests separated into `test_profile_queries_get.py`
   - Deletion tests separated into `test_profile_queries_delete.py`
+  - Integration tests separated into `test_profile_queries_integration/` subfolder:
+    - `test_crud.py`: CRUD roundtrip tests (153 lines)
+    - `test_duplicate_person_regression.py`: Duplicate Person prevention regression tests (115 lines)
+    - `helpers.py`: Shared helper functions (50 lines)
   - Shared test helpers and mocks in `helpers/profile_queries/mocks.py`
 
 ### Frontend Tests

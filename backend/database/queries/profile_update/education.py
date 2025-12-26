@@ -1,14 +1,13 @@
 """Education node creation for profile update."""
-from typing import Dict, Any
 
 
-def create_education_nodes(tx, updated_at: str, educations: list):
+def create_education_nodes(tx, updated_at: str, person_element_id: str, educations: list):
     """Create Education nodes and link to Profile and Person."""
     if not educations:
         return
     query = """
     MATCH (profile:Profile { updated_at: $updated_at })
-    MATCH (person:Person)-[:BELONGS_TO_PROFILE]->(profile)
+    MATCH (person:Person) WHERE elementId(person) = $person_element_id
     UNWIND $educations AS edu
     CREATE (education:Education {
         degree: edu.degree,
@@ -20,4 +19,4 @@ def create_education_nodes(tx, updated_at: str, educations: list):
     CREATE (person)-[:HAS_EDUCATION]->(education)
     CREATE (education)-[:BELONGS_TO_PROFILE]->(profile)
     """
-    tx.run(query, updated_at=updated_at, educations=educations)
+    tx.run(query, updated_at=updated_at, person_element_id=person_element_id, educations=educations)

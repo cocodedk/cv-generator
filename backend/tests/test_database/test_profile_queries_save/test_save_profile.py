@@ -1,9 +1,9 @@
-"""Tests for profile save operations."""
+"""Tests for save_profile function."""
 from backend.database import queries
 from backend.tests.test_database.helpers.profile_queries.mocks import (
     setup_mock_session_for_read_write,
-    setup_mock_session_for_write,
     create_mock_tx_with_result,
+    create_mock_tx_with_multiple_results,
 )
 
 
@@ -48,8 +48,22 @@ class TestSaveProfile:
         # Mock read transaction (check if profile exists) - returns True
         mock_tx_read, _ = create_mock_tx_with_result({"profile": {}})
 
-        # Mock write transaction (update profile)
-        mock_tx_write, _ = create_mock_tx_with_result({"profile": {}})
+        # Mock write transaction (update profile) - multiple calls for new implementation
+        mock_tx_write, _ = create_mock_tx_with_multiple_results([
+            {"profile": {}},  # update_profile_timestamp
+            {"deleted": 0},   # delete projects
+            {"deleted": 0},   # delete experiences
+            {"deleted": 0},   # delete education
+            {"deleted": 0},   # delete skills
+            {"deleted": 0},   # delete person
+            {"remaining_persons": 0},  # verify_person_deletion
+            {"person_element_id": "test-element-id"},  # create_person_node
+            {"person_count": 1},  # verify_single_person
+            None,  # create_experience_nodes
+            None,  # create_education_nodes
+            None,  # create_skill_nodes
+            {"profile": {}},  # final verify
+        ])
 
         setup_mock_session_for_read_write(mock_session, mock_tx_read, mock_tx_write)
 
@@ -81,46 +95,6 @@ class TestSaveProfile:
         success = queries.save_profile(minimal_data)
         assert success is True
 
-    def test_create_profile_success(self, mock_neo4j_connection, sample_cv_data):
-        """Test create_profile creates new profile."""
-        profile_data = {
-            "personal_info": sample_cv_data["personal_info"],
-            "experience": sample_cv_data["experience"],
-            "education": sample_cv_data["education"],
-            "skills": sample_cv_data["skills"],
-        }
-        mock_session = mock_neo4j_connection.session.return_value
-        mock_tx, _ = create_mock_tx_with_result({"profile": {}})
-
-        setup_mock_session_for_write(mock_session, mock_tx)
-
-        success = queries.create_profile(profile_data)
-
-        assert success is True
-        mock_session.write_transaction.assert_called_once()
-
-    def test_update_profile_success(self, mock_neo4j_connection, sample_cv_data):
-        """Test update_profile updates existing profile without deleting Profile node."""
-        profile_data = {
-            "personal_info": sample_cv_data["personal_info"],
-            "experience": sample_cv_data["experience"],
-            "education": sample_cv_data["education"],
-            "skills": sample_cv_data["skills"],
-        }
-        mock_session = mock_neo4j_connection.session.return_value
-        # UPDATE_QUERY returns the Profile node (not deleted)
-        mock_tx, _ = create_mock_tx_with_result({"profile": {"updated_at": "2024-01-01T00:00:00"}})
-
-        setup_mock_session_for_write(mock_session, mock_tx)
-
-        success = queries.update_profile(profile_data)
-
-        assert success is True
-        mock_session.write_transaction.assert_called_once()
-        # Verify UPDATE_QUERY was used (check that Profile node is returned, not created)
-        call_args = mock_tx.run.call_args
-        assert call_args is not None
-
     def test_profile_node_persists_through_update(self, mock_neo4j_connection, sample_cv_data):
         """Test that Profile node is never deleted during update operations."""
         profile_data = {
@@ -134,22 +108,35 @@ class TestSaveProfile:
         # Mock read transaction (check if profile exists) - returns True
         mock_tx_read, _ = create_mock_tx_with_result({"profile": {}})
 
-        # Mock write transaction (update profile) - returns Profile node
-        mock_tx_write, _ = create_mock_tx_with_result({"profile": {"updated_at": "2024-01-01T00:00:00"}})
+        # Mock write transaction (update profile) - multiple calls for new implementation
+        mock_tx_write, _ = create_mock_tx_with_multiple_results([
+            {"profile": {}},  # update_profile_timestamp
+            {"deleted": 0},   # delete projects
+            {"deleted": 0},   # delete experiences
+            {"deleted": 0},   # delete education
+            {"deleted": 0},   # delete skills
+            {"deleted": 0},   # delete person
+            {"remaining_persons": 0},  # verify_person_deletion
+            {"person_element_id": "test-element-id"},  # create_person_node
+            {"person_count": 1},  # verify_single_person
+            None,  # create_experience_nodes
+            None,  # create_education_nodes
+            None,  # create_skill_nodes
+            {"profile": {"updated_at": "2024-01-01T00:00:00"}},  # final verify
+        ])
 
         setup_mock_session_for_read_write(mock_session, mock_tx_read, mock_tx_write)
 
         success = queries.save_profile(profile_data)
 
         assert success is True
-        # Verify UPDATE_QUERY was called (not CREATE_QUERY)
-        # UPDATE_QUERY starts with MATCH, CREATE_QUERY starts with CREATE
-        # Check the first call which is update_profile_timestamp
+        # Verify UPDATE flow was called (not CREATE)
+        # Check the first call which is update_profile_timestamp - should MATCH existing profile
         call_args_list = mock_tx_write.run.call_args_list
         assert len(call_args_list) > 0
         first_call = call_args_list[0]
         assert first_call is not None
         query_text = first_call[0][0] if first_call[0] else ""
-        # UPDATE_QUERY should MATCH existing profile, not CREATE new one
+        # UPDATE should MATCH existing profile, not CREATE new one
         assert "MATCH (profile:Profile)" in query_text
         assert query_text.strip().startswith("MATCH")  # UPDATE starts with MATCH

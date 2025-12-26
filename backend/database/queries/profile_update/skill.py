@@ -1,14 +1,13 @@
 """Skill node creation for profile update."""
-from typing import Dict, Any
 
 
-def create_skill_nodes(tx, updated_at: str, skills: list):
+def create_skill_nodes(tx, updated_at: str, person_element_id: str, skills: list):
     """Create Skill nodes and link to Profile and Person."""
     if not skills:
         return
     query = """
     MATCH (profile:Profile { updated_at: $updated_at })
-    MATCH (person:Person)-[:BELONGS_TO_PROFILE]->(profile)
+    MATCH (person:Person) WHERE elementId(person) = $person_element_id
     UNWIND $skills AS skill
     CREATE (s:Skill {
         name: skill.name,
@@ -18,4 +17,4 @@ def create_skill_nodes(tx, updated_at: str, skills: list):
     CREATE (person)-[:HAS_SKILL]->(s)
     CREATE (s)-[:BELONGS_TO_PROFILE]->(profile)
     """
-    tx.run(query, updated_at=updated_at, skills=skills)
+    tx.run(query, updated_at=updated_at, person_element_id=person_element_id, skills=skills)

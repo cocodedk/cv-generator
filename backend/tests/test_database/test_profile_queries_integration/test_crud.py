@@ -1,58 +1,15 @@
-"""Integration tests for profile queries against real Neo4j."""
+"""CRUD integration tests for profile queries."""
 import copy
 import pytest
 from backend.database import queries
-from backend.database.connection import Neo4jConnection
-
-
-def _skip_if_no_neo4j():
-    if not Neo4jConnection.verify_connectivity():
-        pytest.skip("Neo4j is not available for integration tests.")
-
-
-def _is_test_profile(profile: dict) -> bool:
-    """Check if a profile is a test profile by verifying it has 'test' prefix in multiple fields.
-
-    This function checks multiple fields to ensure it's definitely a test profile:
-    - Name must start with "test"
-    - Email must start with "test" (if present)
-    - At least one additional field (phone, summary, or linkedin) must start with "test"
-    """
-    if not profile or not profile.get("personal_info"):
-        return False
-
-    personal_info = profile["personal_info"]
-
-    # Check if name starts with "test"
-    name = personal_info.get("name", "")
-    if not name.startswith("test"):
-        return False
-
-    # Additional safety check: verify email also starts with "test"
-    email = personal_info.get("email", "")
-    if email and not email.startswith("test"):
-        return False
-
-    # Check at least one more field to be extra sure
-    phone = personal_info.get("phone", "")
-    summary = personal_info.get("summary", "")
-    linkedin = personal_info.get("linkedin", "")
-
-    additional_test_fields = [
-        phone.startswith("test") if phone else False,
-        summary.startswith("test") if summary else False,
-        linkedin.startswith("test") if linkedin else False,
-    ]
-
-    # At least one additional field must start with "test"
-    if not any(additional_test_fields):
-        return False
-
-    return True
+from backend.tests.test_database.test_profile_queries_integration.helpers import (
+    skip_if_no_neo4j,
+    is_test_profile,
+)
 
 
 @pytest.mark.integration
-class TestProfileQueriesIntegration:
+class TestProfileCRUD:
     """CRUD coverage for profile queries using live Neo4j.
 
     WARNING: These tests run against the live Neo4j database and will delete the
@@ -68,7 +25,8 @@ class TestProfileQueriesIntegration:
     """
 
     def test_profile_crud_roundtrip(self, sample_cv_data):
-        _skip_if_no_neo4j()
+        """Test complete CRUD cycle: create, read, update, delete."""
+        skip_if_no_neo4j()
 
         # Prefix all string fields with "test" to make test data easily recognizable.
         # This ensures test profiles can be identified and safely deleted without
@@ -144,7 +102,7 @@ class TestProfileQueriesIntegration:
         # This ensures we're tracking the test profile we just created
         test_profile_updated_at = stored["updated_at"]
         # Verify the created profile is a test profile
-        assert _is_test_profile(stored), "Created profile must be a test profile"
+        assert is_test_profile(stored), "Created profile must be a test profile"
 
         updated_data = copy.deepcopy(initial_data)
         updated_data["personal_info"]["name"] = "testUpdated Name"
@@ -157,7 +115,7 @@ class TestProfileQueriesIntegration:
         # This prevents accidentally updating a real profile if it became more recent
         current_profile = queries.get_profile()
         assert current_profile is not None, "Profile should exist before update"
-        assert _is_test_profile(current_profile), (
+        assert is_test_profile(current_profile), (
             f"Safety check failed: Most recent profile is not a test profile. "
             f"Profile name: {current_profile['personal_info']['name']}. "
             f"This would overwrite real profile data. Aborting update."
@@ -183,7 +141,7 @@ class TestProfileQueriesIntegration:
         # Safety check: Verify the profile to be deleted is actually a test profile
         profile_to_delete = queries.get_profile_by_updated_at(test_profile_updated_at)
         assert profile_to_delete is not None, "Profile to delete not found"
-        assert _is_test_profile(profile_to_delete), (
+        assert is_test_profile(profile_to_delete), (
             f"Safety check failed: Attempted to delete non-test profile. "
             f"Profile name: {profile_to_delete['personal_info']['name']}"
         )

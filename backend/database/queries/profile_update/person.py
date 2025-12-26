@@ -2,8 +2,8 @@
 from typing import Dict, Any
 
 
-def create_person_node(tx, updated_at: str, params: Dict[str, Any]):
-    """Create Person node and link to Profile."""
+def create_person_node(tx, updated_at: str, params: Dict[str, Any]) -> str:
+    """Create Person node and link to Profile. Returns Person elementId (intra-transaction)."""
     query = """
     MATCH (profile:Profile { updated_at: $updated_at })
     CREATE (newPerson:Person {
@@ -22,7 +22,9 @@ def create_person_node(tx, updated_at: str, params: Dict[str, Any]):
         summary: $summary
     })
     CREATE (newPerson)-[:BELONGS_TO_PROFILE]->(profile)
+    RETURN elementId(newPerson) AS person_element_id
     """
     # Remove updated_at from params since we're passing it explicitly
     params_without_updated_at = {k: v for k, v in params.items() if k != 'updated_at'}
-    tx.run(query, updated_at=updated_at, **params_without_updated_at)
+    record = tx.run(query, updated_at=updated_at, **params_without_updated_at).single()
+    return record["person_element_id"]
