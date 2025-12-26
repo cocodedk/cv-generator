@@ -93,6 +93,8 @@ CALL {
     RETURN collect(DISTINCT skill) AS skills
 }
 RETURN profile, person, experiences, educations, skills
+ORDER BY profile.updated_at DESC
+LIMIT 1
 """
 
 DELETE_QUERY = """

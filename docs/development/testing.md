@@ -33,7 +33,16 @@ Testing strategy and how to run tests for the CV Generator.
 - `components/Experience.test.tsx`: Experience array management tests
 - `components/Education.test.tsx`: Education array management tests
 - `components/Skills.test.tsx`: Skills array management tests
-- `components/ProfileManager.test.tsx`: Profile management tests
+- `components/ProfileManager.test.tsx`: Profile management tests (documentation only)
+- `components/ProfileManager.render.test.tsx`: ProfileManager rendering tests
+- `components/ProfileManager.load.test.tsx`: Profile loading tests
+- `components/ProfileManager.save.test.tsx`: Profile save/update tests
+- `components/ProfileManager.delete.test.tsx`: Profile delete and validation tests
+- `components/ProfileManager.aiAssist.test.tsx`: AI assist functionality tests
+
+**Test Helpers**:
+- `helpers/profileManager/mocks.ts`: Shared mocks and test data factories
+- `helpers/profileManager/testHelpers.tsx`: Shared test rendering utilities
 
 **Framework**: Vitest with React Testing Library
 
@@ -148,3 +157,7 @@ Tests run automatically before each commit. See [Development Workflow](workflow.
 - RichTextarea component tests (rendering, onChange, validation, character counting)
 - HTML stripping utility tests
 - Updated component tests to reflect RichTextarea usage
+- ProfileManager tests refactored into smaller, focused test files:
+  - Rendering tests separated from functionality tests
+  - Loading, saving, deleting, and AI assist tests in separate files
+  - Shared test helpers and mocks in `helpers/profileManager/`

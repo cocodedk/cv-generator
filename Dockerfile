@@ -29,13 +29,13 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Install system dependencies
-# Install pandoc >= 3.1.4 from backports or download official binary
+# Install pandoc >= 3.1.4 (download official binary if not available in repos)
 RUN apt-get update && \
-    apt-get install -y -t bookworm-backports pandoc || \
-    (wget -q https://github.com/jgm/pandoc/releases/download/3.1.4/pandoc-3.1.4-1-amd64.deb && \
-     dpkg -i pandoc-3.1.4-1-amd64.deb && \
-     rm -f pandoc-3.1.4-1-amd64.deb) && \
-    apt-get install -y fonts-liberation && \
+    apt-get install -y wget ca-certificates fonts-liberation && \
+    (apt-get install -y pandoc || \
+     (wget -q https://github.com/jgm/pandoc/releases/download/3.1.4/pandoc-3.1.4-1-amd64.deb && \
+      dpkg -i pandoc-3.1.4-1-amd64.deb && \
+      rm -f pandoc-3.1.4-1-amd64.deb)) && \
     rm -rf /var/lib/apt/lists/*
 
 # Create non-root user

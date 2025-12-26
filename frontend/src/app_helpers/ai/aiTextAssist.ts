@@ -101,6 +101,7 @@ export function buildAiRewriteHtml(
   const rewritten = lines.map(rewriteLine).filter(Boolean)
   const limited = enforceMaxLength(rewritten, options.maxLength)
 
-  if (options.mode === 'bullets' || limited.lines.length > 1) return bulletsToHtml(limited.lines)
+  if (options.mode === 'bullets') return bulletsToHtml(limited.lines)
+  // For rewrite mode, always return paragraphs (even if multiple lines)
   return textToHtml(limited.plainText || rewriteLine(plainText))
 }

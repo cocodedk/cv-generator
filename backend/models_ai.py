@@ -39,3 +39,16 @@ class AIGenerateCVResponse(BaseModel):
     questions: List[str] = Field(default_factory=list)
     summary: List[str] = Field(default_factory=list)
     evidence_map: Optional[List[EvidenceMapping]] = None
+
+
+class AIRewriteRequest(BaseModel):
+    """Request to rewrite text using LLM."""
+
+    text: str = Field(..., min_length=1, max_length=10000, description="Text to rewrite")
+    prompt: str = Field(..., min_length=1, max_length=1000, description="User's prompt/instruction for rewriting")
+
+
+class AIRewriteResponse(BaseModel):
+    """Response containing rewritten text."""
+
+    rewritten_text: str = Field(..., description="The rewritten text")

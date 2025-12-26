@@ -59,8 +59,9 @@ class TestGetProfile:
     def test_get_profile_success(self, mock_neo4j_connection):
         """Test successful profile retrieval."""
         mock_session = mock_neo4j_connection.session.return_value
-        mock_record = Mock()
-        mock_record.single.return_value = {
+        mock_tx = Mock()
+        mock_result = Mock()
+        mock_result.single.return_value = {
             "person": {
                 "name": "John Doe",
                 "email": "john@example.com",
@@ -74,7 +75,12 @@ class TestGetProfile:
             "educations": [],
             "skills": [],
         }
-        mock_session.run.return_value = mock_record
+        mock_tx.run.return_value = mock_result
+
+        def execute_work(work_func):
+            return work_func(mock_tx)
+
+        mock_session.read_transaction.side_effect = execute_work
 
         result = queries.get_profile()
 
@@ -85,9 +91,15 @@ class TestGetProfile:
     def test_get_profile_not_found(self, mock_neo4j_connection):
         """Test profile not found."""
         mock_session = mock_neo4j_connection.session.return_value
-        mock_record = Mock()
-        mock_record.single.return_value = None
-        mock_session.run.return_value = mock_record
+        mock_tx = Mock()
+        mock_result = Mock()
+        mock_result.single.return_value = None
+        mock_tx.run.return_value = mock_result
+
+        def execute_work(work_func):
+            return work_func(mock_tx)
+
+        mock_session.read_transaction.side_effect = execute_work
 
         result = queries.get_profile()
 
@@ -96,14 +108,15 @@ class TestGetProfile:
     def test_get_profile_with_experiences(self, mock_neo4j_connection):
         """Test profile retrieval with experiences."""
         mock_session = mock_neo4j_connection.session.return_value
+        mock_tx = Mock()
         # Use a dict-like object that can be converted with dict()
         exp_dict = {
             "title": "Developer",
             "company": "Tech Corp",
             "start_date": "2020-01",
         }
-        mock_record = Mock()
-        mock_record.single.return_value = {
+        mock_result = Mock()
+        mock_result.single.return_value = {
             "person": {
                 "name": "John Doe",
             },
@@ -114,7 +127,12 @@ class TestGetProfile:
             "educations": [],
             "skills": [],
         }
-        mock_session.run.return_value = mock_record
+        mock_tx.run.return_value = mock_result
+
+        def execute_work(work_func):
+            return work_func(mock_tx)
+
+        mock_session.read_transaction.side_effect = execute_work
 
         result = queries.get_profile()
 

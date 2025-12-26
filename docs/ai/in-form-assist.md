@@ -1,6 +1,6 @@
-# In-Form AI Assist (Edit CV)
+# In-Form AI Assist
 
-The Edit CV page includes per-field “AI Assist” actions for rich-text fields (summary, role summary, project highlights).
+The Edit CV page and Profile page include per-field "AI Assist" actions for rich-text fields (summary, role summary, project highlights).
 
 ## What It Does
 
@@ -9,12 +9,12 @@ Each rich-text field can show two buttons:
 - **AI rewrite**: cleans up phrasing and capitalization using safe, deterministic transformations.
 - **AI bullets**: converts sentences into bullets and applies the same rewrites.
 
-This feature is intended as a fast editing helper while you are refining a CV.
+This feature is intended as a fast editing helper while you are refining a CV or your master profile.
 
 ## When It Appears
 
-- The buttons are shown only in **Edit CV** mode (when a `cvId` is present).
-- Implementation detail: `CVForm` passes `showAiAssist` into `RichTextarea`.
+- The buttons are shown in **Edit CV** mode (when a `cvId` is present) and on the **Profile** page.
+- Implementation detail: Both `CVForm` and `ProfileManager` pass `showAiAssist={true}` into `RichTextarea` components.
 
 ## Important Notes
 

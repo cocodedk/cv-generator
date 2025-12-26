@@ -32,8 +32,12 @@ def get_profile() -> Optional[Dict[str, Any]]:
     driver = Neo4jConnection.get_driver()
     database = Neo4jConnection.get_database()
     with driver.session(database=database) as session:
-        result = session.run(GET_QUERY)
-        record = result.single()
+
+        def work(tx):
+            result = tx.run(GET_QUERY)
+            return result.single()
+
+        record = session.execute_read(work)
         return process_profile_record(record)
 
 

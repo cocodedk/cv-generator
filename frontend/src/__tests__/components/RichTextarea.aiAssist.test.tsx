@@ -31,6 +31,33 @@ describe('RichTextarea - AI Assist', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
+  it('AI rewrite opens prompt modal', async () => {
+    const user = userEvent.setup()
+    const onChange = vi.fn()
+    render(
+      <RichTextarea
+        id="test-textarea"
+        value="<p>responsible for developing features. worked on api integration.</p>"
+        onChange={onChange}
+        showAiAssist={true}
+      />
+    )
+
+    await act(async () => {
+      await user.click(screen.getByRole('button', { name: /ai rewrite/i }))
+    })
+
+    // Modal should appear (AI rewrite now uses LLM and requires a prompt)
+    expect(screen.getByText(/enter your prompt/i)).toBeInTheDocument()
+    expect(screen.getByPlaceholderText(/make it more professional/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /cancel/i })).toBeInTheDocument()
+    // Check for the modal's Rewrite button (not the AI rewrite button)
+    const rewriteButtons = screen.getAllByRole('button', { name: /rewrite/i })
+    expect(rewriteButtons.length).toBeGreaterThan(0)
+    // onChange should not be called until user submits the prompt
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
   it('AI bullets rewrites to bullet HTML', async () => {
     const user = userEvent.setup()
     const onChange = vi.fn()

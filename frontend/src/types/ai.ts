@@ -27,3 +27,12 @@ export interface AIGenerateCVResponse {
   summary: string[]
   evidence_map?: EvidenceMapping[] | null
 }
+
+export interface AIRewriteRequest {
+  text: string
+  prompt: string
+}
+
+export interface AIRewriteResponse {
+  rewritten_text: string
+}

@@ -6,8 +6,14 @@ from slowapi import Limiter
 
 from backend.database import queries
 from backend.models import ProfileData
-from backend.models_ai import AIGenerateCVRequest, AIGenerateCVResponse
+from backend.models_ai import (
+    AIGenerateCVRequest,
+    AIGenerateCVResponse,
+    AIRewriteRequest,
+    AIRewriteResponse,
+)
 from backend.services.ai.draft import generate_cv_draft
+from backend.services.ai.llm_client import get_llm_client
 
 logger = logging.getLogger(__name__)
 
@@ -30,5 +36,20 @@ def create_ai_router(limiter: Limiter) -> APIRouter:
         except Exception as exc:
             logger.error("Failed to generate CV draft", exc_info=exc)
             raise HTTPException(status_code=500, detail="Failed to generate CV draft")
+
+    @router.post("/api/ai/rewrite", response_model=AIRewriteResponse)
+    @limiter.limit("20/minute")
+    async def rewrite_text(request: Request, payload: AIRewriteRequest):
+        """Rewrite text using LLM with a custom prompt."""
+        try:
+            llm_client = get_llm_client()
+            rewritten_text = await llm_client.rewrite_text(payload.text, payload.prompt)
+            return AIRewriteResponse(rewritten_text=rewritten_text)
+        except ValueError as e:
+            logger.error(f"LLM rewrite failed: {e}", exc_info=True)
+            raise HTTPException(status_code=400, detail=str(e))
+        except Exception as exc:
+            logger.error("Failed to rewrite text", exc_info=exc)
+            raise HTTPException(status_code=500, detail="Failed to rewrite text")
 
     return router

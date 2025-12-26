@@ -100,6 +100,7 @@ Component for managing the master profile (reusable personal information, experi
 - Form validation
 - Dynamic array management for experience, education, and skills
 - Displays profile status (saved/not saved)
+- Per-field AI Assist for rich-text fields (summary, role summary, project highlights)
 
 **Props**:
 - `onSuccess`: Callback for successful operations
@@ -111,6 +112,7 @@ Component for managing the master profile (reusable personal information, experi
 - Automatically loads profile data on mount
 - Shows "Save Profile" or "Update Profile" based on profile existence
 - Includes delete functionality
+- AI Assist is always enabled (unlike CVForm where it's only enabled in edit mode)
 
 ### Navigation
 
@@ -148,9 +150,9 @@ Reusable rich text editor component using TipTap (ProseMirror).
 - Optional “AI Assist” actions (rewrite/bullets)
 
 **Usage**:
-- Personal info summary (4 rows)
-- Experience descriptions (10 rows, 300 char limit)
-- Project highlights (3 rows)
+- Personal info summary (4 rows) - used in CVForm and ProfileManager
+- Experience descriptions (10 rows, 300 char limit) - used in CVForm and ProfileManager
+- Project highlights (3 rows) - used in CVForm and ProfileManager
 
 **Props**:
 - `id`: Unique identifier
@@ -161,7 +163,7 @@ Reusable rich text editor component using TipTap (ProseMirror).
 - `error`: Error object for validation
 - `maxLength`: Maximum plain text length
 - `className`: Additional CSS classes
-- `showAiAssist`: Show AI rewrite/bullets actions (used in Edit CV)
+- `showAiAssist`: Show AI rewrite/bullets actions (used in Edit CV mode and Profile page)
 
 ## Form Management
 
