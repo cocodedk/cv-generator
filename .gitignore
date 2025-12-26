@@ -52,6 +52,9 @@ playwright-report/
 .playwright-mcp/*.png
 *.png
 !frontend/public/*.png
+coverage*.json
+coverage/
+frontend/coverage/
 
 # Build
 dist/

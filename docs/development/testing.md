@@ -106,6 +106,8 @@ cd frontend && npx vitest run
 **Watch mode**: `cd frontend && npx vitest`
 **With coverage**: `cd frontend && npx vitest run --coverage`
 
+**Note**: Coverage reports are generated in `frontend/coverage/` and are ignored by git (see `.gitignore`). Coverage files include HTML reports and JSON data files.
+
 ### End-to-End Tests
 
 **Prerequisites**: Backend and frontend must be running, and a profile must exist in the database.
