@@ -39,6 +39,7 @@ function normalizePersonalInfo(personalInfo: PersonalInfo): PersonalInfo {
     github: toOptionalString(personalInfo.github),
     website: toOptionalString(personalInfo.website),
     summary: toOptionalString(personalInfo.summary),
+    photo: personalInfo.photo || undefined,
   }
 }
 

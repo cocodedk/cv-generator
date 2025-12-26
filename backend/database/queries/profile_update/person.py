@@ -19,7 +19,8 @@ def create_person_node(tx, updated_at: str, params: Dict[str, Any]) -> str:
         linkedin: $linkedin,
         github: $github,
         website: $website,
-        summary: $summary
+        summary: $summary,
+        photo: $photo
     })
     CREATE (newPerson)-[:BELONGS_TO_PROFILE]->(profile)
     RETURN elementId(newPerson) AS person_element_id

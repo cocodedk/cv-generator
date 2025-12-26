@@ -26,6 +26,7 @@ class PersonalInfo(BaseModel):
     github: Optional[str] = None
     website: Optional[str] = None
     summary: Optional[str] = None
+    photo: Optional[str] = None
 
     @field_validator("email", mode="before")
     @classmethod

@@ -20,7 +20,8 @@ def create_person_node(tx, cv_id: str, personal_info: Dict[str, Any]):
         linkedin: $linkedin,
         github: $github,
         website: $website,
-        summary: $summary
+        summary: $summary,
+        photo: $photo
     })
     CREATE (person)-[:BELONGS_TO_CV]->(cv)
     """
@@ -40,5 +41,6 @@ def create_person_node(tx, cv_id: str, personal_info: Dict[str, Any]):
         github=personal_info.get("github"),
         website=personal_info.get("website"),
         summary=personal_info.get("summary"),
+        photo=personal_info.get("photo"),
     )
     result.consume()

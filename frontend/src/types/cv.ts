@@ -18,6 +18,7 @@ export interface PersonalInfo {
   github?: string
   website?: string
   summary?: string
+  photo?: string
 }
 
 export interface Project {
