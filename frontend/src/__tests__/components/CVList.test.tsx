@@ -46,7 +46,7 @@ describe('CVList', () => {
           person_name: 'John Doe',
           created_at: '2024-01-01T00:00:00Z',
           updated_at: '2024-01-01T00:00:00Z',
-          filename: 'cv_1234.docx',
+          filename: 'cv_1234.html',
         },
         {
           cv_id: 'cv-2',
@@ -108,7 +108,7 @@ describe('CVList', () => {
           person_name: 'John Doe',
           created_at: '2024-01-01T00:00:00Z',
           updated_at: '2024-01-01T00:00:00Z',
-          filename: 'cv_1234.docx',
+          filename: 'cv_1234.html',
         },
       ],
       total: 1,
@@ -215,7 +215,7 @@ describe('CVList', () => {
           person_name: 'John Doe',
           created_at: '2024-01-01T00:00:00Z',
           updated_at: '2024-01-01T00:00:00Z',
-          filename: 'cv_1234.docx',
+          filename: 'cv_1234.html',
         },
       ],
       total: 1,
@@ -235,7 +235,7 @@ describe('CVList', () => {
     })
 
     expect(openMock).toHaveBeenCalledWith(
-      expect.stringMatching(/^\/api\/download-docx\/cv_1234\.docx\?t=\d+$/),
+      expect.stringMatching(/^\/api\/download-html\/cv_1234\.html\?t=\d+$/),
       '_blank'
     )
   })

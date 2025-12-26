@@ -15,7 +15,7 @@ class TestDocxRoutes:
             "backend.database.queries.create_cv", return_value="docx-cv-id"
         ):
             with patch(
-                "backend.services.cv_file_service.CVFileService.generate_file_for_cv",
+                "backend.services.cv_file_service.CVFileService.generate_docx_for_cv",
                 return_value="cv_docx.docx",
             ):
                 response = await client.post(
@@ -27,7 +27,7 @@ class TestDocxRoutes:
     async def test_download_docx(self, client, temp_output_dir):
         """Ensure DOCX download endpoint returns file."""
         test_file = temp_output_dir / "test_cv.docx"
-        test_file.write_text("test content")
+        test_file.write_text("docx content")
 
         cv_data = {
             "cv_id": "docx-id",
@@ -47,7 +47,7 @@ class TestDocxRoutes:
                 return_value=cv_data,
             ):
                 with patch(
-                    "backend.services.cv_file_service.CVFileService.generate_file_for_cv",
+                    "backend.services.cv_file_service.CVFileService.generate_docx_for_cv",
                     return_value="test_cv.docx",
                 ):
                     response = await client.get(

@@ -204,7 +204,7 @@ class TestSetCVFilename:
 
         mock_session.write_transaction.side_effect = write_transaction_side_effect
 
-        success = queries.set_cv_filename("test-id", "cv_test.docx")
+        success = queries.set_cv_filename("test-id", "cv_test.html")
 
         assert success is True
         mock_session.write_transaction.assert_called_once()

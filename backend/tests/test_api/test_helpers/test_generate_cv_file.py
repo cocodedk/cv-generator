@@ -11,7 +11,7 @@ class TestGenerateCVFile:
     async def test_generate_cv_file_uses_theme_from_db(
         self, client, mock_neo4j_connection
     ):
-        """Test that generate CV file uses theme from database."""
+        """Test that generate DOCX CV file uses theme from database."""
         cv_data = {
             "cv_id": "test-cv-id",
             "personal_info": {"name": "John Doe"},
@@ -25,7 +25,7 @@ class TestGenerateCVFile:
                 "backend.database.queries.set_cv_filename", return_value=True
             ):
                 with patch(
-                    "backend.services.cv_file_service.CVFileService.generate_file_for_cv",
+                    "backend.services.cv_file_service.CVFileService.generate_docx_for_cv",
                     return_value="cv_test.docx",
                 ) as mock_generate:
                     response = await client.post(
@@ -40,7 +40,7 @@ class TestGenerateCVFile:
     async def test_generate_cv_file_defaults_theme_when_missing(
         self, client, mock_neo4j_connection
     ):
-        """Test that generate CV file defaults to classic when theme missing."""
+        """Test that generate DOCX CV file defaults to classic when theme missing."""
         cv_data = {
             "cv_id": "test-cv-id",
             "personal_info": {"name": "John Doe"},
@@ -54,7 +54,7 @@ class TestGenerateCVFile:
                 "backend.database.queries.set_cv_filename", return_value=True
             ):
                 with patch(
-                    "backend.services.cv_file_service.CVFileService.generate_file_for_cv",
+                    "backend.services.cv_file_service.CVFileService.generate_docx_for_cv",
                     return_value="cv_test.docx",
                 ) as mock_generate:
                     response = await client.post(

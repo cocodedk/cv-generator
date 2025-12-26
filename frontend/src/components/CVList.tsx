@@ -84,7 +84,7 @@ export default function CVList({ onError }: CVListProps) {
 
   const handleGenerateFile = async (cvId: string) => {
     try {
-      await axios.post(`/api/cv/${cvId}/generate-docx`)
+      await axios.post(`/api/cv/${cvId}/generate-html`)
       // Refresh the list to show the download button
       fetchCVs(search || undefined)
     } catch (error: any) {

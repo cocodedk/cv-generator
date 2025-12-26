@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import PersonalInfo from './PersonalInfo'
 import Experience from './Experience'
@@ -57,6 +57,59 @@ export default function CVForm({ onSuccess, onError, setLoading, cvId }: CVFormP
     setLoading,
     setError,
   })
+
+  // Keyboard shortcut handler for Ctrl+S / Cmd+S
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Check for Ctrl+S (Windows/Linux) or Cmd+S (Mac)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+        e.preventDefault() // Prevent browser save dialog
+        e.stopPropagation() // Prevent event from bubbling
+
+        // Don't trigger if form is loading CV data
+        if (isLoadingCv) {
+          return
+        }
+
+        // Don't trigger if form is already submitting
+        if (isSubmitting) {
+          return
+        }
+
+        // Don't trigger if AI modal is open
+        if (showAiModal) {
+          return
+        }
+
+        // Don't trigger if profile loader modal is open
+        if (showProfileLoader) {
+          return
+        }
+
+        // Don't trigger if user is typing in an input/textarea/select
+        const activeElement = document.activeElement
+        if (
+          activeElement &&
+          (activeElement.tagName === 'INPUT' ||
+            activeElement.tagName === 'TEXTAREA' ||
+            activeElement.tagName === 'SELECT' ||
+            activeElement.getAttribute('contenteditable') === 'true')
+        ) {
+          return
+        }
+
+        // Trigger form submission directly using handleSubmit
+        // This ensures validation is run and form state is properly handled
+        handleSubmit(onSubmit)()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown, true) // Use capture phase
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown, true)
+    }
+  }, [handleSubmit, onSubmit, isLoadingCv, isSubmitting, showAiModal, showProfileLoader])
+
   return (
     <>
       {showAiModal && (

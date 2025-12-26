@@ -1,6 +1,7 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>{{ personal_info.name or "CV" }}</title>
 <style>
 :root{--page-w:210mm;--page-h:297mm;--pad:14mm;--ink:#0f172a;--muted:#475569;--light:#e2e8f0;--paper:#fff;--accent:#0f766e;--accent-2:#1e40af;}
+{% if theme_css %}{{ theme_css }}{% endif %}
 @page{size:A4;margin:0}html,body{height:100%}body{margin:0;background:#f1f5f9;color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";line-height:1.4;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .hint{width:var(--page-w);margin:8mm auto 0;font-size:12px;color:#64748b}
 .sheet{width:var(--page-w);min-height:var(--page-h);margin:10mm auto;background:var(--paper);box-shadow:0 10px 30px rgba(15,23,42,.12)}

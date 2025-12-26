@@ -259,9 +259,9 @@ class TestCVResponse:
 
     def test_valid_response(self):
         """Test creating valid response."""
-        response = CVResponse(cv_id="test-id", filename="cv.docx")
+        response = CVResponse(cv_id="test-id", filename="cv.html")
         assert response.cv_id == "test-id"
-        assert response.filename == "cv.docx"
+        assert response.filename == "cv.html"
         assert response.status == "success"
 
 
