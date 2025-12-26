@@ -5,22 +5,38 @@ import type { Editor } from '@tiptap/react'
 import RichTextToolbar from '../../components/richText/RichTextToolbar'
 
 function createEditorMock(overrides?: Partial<Editor>): Editor {
-  const chain = {
-    focus: vi.fn(() => chain),
-    toggleHeading: vi.fn(() => chain),
-    toggleBold: vi.fn(() => chain),
-    toggleItalic: vi.fn(() => chain),
-    toggleUnderline: vi.fn(() => chain),
-    toggleStrike: vi.fn(() => chain),
-    toggleOrderedList: vi.fn(() => chain),
-    toggleBulletList: vi.fn(() => chain),
-    extendMarkRange: vi.fn(() => chain),
-    unsetLink: vi.fn(() => chain),
-    setLink: vi.fn(() => chain),
-    unsetAllMarks: vi.fn(() => chain),
-    clearNodes: vi.fn(() => chain),
-    run: vi.fn(() => true),
+  type Chain = {
+    focus: () => Chain
+    toggleHeading: (options: { level: number }) => Chain
+    toggleBold: () => Chain
+    toggleItalic: () => Chain
+    toggleUnderline: () => Chain
+    toggleStrike: () => Chain
+    toggleOrderedList: () => Chain
+    toggleBulletList: () => Chain
+    extendMarkRange: (mark: string) => Chain
+    unsetLink: () => Chain
+    setLink: (attrs: { href: string }) => Chain
+    unsetAllMarks: () => Chain
+    clearNodes: () => Chain
+    run: () => boolean
   }
+
+  const chain = {} as Chain
+  chain.focus = vi.fn(() => chain)
+  chain.toggleHeading = vi.fn(() => chain)
+  chain.toggleBold = vi.fn(() => chain)
+  chain.toggleItalic = vi.fn(() => chain)
+  chain.toggleUnderline = vi.fn(() => chain)
+  chain.toggleStrike = vi.fn(() => chain)
+  chain.toggleOrderedList = vi.fn(() => chain)
+  chain.toggleBulletList = vi.fn(() => chain)
+  chain.extendMarkRange = vi.fn(() => chain)
+  chain.unsetLink = vi.fn(() => chain)
+  chain.setLink = vi.fn(() => chain)
+  chain.unsetAllMarks = vi.fn(() => chain)
+  chain.clearNodes = vi.fn(() => chain)
+  chain.run = vi.fn(() => true)
 
   const editor = {
     isActive: vi.fn(() => false),

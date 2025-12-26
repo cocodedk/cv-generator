@@ -1,4 +1,5 @@
 import { ViewMode } from '../app_helpers/types'
+import { BRANDING } from '../app_helpers/branding'
 
 interface NavigationProps {
   viewMode: ViewMode
@@ -13,7 +14,14 @@ export default function Navigation({ viewMode, isDark, onThemeToggle }: Navigati
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">CV Generator</h1>
+              <div className="flex items-baseline gap-2">
+                <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                  {BRANDING.appName}
+                </h1>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {BRANDING.ownerName} · {BRANDING.companyName}
+                </span>
+              </div>
             </div>
           </div>
           <div className="flex items-center space-x-4">

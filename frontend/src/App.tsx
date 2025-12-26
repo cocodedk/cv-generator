@@ -1,12 +1,14 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import CVForm from './components/CVForm'
 import CVList from './components/CVList'
 import ProfileManager from './components/ProfileManager'
 import Navigation from './components/Navigation'
 import NotificationModal from './components/NotificationModal'
+import Footer from './components/Footer'
 import { useHashRouting } from './app_helpers/useHashRouting'
 import { useTheme } from './app_helpers/useTheme'
 import { useMessage } from './app_helpers/useMessage'
+import { BRANDING } from './app_helpers/branding'
 import './index.css'
 
 function App() {
@@ -14,6 +16,10 @@ function App() {
   const { isDark, setIsDark } = useTheme()
   const { message, showMessage, clearMessage } = useMessage()
   const [_loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    document.title = `${BRANDING.appName} — ${BRANDING.ownerName} (${BRANDING.companyName})`
+  }, [BRANDING.appName, BRANDING.ownerName, BRANDING.companyName])
 
   const handleSuccess = useCallback(
     (message: string) => showMessage('success', message),
@@ -49,6 +55,7 @@ function App() {
           <ProfileManager onSuccess={handleSuccess} onError={handleError} setLoading={setLoading} />
         )}
       </main>
+      <Footer />
     </div>
   )
 }

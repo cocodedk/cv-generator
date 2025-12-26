@@ -50,6 +50,20 @@ describe('App', () => {
     expect(screen.getByText('CVForm without cvId')).toBeInTheDocument()
   })
 
+  it('sets document title with owner and company', async () => {
+    mockedUseHashRouting.useHashRouting.mockReturnValue({
+      viewMode: 'form',
+      cvId: null,
+    })
+
+    render(<App />)
+
+    await waitFor(() => {
+      expect(document.title).toContain('Babak Bandpey')
+      expect(document.title).toContain('cocode.dk')
+    })
+  })
+
   it('renders CVForm with cvId when in edit mode', () => {
     mockedUseHashRouting.useHashRouting.mockReturnValue({
       viewMode: 'edit',
