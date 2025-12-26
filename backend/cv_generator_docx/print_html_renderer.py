@@ -19,25 +19,18 @@ def render_print_html(cv_data: Dict[str, Any]) -> str:
     template_data = _prepare_template_data(cv_data)
     theme_name = template_data.get("theme", "classic")
 
-    # Check for theme-specific template in print_html directory first
+    # Check for theme-specific template in print_html directory
     theme_template_path = TEMPLATES_DIR / f"{theme_name}.html"
-
-    # If not found in print_html, check html directory
-    html_templates_dir = TEMPLATES_DIR.parent / "html"
-    html_theme_template_path = html_templates_dir / f"{theme_name}.html"
 
     # Determine which template to use
     if theme_template_path.exists():
         # Use theme-specific template from print_html directory
         template_name = f"{theme_name}.html"
-    elif html_theme_template_path.exists():
-        # Use theme-specific template from html directory
-        template_name = f"{theme_name}.html"
     else:
         # Fall back to base.html from print_html directory
         template_name = "base.html"
 
-        # Get theme definition for CSS variables (only needed for base.html)
+        # Get theme definition for CSS variables
         theme = get_theme(theme_name)
         accent_color = theme.get("accent_color", theme.get("accent", "#0f766e"))
         section_color = theme.get("section", {}).get("color", accent_color)
@@ -52,9 +45,9 @@ def render_print_html(cv_data: Dict[str, Any]) -> str:
             muted=muted_color,
         )
 
-    # Create environment with both template directories for includes
+    # Create environment with template directory for includes
     env = Environment(
-        loader=FileSystemLoader([str(TEMPLATES_DIR), str(html_templates_dir)]),
+        loader=FileSystemLoader(str(TEMPLATES_DIR)),
         autoescape=select_autoescape(["html", "xml"]),
     )
     template = env.get_template(template_name)

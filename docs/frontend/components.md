@@ -44,7 +44,17 @@ Main application component that manages:
 
 **Location**: `frontend/src/components/CVForm.tsx`
 
-Main form component for CV data entry.
+**Helper Modules**: `frontend/src/app_helpers/cvForm/`
+
+Main form component for CV data entry. The component has been refactored into smaller, focused modules for maintainability:
+
+- `useKeyboardShortcut.ts`: Custom hook for Ctrl+S / Cmd+S keyboard shortcut handling
+- `CVFormModals.tsx`: Component for rendering AI generation and profile loader modals
+- `CVFormContent.tsx`: Component for rendering the main form content (header, theme selector, form sections)
+- `CVFormLoading.tsx`: Component for displaying loading state while CV data is being loaded
+- `useCvLoader.ts`: Hook for loading existing CV data
+- `useCvSubmit.ts`: Hook for handling form submission
+- `useProfileManager.ts`: Hook for managing profile loading and saving
 
 **Features**:
 - React Hook Form integration
@@ -55,11 +65,20 @@ Main form component for CV data entry.
 - Load from Profile button with selective item selection
 - Save to Profile button
 - Per-field AI Assist in Edit CV mode (rich-text fields)
+- Keyboard shortcut support: Ctrl+S (Windows/Linux) or Cmd+S (Mac) to save CV
 
 **Props**:
 - `onSuccess`: Callback for successful submission
 - `onError`: Callback for errors
 - `setLoading`: Loading state setter
+- `cvId`: Optional CV ID for edit mode
+
+**Keyboard Shortcuts**:
+- **Ctrl+S** (Windows/Linux) or **Cmd+S** (Mac): Saves the CV
+  - Prevents browser default save dialog
+  - Does not trigger while typing in input fields, textareas, or contenteditable elements
+  - Does not trigger while form is loading, submitting, or when modals are open
+  - Runs form validation before saving
 
 ### PersonalInfo
 
