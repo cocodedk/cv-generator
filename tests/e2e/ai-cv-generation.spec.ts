@@ -23,17 +23,19 @@ import {
   verifyAiGenerationResults,
 } from './helpers/aiGeneration'
 import { createTestProfile } from './helpers/profileSetup'
-import { deleteProfile } from './helpers/apiCleanup'
 
 test.describe.serial('AI CV Generation - End to End', () => {
   const cleanupManager = new CleanupManager()
 
   test.beforeEach(async ({ page, request }, testInfo) => {
     if (testInfo.title === 'should show error when profile is missing') {
-      await deleteProfile(request)
+      // Don't create profile for this test
     } else {
-      // Create test profile before each test
-      await createTestProfile(request)
+      // Create test profile before each test and track it for cleanup
+      const updatedAt = await createTestProfile(request)
+      if (updatedAt) {
+        cleanupManager.trackTestProfile(updatedAt)
+      }
     }
 
     await page.goto(FRONTEND_URL)

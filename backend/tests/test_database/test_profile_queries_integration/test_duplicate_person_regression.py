@@ -149,13 +149,20 @@ class TestDuplicatePersonRegression:
                 )
         finally:
             # Always cleanup: Delete the test profile (even if test fails)
+            # Safety: Only delete profiles that are verified to be test profiles
             try:
-                # Try to delete both old and new profile timestamps
-                queries.delete_profile_by_updated_at(profile_updated_at)
+                # Delete old profile timestamp only if it's a test profile
+                old_profile = queries.get_profile_by_updated_at(profile_updated_at)
+                if old_profile and is_test_profile(old_profile):
+                    queries.delete_profile_by_updated_at(profile_updated_at)
+
+                # Check for new profile timestamp and delete only if it's a test profile
                 profiles_after = queries.list_profiles()
                 if profiles_after:
                     new_profile_updated_at = profiles_after[0]["updated_at"]
                     if new_profile_updated_at != profile_updated_at:
-                        queries.delete_profile_by_updated_at(new_profile_updated_at)
+                        new_profile = queries.get_profile_by_updated_at(new_profile_updated_at)
+                        if new_profile and is_test_profile(new_profile):
+                            queries.delete_profile_by_updated_at(new_profile_updated_at)
             except Exception:
                 pass  # Ignore cleanup errors

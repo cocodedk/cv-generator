@@ -34,6 +34,8 @@ Common problems and their solutions when working with the CV Generator.
 
 **Profile Save Memory Error**: Fixed in UPDATE_QUERY - profile updates now delete nodes separately to avoid cartesian products. If you encounter memory errors, see [Profile Memory Error Investigation](profile-memory-error-investigation.md).
 
+**Profile Deleted by Tests**: Fixed - Tests now track and delete only their own test profiles. Integration tests verify profiles are test profiles before deletion, and E2E tests track test profile timestamps to delete only the specific profile they created. See [Test Cleanup Safety](../development/testing.md#test-cleanup-safety) for details.
+
 ## File Generation Issues
 
 **DOCX Not Generated**: Check `backend/output/` exists, verify permissions, check logs, verify CV data.

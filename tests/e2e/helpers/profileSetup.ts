@@ -83,8 +83,11 @@ export async function verifyProfileExists(request: APIRequestContext): Promise<b
 /**
  * Create a test profile via API
  * @param request - Playwright API request context
+ * @returns The created profile's updated_at timestamp
  */
-export async function createTestProfile(request: APIRequestContext): Promise<void> {
+export async function createTestProfile(
+  request: APIRequestContext
+): Promise<string | null> {
   const profileData = getTestProfileData()
   try {
     const response = await request.post(`${BACKEND_URL}/api/profile`, {
@@ -94,11 +97,13 @@ export async function createTestProfile(request: APIRequestContext): Promise<voi
       const body = await response.text().catch(() => '')
       throw new Error(`Failed to create profile: ${response.status()} - ${body}`)
     }
-    // Verify profile was created and is accessible
+    // Verify profile was created and is accessible, then get its updated_at
     let retries = 5
     while (retries > 0) {
-      if (await verifyProfileExists(request)) {
-        return
+      const profileResponse = await request.get(`${BACKEND_URL}/api/profile`)
+      if (profileResponse.status() === 200) {
+        const profile = await profileResponse.json()
+        return profile.updated_at || null
       }
       await new Promise(resolve => setTimeout(resolve, 200))
       retries--

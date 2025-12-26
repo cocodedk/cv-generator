@@ -142,6 +142,30 @@ Neo4j database in Docker and should clean up after themselves.
 they don't accidentally modify real profile data. Tests verify profiles are test
 profiles before updating or deleting them.
 
+### Test Cleanup Safety
+
+**Profile Deletion Protection**: Tests implement multiple safety mechanisms to prevent
+accidental deletion of real user profiles:
+
+1. **Integration Tests** (`backend/tests/test_database/test_profile_queries_integration/`):
+   - Use `is_test_profile()` helper to verify profiles have "test" prefix before deletion
+   - Only delete profiles that pass the test profile verification
+   - Example: `test_duplicate_person_regression.py` checks both old and new profile
+     timestamps before cleanup
+
+2. **E2E Tests** (`tests/e2e/`):
+   - Track test profile's `updated_at` timestamp when created
+   - `CleanupManager.trackTestProfile()` stores the specific profile timestamp
+   - `cleanupWithProfile()` only deletes the tracked test profile by its specific
+     `updated_at`, not just any profile
+   - `createTestProfile()` returns the profile's `updated_at` for tracking
+   - `deleteProfileByUpdatedAt()` deletes only the specified profile
+
+**Why This Matters**: The `delete_profile()` function deletes the most recently updated
+profile (by `updated_at`), which could be a real user profile if tests don't properly
+isolate their test data. These safety mechanisms ensure tests only delete profiles
+they created, protecting real user data.
+
 ## Writing Tests
 
 **Backend Example**:

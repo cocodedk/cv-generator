@@ -5,10 +5,11 @@
 
 import { Page, APIRequestContext } from '@playwright/test'
 import { extractCvIdFromUrl } from './urlUtils'
-import { deleteCv, deleteProfile } from './apiCleanup'
+import { deleteCv, deleteProfileByUpdatedAt } from './apiCleanup'
 
 export class CleanupManager {
   private createdCvIds: string[] = []
+  private testProfileUpdatedAt: string | null = null
 
   /**
    * Track a CV ID for cleanup
@@ -45,18 +46,31 @@ export class CleanupManager {
   }
 
   /**
-   * Clean up all tracked CVs and profile
+   * Track the test profile's updated_at timestamp for safe cleanup
+   * @param updatedAt - Profile's updated_at timestamp
+   */
+  trackTestProfile(updatedAt: string): void {
+    this.testProfileUpdatedAt = updatedAt
+  }
+
+  /**
+   * Clean up all tracked CVs and the tracked test profile
    * @param request - Playwright API request context
    */
   async cleanupWithProfile(request: APIRequestContext): Promise<void> {
     await this.cleanup(request)
-    await deleteProfile(request)
+    // Only delete the specific test profile we tracked, not just any profile
+    if (this.testProfileUpdatedAt) {
+      await deleteProfileByUpdatedAt(request, this.testProfileUpdatedAt)
+      this.testProfileUpdatedAt = null
+    }
   }
 
   /**
-   * Reset the cleanup manager (clear tracked CVs)
+   * Reset the cleanup manager (clear tracked CVs and profile)
    */
   reset(): void {
     this.createdCvIds.length = 0
+    this.testProfileUpdatedAt = null
   }
 }
