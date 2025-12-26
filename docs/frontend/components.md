@@ -159,6 +159,7 @@ Reusable rich text editor component using TipTap (ProseMirror).
 - Optional "AI Assist" actions (rewrite/bullets)
 - Line break support (Enter and Shift+Enter) with race condition prevention
 - HTML normalization handling for TipTap format differences
+- HTML formatting preservation: Formatting (bold, italic, line breaks) is preserved when profiles are reloaded
 
 **AI Assist Features**:
 - **AI Rewrite**: Opens a modal to enter a custom prompt, then calls LLM API to rewrite text based on user instruction

@@ -216,6 +216,58 @@ describe('RichTextarea', () => {
     })
   })
 
+  it('preserves HTML formatting when profile is loaded', async () => {
+    const onChange = vi.fn()
+    const { rerender } = render(<RichTextarea id="test-textarea" value="" onChange={onChange} />)
+
+    const editor = document.querySelector('.ql-editor') as HTMLElement
+    expect(editor).toBeInTheDocument()
+
+    // Simulate profile load with formatted HTML
+    const formattedHtml = '<p>Text with <strong>bold</strong> and <em>italic</em></p>'
+    rerender(<RichTextarea id="test-textarea" value={formattedHtml} onChange={onChange} />)
+
+    await waitFor(() => {
+      expect(editor.textContent).toContain('Text with bold and italic')
+    })
+
+    // Verify HTML formatting is preserved in editor
+    const editorHtml = editor.innerHTML
+    expect(editorHtml).toContain('<strong>')
+    expect(editorHtml).toContain('<em>')
+  })
+
+  it('preserves HTML formatting when editor has same plain text but different formatting', async () => {
+    const onChange = vi.fn()
+    const user = userEvent.setup()
+    const { rerender } = render(<RichTextarea id="test-textarea" value="" onChange={onChange} />)
+
+    const editor = document.querySelector('.ql-editor') as HTMLElement
+
+    // Type plain text first
+    editor.focus()
+    await act(async () => {
+      await user.type(editor, 'Plain text')
+    })
+
+    await waitFor(() => {
+      expect(onChange).toHaveBeenCalled()
+    })
+
+    // Simulate profile load with same text but formatted
+    const formattedHtml = '<p>Plain <strong>text</strong></p>'
+    rerender(<RichTextarea id="test-textarea" value={formattedHtml} onChange={onChange} />)
+
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 10))
+    })
+
+    // Verify formatting is applied even though plain text matches
+    const editorHtml = editor.innerHTML
+    expect(editorHtml).toContain('<strong>')
+    expect(editor.textContent).toContain('Plain text')
+  })
+
   it('handles HTML normalization differences without clearing content', async () => {
     const onChange = vi.fn()
     const user = userEvent.setup()

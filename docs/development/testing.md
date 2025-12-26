@@ -169,7 +169,7 @@ Tests run automatically before each commit. See [Development Workflow](workflow.
   - Shared test helpers and mocks in `helpers/profile_queries/mocks.py`
 
 ### Frontend Tests
-- RichTextarea component tests (23 tests: rendering, onChange, validation, character counting, line break preservation)
+- RichTextarea component tests (25 tests: rendering, onChange, validation, character counting, line break preservation, HTML formatting preservation)
 - HTML stripping utility tests
 - Updated component tests to reflect RichTextarea usage
 - ProfileManager tests refactored into smaller, focused test files:

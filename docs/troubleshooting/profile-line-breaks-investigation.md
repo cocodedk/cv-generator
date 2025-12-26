@@ -106,18 +106,20 @@ The race condition occurs because:
 Normalize HTML before comparing to handle TipTap's normalization differences:
 
 ```typescript
-function normalizeHtml(html: string): string {
-  // Normalize empty paragraphs
-  html = html.replace(/<p><\/p>/g, '<p><br></p>')
-  html = html.replace(/<p><br><\/p>/g, '<p><br></p>')
-  // Normalize whitespace
-  html = html.replace(/\s+/g, ' ').trim()
-  return html
+function normalizeHtmlForComparison(html: string): string {
+  if (!html) return ''
+  // Normalize empty paragraphs - TipTap may use either format
+  let normalized = html.replace(/<p><\/p>/g, '<p><br></p>')
+  normalized = normalized.replace(/<p><br><\/p>/g, '<p><br></p>')
+  // Normalize whitespace in tags
+  normalized = normalized.replace(/>\s+</g, '><')
+  normalized = normalized.trim()
+  return normalized
 }
 
 // In useEffect:
-const normalizedCurrentHtml = normalizeHtml(currentHtml)
-const normalizedValueHtml = normalizeHtml(normalizedValue)
+const normalizedCurrentHtml = normalizeHtmlForComparison(currentHtml)
+const normalizedValueHtml = normalizeHtmlForComparison(normalizedValue)
 
 if (normalizedValueHtml === normalizedCurrentHtml) {
   // Skip update
@@ -136,7 +138,7 @@ if (isFocused) {
     // Re-check after React Hook Form has processed the update
     const updatedHtml = editor.getHTML()
     const updatedValue = value || ''
-    if (normalizeHtml(updatedValue) === normalizeHtml(updatedHtml)) {
+    if (normalizeHtmlForComparison(updatedValue) === normalizeHtmlForComparison(updatedHtml)) {
       return
     }
     // Only update if still different after delay
@@ -166,17 +168,28 @@ if (currentJson === valueJson) {
 Track when user is actively typing (not just focused):
 
 ```typescript
-const [isEditing, setIsEditing] = useState(false)
+const isEditingRef = useRef<boolean>(false)
+const editingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
 // In onUpdate:
 onUpdate: ({ editor: currentEditor }) => {
-  setIsEditing(true)
   // ... existing code ...
-  setTimeout(() => setIsEditing(false), 100)
+
+  // Mark as actively editing and clear flag after delay
+  isEditingRef.current = true
+  if (editingTimeoutRef.current) {
+    clearTimeout(editingTimeoutRef.current)
+  }
+  editingTimeoutRef.current = setTimeout(() => {
+    isEditingRef.current = false
+    editingTimeoutRef.current = null
+  }, 150)
+
+  onChange(html)
 }
 
 // In useEffect:
-if (isEditing) {
+if (isEditingRef.current) {
   // Skip updates while user is actively editing
   return
 }

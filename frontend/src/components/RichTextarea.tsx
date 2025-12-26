@@ -165,14 +165,22 @@ export default function RichTextarea({
       return
     }
 
-    // 4. Plain text content matches (handles HTML normalization differences)
-    // Only apply this check if we have meaningful content
-    if (valueText === currentText && valueText.length > 0 && currentText.length > 0) {
-      // Update refs to keep them in sync even if HTML format differs
+    // 4. Plain text content matches AND HTML is normalized to be the same
+    // Only skip if both match (handles HTML normalization differences without losing formatting)
+    if (
+      valueText === currentText &&
+      valueText.length > 0 &&
+      currentText.length > 0 &&
+      normalizedValueHtml === normalizedCurrentHtml
+    ) {
+      // Update refs to keep them in sync
       lastEmittedValueRef.current = normalizedValue
       lastKnownHtmlRef.current = normalizedValue
       return
     }
+
+    // If plain text matches but HTML differs, we MUST update to preserve formatting
+    // This handles the case where formatting changes but text stays the same
 
     // This is an external update (form reset, profile load, etc.)
     // Only update if the value is actually different from what's in the editor
