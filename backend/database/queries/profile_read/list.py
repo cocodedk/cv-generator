@@ -5,7 +5,7 @@ from backend.database.connection import Neo4jConnection
 
 def list_profiles() -> list[Dict[str, Any]]:
     """List all profiles with basic info (name, updated_at).
-    
+
     Returns one row per Profile node, aggregating Person nodes to avoid duplicates
     when multiple Person nodes are connected to the same Profile.
     """
