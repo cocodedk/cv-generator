@@ -31,8 +31,23 @@ function normalizeHtmlForComparison(html: string): string {
   // Normalize empty paragraphs - TipTap may use either format
   let normalized = html.replace(/<p><\/p>/g, '<p><br></p>')
   normalized = normalized.replace(/<p><br><\/p>/g, '<p><br></p>')
-  // Normalize whitespace in tags
+
+  // Normalize list items wrapped in paragraphs: <li><p>text</p></li> -> <li>text</li>
+  // TipTap might wrap list item content in paragraphs when loading HTML
+  normalized = normalized.replace(/<li><p>(.*?)<\/p><\/li>/gs, '<li>$1</li>')
+
+  // Normalize empty list items: <li></li> vs <li><p></p></li>
+  normalized = normalized.replace(/<li><p><\/p><\/li>/g, '<li></li>')
+  normalized = normalized.replace(/<li><p><br><\/p><\/li>/g, '<li></li>')
+
+  // Normalize whitespace inside list items (but preserve content)
+  // This handles cases like <li>\nItem\n</li> vs <li>Item</li>
+  normalized = normalized.replace(/<li>\s+/g, '<li>')
+  normalized = normalized.replace(/\s+<\/li>/g, '</li>')
+
+  // Normalize whitespace in tags (including newlines between tags)
   normalized = normalized.replace(/>\s+</g, '><')
+
   normalized = normalized.trim()
   return normalized
 }

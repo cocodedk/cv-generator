@@ -491,6 +491,119 @@ describe('RichTextarea', () => {
     // Content should still be preserved despite empty paragraph normalization difference
     expect(editor.textContent).toContain('First line')
   })
+
+  it('preserves bullet list HTML when profile is loaded', async () => {
+    const onChange = vi.fn()
+    const { rerender } = render(<RichTextarea id="test-textarea" value="" onChange={onChange} />)
+
+    const editor = document.querySelector('.ql-editor') as HTMLElement
+    expect(editor).toBeInTheDocument()
+
+    // Simulate profile load with bullet list HTML
+    const listHtml = '<ul><li>Item 1</li><li>Item 2</li></ul>'
+    rerender(<RichTextarea id="test-textarea" value={listHtml} onChange={onChange} />)
+
+    await waitFor(() => {
+      expect(editor.textContent).toContain('Item 1')
+      expect(editor.textContent).toContain('Item 2')
+    })
+
+    // Verify list HTML structure is preserved in editor
+    const editorHtml = editor.innerHTML
+    expect(editorHtml).toContain('<ul>')
+    expect(editorHtml).toContain('<li>')
+  })
+
+  it('preserves ordered list HTML when profile is loaded', async () => {
+    const onChange = vi.fn()
+    const { rerender } = render(<RichTextarea id="test-textarea" value="" onChange={onChange} />)
+
+    const editor = document.querySelector('.ql-editor') as HTMLElement
+    expect(editor).toBeInTheDocument()
+
+    // Simulate profile load with ordered list HTML
+    const listHtml = '<ol><li>First item</li><li>Second item</li></ol>'
+    rerender(<RichTextarea id="test-textarea" value={listHtml} onChange={onChange} />)
+
+    await waitFor(() => {
+      expect(editor.textContent).toContain('First item')
+      expect(editor.textContent).toContain('Second item')
+    })
+
+    // Verify ordered list HTML structure is preserved
+    const editorHtml = editor.innerHTML
+    expect(editorHtml).toContain('<ol>')
+    expect(editorHtml).toContain('<li>')
+  })
+
+  it('preserves list HTML with formatting when profile is loaded', async () => {
+    const onChange = vi.fn()
+    const { rerender } = render(<RichTextarea id="test-textarea" value="" onChange={onChange} />)
+
+    const editor = document.querySelector('.ql-editor') as HTMLElement
+    expect(editor).toBeInTheDocument()
+
+    // Simulate profile load with formatted list HTML
+    const listHtml =
+      '<ul><li>Item with <strong>bold</strong> text</li><li>Item with <em>italic</em> text</li></ul>'
+    rerender(<RichTextarea id="test-textarea" value={listHtml} onChange={onChange} />)
+
+    await waitFor(() => {
+      expect(editor.textContent).toContain('Item with bold text')
+      expect(editor.textContent).toContain('Item with italic text')
+    })
+
+    // Verify list and formatting HTML structure is preserved
+    const editorHtml = editor.innerHTML
+    expect(editorHtml).toContain('<ul>')
+    expect(editorHtml).toContain('<li>')
+    expect(editorHtml).toContain('<strong>')
+    expect(editorHtml).toContain('<em>')
+  })
+
+  it('handles list HTML normalization differences (paragraph-wrapped items)', async () => {
+    const onChange = vi.fn()
+    const { rerender } = render(<RichTextarea id="test-textarea" value="" onChange={onChange} />)
+
+    const editor = document.querySelector('.ql-editor') as HTMLElement
+    expect(editor).toBeInTheDocument()
+
+    // TipTap might wrap list items in paragraphs: <li><p>Item</p></li>
+    const listHtmlWithParagraphs = '<ul><li><p>Item 1</p></li><li><p>Item 2</p></li></ul>'
+    rerender(<RichTextarea id="test-textarea" value={listHtmlWithParagraphs} onChange={onChange} />)
+
+    await waitFor(() => {
+      expect(editor.textContent).toContain('Item 1')
+      expect(editor.textContent).toContain('Item 2')
+    })
+
+    // Verify list structure is preserved (normalization should handle paragraph-wrapped items)
+    const editorHtml = editor.innerHTML
+    expect(editorHtml).toContain('<ul>')
+    expect(editorHtml).toContain('<li>')
+  })
+
+  it('handles list HTML normalization differences (whitespace)', async () => {
+    const onChange = vi.fn()
+    const { rerender } = render(<RichTextarea id="test-textarea" value="" onChange={onChange} />)
+
+    const editor = document.querySelector('.ql-editor') as HTMLElement
+    expect(editor).toBeInTheDocument()
+
+    // List HTML with newlines/whitespace (as might come from database)
+    const listHtmlWithWhitespace = '<ul>\n<li>Item 1</li>\n<li>Item 2</li>\n</ul>'
+    rerender(<RichTextarea id="test-textarea" value={listHtmlWithWhitespace} onChange={onChange} />)
+
+    await waitFor(() => {
+      expect(editor.textContent).toContain('Item 1')
+      expect(editor.textContent).toContain('Item 2')
+    })
+
+    // Verify list structure is preserved despite whitespace differences
+    const editorHtml = editor.innerHTML
+    expect(editorHtml).toContain('<ul>')
+    expect(editorHtml).toContain('<li>')
+  })
 })
 
 describe('stripHtml', () => {

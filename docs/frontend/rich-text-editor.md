@@ -49,13 +49,20 @@ The component properly handles line breaks created by:
 - **Enter key**: Creates new paragraphs (`<p>text</p><p>new paragraph</p>`)
 - **Shift+Enter**: Creates line breaks within paragraphs (`<p>text<br>new line</p>`)
 
+### List Support
+
+The component supports both bullet lists (`<ul>`) and ordered lists (`<ol>`) via the toolbar buttons. List HTML is preserved when profiles are saved and reloaded, including:
+- List structure (`<ul>`, `<ol>`, `<li>` tags)
+- Lists with formatting (bold, italic, etc. inside list items)
+- Lists with different HTML normalization formats (paragraph-wrapped items, whitespace variations)
+
 The component includes safeguards to prevent race conditions and HTML normalization issues that could cause formatting to be lost:
 - Active editing state tracking prevents updates during user input
-- HTML normalization handles TipTap's internal format differences
+- HTML normalization handles TipTap's internal format differences (including list HTML variations)
 - Enhanced comparison logic ensures content is preserved correctly
-- HTML formatting preservation: When profiles are reloaded, HTML formatting (bold, italic, line breaks) is preserved by requiring both plain text AND HTML to match before skipping updates
+- HTML formatting preservation: When profiles are reloaded, HTML formatting (bold, italic, line breaks, lists) is preserved by requiring both plain text AND HTML to match before skipping updates
 
-See [Profile Line Breaks Investigation](../troubleshooting/profile-line-breaks-investigation.md) and [Profile HTML Formatting Lost Investigation](../troubleshooting/profile-html-formatting-lost.md) for technical details.
+See [Profile Line Breaks Investigation](../troubleshooting/profile-line-breaks-investigation.md), [Profile HTML Formatting Lost Investigation](../troubleshooting/profile-html-formatting-lost.md), and [Profile Lists Disappearing Investigation](../troubleshooting/profile-lists-disappearing-investigation.md) for technical details.
 
 ## Validation
 
