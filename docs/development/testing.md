@@ -142,7 +142,11 @@ def test_create_cv():
     cv_data = {"personal_info": {"name": "Test"}, "experience": [], "education": [], "skills": []}
     cv_id = queries.create_cv(cv_data)
     assert cv_id is not None
+    # create_cv makes multiple tx.run() calls (CV, Person, Experience, Education, Skills)
+    # Each call is made within a single transaction for atomicity
 ```
+
+**Note**: When testing database operations that make multiple query calls (like `create_cv`), tests should account for multiple `tx.run()` invocations. The implementation uses modular functions that each make their own query call, improving maintainability while keeping operations atomic within a transaction.
 
 **Frontend Example**:
 ```typescript

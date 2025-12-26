@@ -144,9 +144,12 @@ class TestSaveProfile:
         assert success is True
         # Verify UPDATE_QUERY was called (not CREATE_QUERY)
         # UPDATE_QUERY starts with MATCH, CREATE_QUERY starts with CREATE
-        update_call = mock_tx_write.run.call_args
-        assert update_call is not None
-        query_text = update_call[0][0] if update_call[0] else ""
+        # Check the first call which is update_profile_timestamp
+        call_args_list = mock_tx_write.run.call_args_list
+        assert len(call_args_list) > 0
+        first_call = call_args_list[0]
+        assert first_call is not None
+        query_text = first_call[0][0] if first_call[0] else ""
         # UPDATE_QUERY should MATCH existing profile, not CREATE new one
         assert "MATCH (profile:Profile)" in query_text
         assert query_text.strip().startswith("MATCH")  # UPDATE starts with MATCH

@@ -27,7 +27,8 @@ class TestCreateCV:
         assert re.match(uuid_pattern, cv_id), f"Expected UUID format, got: {cv_id}"
         assert isinstance(cv_id, str)
         mock_session.write_transaction.assert_called_once()
-        mock_tx.run.assert_called_once()
+        # create_cv now makes multiple query calls (CV, Person, Experience, Education, Skills)
+        assert mock_tx.run.call_count >= 1
 
     def test_create_cv_with_minimal_data(self, mock_neo4j_connection):
         """Test CV creation with minimal data."""
@@ -125,10 +126,12 @@ class TestCreateCV:
 
         cv_id = queries.create_cv(data)
         assert isinstance(cv_id, str)
-        # Verify theme was passed to the query
-        call_args = mock_tx.run.call_args
-        assert call_args is not None
-        assert call_args[1]["theme"] == "modern"
+        # Verify theme was passed to the first query (CV node creation)
+        call_args_list = mock_tx.run.call_args_list
+        assert len(call_args_list) > 0
+        first_call = call_args_list[0]
+        assert first_call is not None
+        assert first_call[1]["theme"] == "modern"
 
     def test_create_cv_defaults_theme_when_missing(self, mock_neo4j_connection):
         """Test CV creation defaults to classic theme when not provided."""
@@ -151,10 +154,12 @@ class TestCreateCV:
 
         cv_id = queries.create_cv(data)
         assert isinstance(cv_id, str)
-        # Verify theme defaults to classic
-        call_args = mock_tx.run.call_args
-        assert call_args is not None
-        assert call_args[1]["theme"] == "classic"
+        # Verify theme defaults to classic in the first query (CV node creation)
+        call_args_list = mock_tx.run.call_args_list
+        assert len(call_args_list) > 0
+        first_call = call_args_list[0]
+        assert first_call is not None
+        assert first_call[1]["theme"] == "classic"
 
     def test_create_cv_with_all_themes(self, mock_neo4j_connection):
         """Test CV creation with all valid theme values."""
@@ -180,7 +185,9 @@ class TestCreateCV:
 
             cv_id = queries.create_cv(data)
             assert isinstance(cv_id, str)
-            # Verify theme was passed correctly
-            call_args = mock_tx.run.call_args
-            assert call_args is not None
-            assert call_args[1]["theme"] == theme
+            # Verify theme was passed correctly in the first query (CV node creation)
+            call_args_list = mock_tx.run.call_args_list
+            assert len(call_args_list) > 0
+            first_call = call_args_list[0]
+            assert first_call is not None
+            assert first_call[1]["theme"] == theme
