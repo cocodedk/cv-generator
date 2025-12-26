@@ -22,7 +22,8 @@ describe('Skills', () => {
     render(<SkillsWrapper />)
 
     expect(screen.getByRole('heading', { name: /skills/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /add skill/i })).toBeInTheDocument()
+    const addButtons = screen.getAllByRole('button', { name: /add skill/i })
+    expect(addButtons).toHaveLength(2)
   })
 
   it('displays message when no skills added', () => {
@@ -35,9 +36,9 @@ describe('Skills', () => {
     const user = userEvent.setup()
     render(<SkillsWrapper />)
 
-    const addButton = screen.getByRole('button', { name: /add skill/i })
+    const addButtons = screen.getAllByRole('button', { name: /add skill/i })
     await act(async () => {
-      await user.click(addButton)
+      await user.click(addButtons[0])
     })
 
     await waitFor(() => {
@@ -84,10 +85,10 @@ describe('Skills', () => {
     const user = userEvent.setup()
     render(<SkillsWrapper />)
 
-    const addButton = screen.getByRole('button', { name: /add skill/i })
+    const addButtons = screen.getAllByRole('button', { name: /add skill/i })
     await act(async () => {
-      await user.click(addButton)
-      await user.click(addButton)
+      await user.click(addButtons[0])
+      await user.click(addButtons[0])
     })
 
     await waitFor(() => {

@@ -81,6 +81,12 @@ Dynamic array: Add/remove entries, validation. Fields: Degree, Institution (requ
 **Location**: `frontend/src/components/Skills.tsx`
 Dynamic array: Add/remove entries, category grouping, level selection. Fields: Name (required), Category, Level.
 
+**UX Features**:
+- Two "+ Add Skill" buttons for improved usability:
+  - One in the header (top-right)
+  - One at the bottom (right-aligned) below all skill entries
+- Both buttons use the same functionality, allowing users to add skills without scrolling back to the top
+
 ### CVList
 
 **Location**: `frontend/src/components/CVList.tsx`
