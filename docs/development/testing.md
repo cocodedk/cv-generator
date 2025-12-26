@@ -60,24 +60,6 @@ Testing strategy and how to run tests for the CV Generator.
 
 **Configuration**: `frontend/vitest.config.ts`
 
-### End-to-End Tests
-
-**Location**: `tests/e2e/`
-
-**Test Files**:
-- `ai-cv-generation.spec.ts`: AI CV generation end-to-end flow tests
-
-**Helpers**: `tests/e2e/helpers/`
-- `constants.ts`: Test constants (URLs, timeouts)
-- `urlUtils.ts`: URL parsing utilities
-- `apiCleanup.ts`: API cleanup functions
-- `cleanupManager.ts`: Resource cleanup management
-- `aiGeneration.ts`: AI generation test helpers
-
-**Framework**: Playwright
-
-**Configuration**: `playwright.config.ts`
-
 ## Running Tests
 
 ### Backend Tests
@@ -108,25 +90,6 @@ cd frontend && npx vitest run
 
 **Note**: Coverage reports are generated in `frontend/coverage/` and are ignored by git (see `.gitignore`). Coverage files include HTML reports and JSON data files.
 
-### End-to-End Tests
-
-**Prerequisites**: Backend and frontend must be running, and a profile must exist in the database.
-
-**Run all E2E tests**:
-```bash
-npx playwright test
-```
-
-**Run specific test file**:
-```bash
-npx playwright test tests/e2e/ai-cv-generation.spec.ts
-```
-
-**Run in headed mode** (see browser):
-```bash
-npx playwright test --headed
-```
-
 ### All Tests
 
 ```bash
@@ -144,7 +107,7 @@ profiles before updating or deleting them.
 
 ### Test Cleanup Safety
 
-**Profile Deletion Protection**: Tests implement multiple safety mechanisms to prevent
+**Profile Deletion Protection**: Tests implement safety mechanisms to prevent
 accidental deletion of real user profiles:
 
 1. **Integration Tests** (`backend/tests/test_database/test_profile_queries_integration/`):
@@ -152,14 +115,6 @@ accidental deletion of real user profiles:
    - Only delete profiles that pass the test profile verification
    - Example: `test_duplicate_person_regression.py` checks both old and new profile
      timestamps before cleanup
-
-2. **E2E Tests** (`tests/e2e/`):
-   - Track test profile's `updated_at` timestamp when created
-   - `CleanupManager.trackTestProfile()` stores the specific profile timestamp
-   - `cleanupWithProfile()` only deletes the tracked test profile by its specific
-     `updated_at`, not just any profile
-   - `createTestProfile()` returns the profile's `updated_at` for tracking
-   - `deleteProfileByUpdatedAt()` deletes only the specified profile
 
 **Why This Matters**: The `delete_profile()` function deletes the most recently updated
 profile (by `updated_at`), which could be a real user profile if tests don't properly

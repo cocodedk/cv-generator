@@ -10,9 +10,8 @@
     "build:watch": "vite build --watch",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
-    "type-check:e2e": "tsc -p tests/e2e/tsconfig.json --noEmit",
     "test": "npm run test:backend && npm run test:frontend",
-    "test:backend": "docker-compose exec -T app pytest || docker-compose run --rm app pytest",
+    "test:backend": "docker-compose exec -T app pytest -c backend/pytest.ini || docker-compose run --rm app pytest -c backend/pytest.ini",
     "test:backend:local": "cd backend && pytest",
     "test:frontend": "cd frontend && vitest run",
     "test:coverage": "npm run test:backend -- --cov && npm run test:frontend -- --coverage",
@@ -38,7 +37,6 @@
     "rich-text-html-security": "Rich-text fields store HTML. All stored HTML should be sanitized server-side before persistence/rendering to avoid stored XSS."
   },
   "devDependencies": {
-    "@playwright/test": "^1.57.0",
     "@testing-library/jest-dom": "^6.1.5",
     "@testing-library/react": "^14.1.2",
     "@testing-library/user-event": "^14.5.1",

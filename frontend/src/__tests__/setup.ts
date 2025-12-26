@@ -2,6 +2,7 @@ import '@testing-library/jest-dom'
 import { cleanup } from '@testing-library/react'
 import React from 'react'
 import { afterEach, vi } from 'vitest'
+import { installNoNetworkGuards } from './noNetwork'
 
 declare global {
   interface GlobalThis {
@@ -10,6 +11,8 @@ declare global {
 }
 
 ;(globalThis as unknown as { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true
+
+installNoNetworkGuards()
 
 // TipTap/ProseMirror relies on DOM geometry APIs not implemented in jsdom (elementFromPoint/getClientRects).
 // For unit tests, mock TipTap with a minimal contenteditable surface that preserves the public API shape.

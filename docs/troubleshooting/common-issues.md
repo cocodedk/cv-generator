@@ -34,9 +34,11 @@ Common problems and their solutions when working with the CV Generator.
 
 **Profile Save Memory Error**: Fixed in UPDATE_QUERY - profile updates now delete nodes separately to avoid cartesian products. If you encounter memory errors, see [Profile Memory Error Investigation](profile-memory-error-investigation.md).
 
-**Profile Deleted by Tests**: Fixed - Tests now track and delete only their own test profiles. Integration tests verify profiles are test profiles before deletion, and E2E tests track test profile timestamps to delete only the specific profile they created. See [Test Cleanup Safety](../development/testing.md#test-cleanup-safety) for details.
+**Profile Deleted by Tests**: Fixed - Tests now track and delete only their own test profiles. Integration tests verify profiles are test profiles before deletion. See [Test Cleanup Safety](../development/testing.md#test-cleanup-safety) for details.
 
 **Duplicate API Calls on CV Load**: Fixed - Loading `#edit/:id` was causing multiple duplicate API calls due to state synchronization cycles in `useHashRouting` and lack of request deduplication in `useCvLoader`. The fix stabilizes hash routing state updates and adds request deduplication to prevent simultaneous calls for the same CV ID. See [Duplicate API Calls Investigation](duplicate-api-calls-investigation.md) for details.
+
+**Profile Deletion Investigation**: Active - Profiles are being deleted unexpectedly. Debug instrumentation has been added to track all deletion paths. See [Profile Deletion Investigation](profile-deletion-investigation.md) for details and reproduction steps.
 
 ## File Generation Issues
 

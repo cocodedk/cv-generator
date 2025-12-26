@@ -1,13 +1,30 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import axios from 'axios'
-import { getProfile, saveProfile, deleteProfile } from '../../services/profileService'
 
-vi.mock('axios')
+// Mock axios completely to prevent real HTTP calls
+vi.mock('axios', () => {
+  const mockAxios = {
+    get: vi.fn(),
+    post: vi.fn(),
+    delete: vi.fn(),
+  }
+  return {
+    default: mockAxios,
+  }
+})
+
 const mockedAxios = axios as any
+
+// Import service AFTER mocking axios
+import { getProfile, saveProfile, deleteProfile } from '../../services/profileService'
 
 describe('profileService', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // Verify axios is mocked - if not, tests will fail
+    if (!vi.isMockFunction(mockedAxios.delete)) {
+      throw new Error('axios.delete is not mocked - mock setup failed')
+    }
   })
 
   describe('getProfile', () => {

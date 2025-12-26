@@ -52,6 +52,8 @@ def update_profile(profile_data: Dict[str, Any]) -> bool:
             # Verify profile was updated
             verify_query = "MATCH (profile:Profile { updated_at: $updated_at }) RETURN profile"
             result = tx.run(verify_query, updated_at=updated_at)
-            return result.single() is not None
+            profile_exists = result.single() is not None
+            return profile_exists
 
-        return session.execute_write(work)
+        result = session.execute_write(work)
+        return result

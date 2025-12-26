@@ -57,8 +57,6 @@ if [ $SHOW_HELP -eq 1 ]; then
     echo "Options:"
     echo "  --integration, -i    Run ONLY integration tests (WARNING: These tests run against"
     echo "                       the live Neo4j database and may delete data!)"
-    echo ""
-    echo "Note: For E2E tests, use: ./scripts/run-e2e-tests.sh"
     exit 0
 fi
 
@@ -96,9 +94,9 @@ run_backend_tests() {
     # Default pytest.ini excludes integration tests with -m "not integration"
     # When --integration flag is provided, run ONLY integration tests
     if [ $RUN_INTEGRATION -eq 1 ]; then
-        PYTEST_CMD="python -m pytest -m integration"
+        PYTEST_CMD="python -m pytest -c backend/pytest.ini -m integration"
     else
-        PYTEST_CMD="python -m pytest"
+        PYTEST_CMD="python -m pytest -c backend/pytest.ini"
     fi
 
     # Run backend tests

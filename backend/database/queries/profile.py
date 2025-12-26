@@ -113,9 +113,11 @@ def delete_profile_by_updated_at(updated_at: str) -> bool:
         def work(tx):
             result = tx.run(DELETE_PROFILE_BY_UPDATED_AT_QUERY, updated_at=updated_at)
             record = result.single()
-            return record and record.get("deleted", 0) > 0
+            deleted_count = record.get("deleted", 0) if record else 0
+            return deleted_count > 0
 
-        return session.execute_write(work)
+        result = session.execute_write(work)
+        return result
 
 
 def delete_profile() -> bool:
@@ -127,6 +129,8 @@ def delete_profile() -> bool:
         def work(tx):
             result = tx.run(DELETE_LATEST_QUERY)
             record = result.single()
-            return record and record.get("deleted", 0) > 0
+            deleted_count = record.get("deleted", 0) if record else 0
+            return deleted_count > 0
 
-        return session.execute_write(work)
+        result = session.execute_write(work)
+        return result
