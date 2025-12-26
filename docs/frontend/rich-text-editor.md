@@ -43,6 +43,19 @@ RichTextarea is used in three places:
 - Validation counts plain text only (HTML tags stripped)
 - HTML entities are decoded when counting characters
 
+### Line Break Support
+
+The component properly handles line breaks created by:
+- **Enter key**: Creates new paragraphs (`<p>text</p><p>new paragraph</p>`)
+- **Shift+Enter**: Creates line breaks within paragraphs (`<p>text<br>new line</p>`)
+
+The component includes safeguards to prevent race conditions and HTML normalization issues that could cause line breaks to be lost:
+- Active editing state tracking prevents updates during user input
+- HTML normalization handles TipTap's internal format differences
+- Enhanced comparison logic ensures content is preserved correctly
+
+See [Profile Line Breaks Investigation](../troubleshooting/profile-line-breaks-investigation.md) for technical details.
+
 ## Validation
 
 The component enforces max length by:

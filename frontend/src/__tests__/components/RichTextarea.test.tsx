@@ -250,6 +250,195 @@ describe('RichTextarea', () => {
     // Text should still be in the editor despite HTML format difference
     expect(editor.textContent).toContain('Normalized test')
   })
+
+  it('preserves line break when Enter key is pressed', async () => {
+    const onChange = vi.fn()
+    const user = userEvent.setup()
+    const { rerender } = render(<RichTextarea id="test-textarea" value="" onChange={onChange} />)
+
+    const editor = document.querySelector('.ql-editor') as HTMLElement
+    expect(editor).toBeInTheDocument()
+
+    // Type text and press Enter to create a new paragraph
+    editor.focus()
+    await act(async () => {
+      await user.type(editor, 'First line')
+      await user.keyboard('{Enter}')
+      await user.type(editor, 'Second line')
+    })
+
+    await waitFor(() => {
+      expect(onChange).toHaveBeenCalled()
+    })
+
+    // Get the HTML that was emitted (should contain two paragraphs)
+    const emittedHtml = onChange.mock.calls[onChange.mock.calls.length - 1][0]
+    expect(emittedHtml).toContain('First line')
+    expect(emittedHtml).toContain('Second line')
+
+    // Simulate React Hook Form updating the value prop
+    rerender(<RichTextarea id="test-textarea" value={emittedHtml} onChange={onChange} />)
+
+    // Wait for useEffect to process (including editing state delay)
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 200))
+    })
+
+    // Both lines should still be in the editor (line break preserved)
+    expect(editor.textContent).toContain('First line')
+    expect(editor.textContent).toContain('Second line')
+  })
+
+  it('preserves line break when Shift+Enter is pressed', async () => {
+    const onChange = vi.fn()
+    const user = userEvent.setup()
+    const { rerender } = render(<RichTextarea id="test-textarea" value="" onChange={onChange} />)
+
+    const editor = document.querySelector('.ql-editor') as HTMLElement
+    expect(editor).toBeInTheDocument()
+
+    // Type text and press Shift+Enter to create a <br> tag
+    editor.focus()
+    await act(async () => {
+      await user.type(editor, 'First line')
+      await user.keyboard('{Shift>}{Enter}{/Shift}')
+      await user.type(editor, 'Second line')
+    })
+
+    await waitFor(() => {
+      expect(onChange).toHaveBeenCalled()
+    })
+
+    // Get the HTML that was emitted (should contain <br> tag)
+    const emittedHtml = onChange.mock.calls[onChange.mock.calls.length - 1][0]
+    expect(emittedHtml).toContain('First line')
+    expect(emittedHtml).toContain('Second line')
+
+    // Simulate React Hook Form updating the value prop
+    rerender(<RichTextarea id="test-textarea" value={emittedHtml} onChange={onChange} />)
+
+    // Wait for useEffect to process
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 200))
+    })
+
+    // Both lines should still be in the editor (line break preserved)
+    expect(editor.textContent).toContain('First line')
+    expect(editor.textContent).toContain('Second line')
+  })
+
+  it('preserves multiple paragraphs created with Enter key', async () => {
+    const onChange = vi.fn()
+    const user = userEvent.setup()
+    const { rerender } = render(<RichTextarea id="test-textarea" value="" onChange={onChange} />)
+
+    const editor = document.querySelector('.ql-editor') as HTMLElement
+    expect(editor).toBeInTheDocument()
+
+    // Create multiple paragraphs
+    editor.focus()
+    await act(async () => {
+      await user.type(editor, 'Paragraph 1')
+      await user.keyboard('{Enter}')
+      await user.type(editor, 'Paragraph 2')
+      await user.keyboard('{Enter}')
+      await user.type(editor, 'Paragraph 3')
+    })
+
+    await waitFor(() => {
+      expect(onChange).toHaveBeenCalled()
+    })
+
+    const emittedHtml = onChange.mock.calls[onChange.mock.calls.length - 1][0]
+
+    // Simulate React Hook Form updating the value prop
+    rerender(<RichTextarea id="test-textarea" value={emittedHtml} onChange={onChange} />)
+
+    // Wait for useEffect to process
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 200))
+    })
+
+    // All paragraphs should be preserved
+    expect(editor.textContent).toContain('Paragraph 1')
+    expect(editor.textContent).toContain('Paragraph 2')
+    expect(editor.textContent).toContain('Paragraph 3')
+  })
+
+  it('does not reset content when Enter key is pressed rapidly', async () => {
+    const onChange = vi.fn()
+    const user = userEvent.setup()
+    const { rerender } = render(<RichTextarea id="test-textarea" value="" onChange={onChange} />)
+
+    const editor = document.querySelector('.ql-editor') as HTMLElement
+    expect(editor).toBeInTheDocument()
+
+    // Rapidly type and press Enter multiple times
+    editor.focus()
+    await act(async () => {
+      await user.type(editor, 'Line 1', { delay: 0 })
+      await user.keyboard('{Enter}')
+      await user.type(editor, 'Line 2', { delay: 0 })
+      await user.keyboard('{Enter}')
+      await user.type(editor, 'Line 3', { delay: 0 })
+    })
+
+    await waitFor(() => {
+      expect(onChange).toHaveBeenCalled()
+    })
+
+    const emittedHtml = onChange.mock.calls[onChange.mock.calls.length - 1][0]
+
+    // Simulate React Hook Form updating the value prop rapidly (race condition scenario)
+    rerender(<RichTextarea id="test-textarea" value={emittedHtml} onChange={onChange} />)
+
+    // Wait for useEffect to process (including editing state delay)
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 200))
+    })
+
+    // All content should be preserved despite rapid Enter presses
+    expect(editor.textContent).toContain('Line 1')
+    expect(editor.textContent).toContain('Line 2')
+    expect(editor.textContent).toContain('Line 3')
+  })
+
+  it('handles HTML normalization differences for empty paragraphs', async () => {
+    const onChange = vi.fn()
+    const user = userEvent.setup()
+    const { rerender } = render(<RichTextarea id="test-textarea" value="" onChange={onChange} />)
+
+    const editor = document.querySelector('.ql-editor') as HTMLElement
+    expect(editor).toBeInTheDocument()
+
+    // Type text and press Enter (creates empty paragraph)
+    editor.focus()
+    await act(async () => {
+      await user.type(editor, 'First line')
+      await user.keyboard('{Enter}')
+    })
+
+    await waitFor(() => {
+      expect(onChange).toHaveBeenCalled()
+    })
+
+    const emittedHtml = onChange.mock.calls[onChange.mock.calls.length - 1][0]
+
+    // Simulate TipTap normalizing empty paragraph differently
+    // TipTap might emit '<p>First line</p><p></p>' but normalize to '<p>First line</p><p><br></p>'
+    // or vice versa - our normalization should handle this
+    const normalizedHtml = emittedHtml.replace(/<p><\/p>/g, '<p><br></p>')
+
+    rerender(<RichTextarea id="test-textarea" value={normalizedHtml} onChange={onChange} />)
+
+    // Wait for useEffect to process
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 200))
+    })
+
+    // Content should still be preserved despite empty paragraph normalization difference
+    expect(editor.textContent).toContain('First line')
+  })
 })
 
 describe('stripHtml', () => {

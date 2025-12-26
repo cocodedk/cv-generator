@@ -26,6 +26,17 @@ export function stripHtml(html: string): string {
   return tmp.textContent || tmp.innerText || ''
 }
 
+function normalizeHtmlForComparison(html: string): string {
+  if (!html) return ''
+  // Normalize empty paragraphs - TipTap may use either format
+  let normalized = html.replace(/<p><\/p>/g, '<p><br></p>')
+  normalized = normalized.replace(/<p><br><\/p>/g, '<p><br></p>')
+  // Normalize whitespace in tags
+  normalized = normalized.replace(/>\s+</g, '><')
+  normalized = normalized.trim()
+  return normalized
+}
+
 export default function RichTextarea({
   id,
   value,
@@ -40,6 +51,8 @@ export default function RichTextarea({
   const minHeight = rows * 24
   const lastKnownHtmlRef = useRef<string>(value || '')
   const lastEmittedValueRef = useRef<string>(value || '')
+  const isEditingRef = useRef<boolean>(false)
+  const editingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const [textLength, setTextLength] = useState(() => stripHtml(value || '').length)
   const [showPromptModal, setShowPromptModal] = useState(false)
   const [prompt, setPrompt] = useState('')
@@ -78,6 +91,17 @@ export default function RichTextarea({
       lastKnownHtmlRef.current = html
       lastEmittedValueRef.current = html
       setTextLength(currentEditor.getText().length)
+
+      // Mark as actively editing and clear flag after delay
+      isEditingRef.current = true
+      if (editingTimeoutRef.current) {
+        clearTimeout(editingTimeoutRef.current)
+      }
+      editingTimeoutRef.current = setTimeout(() => {
+        isEditingRef.current = false
+        editingTimeoutRef.current = null
+      }, 150)
+
       onChange(html)
     },
   })
@@ -85,12 +109,24 @@ export default function RichTextarea({
   useEffect(() => {
     if (!editor) return
 
+    // CRITICAL: Skip updates while user is actively editing to prevent race conditions
+    // This prevents line breaks and other edits from being reset
+    if (isEditingRef.current) {
+      return
+    }
+
     // Get current editor content
     const currentHtml = editor.getHTML()
     const currentText = editor.getText()
     const normalizedValue = value || ''
     const valueText = stripHtml(normalizedValue)
     const isFocused = editor.isFocused
+
+    // Normalize HTML for comparison to handle TipTap's normalization differences
+    const normalizedCurrentHtml = normalizeHtmlForComparison(currentHtml)
+    const normalizedValueHtml = normalizeHtmlForComparison(normalizedValue)
+    const normalizedLastEmitted = normalizeHtmlForComparison(lastEmittedValueRef.current)
+    const normalizedLastKnown = normalizeHtmlForComparison(lastKnownHtmlRef.current)
 
     // CRITICAL: If editor is focused and user is typing/pasting, prioritize preserving editor content
     // This prevents clearing text during active editing sessions
@@ -104,28 +140,28 @@ export default function RichTextarea({
         }
         return
       }
-      // If HTML matches exactly, definitely skip
-      if (normalizedValue === currentHtml) {
+      // If normalized HTML matches, definitely skip
+      if (normalizedValueHtml === normalizedCurrentHtml) {
         return
       }
     }
 
     // Skip update if:
-    // 1. Value HTML matches what we last emitted (this update came from our onChange)
+    // 1. Normalized value HTML matches what we last emitted (this update came from our onChange)
     //    This is the primary safeguard against race conditions
-    if (normalizedValue === lastEmittedValueRef.current) {
+    if (normalizedValueHtml === normalizedLastEmitted) {
       return
     }
 
-    // 2. Value HTML matches current editor content (already in sync)
-    if (normalizedValue === currentHtml) {
+    // 2. Normalized value HTML matches current editor content (already in sync)
+    if (normalizedValueHtml === normalizedCurrentHtml) {
       lastKnownHtmlRef.current = normalizedValue
       lastEmittedValueRef.current = normalizedValue
       return
     }
 
-    // 3. Value HTML matches last known value (already synced)
-    if (normalizedValue === lastKnownHtmlRef.current) {
+    // 3. Normalized value HTML matches last known value (already synced)
+    if (normalizedValueHtml === normalizedLastKnown) {
       return
     }
 
@@ -145,6 +181,15 @@ export default function RichTextarea({
     editor.commands.setContent(normalizedValue, false)
     setTextLength(editor.getText().length)
   }, [editor, value])
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (editingTimeoutRef.current) {
+        clearTimeout(editingTimeoutRef.current)
+      }
+    }
+  }, [])
 
   const applyAiAssist = (mode: 'rewrite' | 'bullets') => {
     if (!editor) return

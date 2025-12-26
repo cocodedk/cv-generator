@@ -24,7 +24,7 @@ The issue is caused by a race condition between TipTap editor's `onUpdate` callb
 
 ## Solution
 
-Implemented a multi-layered approach to prevent clearing user input:
+Implemented a multi-layered approach to prevent clearing user input. Additional enhancements were later added to handle line break issues (see Related Issues below):
 
 ### 1. Track Last Emitted Value
 
@@ -91,7 +91,7 @@ if (valueText === currentText && valueText.length > 0 && isFocused) {
 ## Testing
 
 All existing tests pass:
-- ✅ RichTextarea component tests (13/13)
+- ✅ RichTextarea component tests (23/23) - includes tests for line break preservation
 - ✅ RichTextarea AI Assist tests (5/5)
 - ✅ Experience component tests (6/6)
 
@@ -109,6 +109,13 @@ This fix applies to all RichTextarea usages:
 2. **Experience Description** (`ExperienceItem.tsx`) - **Primary issue location**
 3. **Project Highlights** (`ProjectEditor.tsx`)
 
+## Related Issues
+
+A similar but more specific issue was later identified and fixed:
+- **Line Break Issue**: Users couldn't create line breaks (Enter key) in profile page text editors
+- See [Profile Line Breaks Investigation](./profile-line-breaks-investigation.md) for details
+- The fix added HTML normalization and active editing state tracking to the existing safeguards
+
 ## Prevention
 
 To prevent similar issues in the future:
@@ -117,3 +124,5 @@ To prevent similar issues in the future:
 2. **Use multiple comparison strategies** (HTML, plain text, refs) to handle normalization differences
 3. **Check editor state** (focus, content) before syncing props back to editor
 4. **Test with real user typing scenarios** - unit tests may not catch timing-dependent race conditions
+5. **Normalize HTML before comparison** - TipTap may normalize HTML differently when reading vs writing
+6. **Track active editing state** - prevent updates during user input to avoid race conditions

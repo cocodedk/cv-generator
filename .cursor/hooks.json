@@ -4,6 +4,9 @@
     "stop": [
       {
         "command": "./.cursor/hooks/update-tests-docs.sh"
+      },
+      {
+        "command": "./.cursor/hooks/enforce-refactor.sh"
       }
     ]
   }
