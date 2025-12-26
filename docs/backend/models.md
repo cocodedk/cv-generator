@@ -83,7 +83,7 @@ class CVData(BaseModel):
     experience: List[Experience] = []
     education: List[Education] = []
     skills: List[Skill] = []
-    theme: Optional[str] = "classic"  # classic, modern, minimal, elegant, or accented
+    theme: Optional[str] = "classic"  # accented, classic, colorful, creative, elegant, executive, minimal, modern, professional, or tech
 ```
 
 ### CVResponse

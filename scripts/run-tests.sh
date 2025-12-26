@@ -49,7 +49,7 @@ if [ $SHOW_HELP -eq 1 ]; then
     echo "CV Generator Test Runner"
     echo ""
     echo "Usage:"
-    echo "  ./scripts/run-tests.sh                    Run all tests (backend, frontend, excludes integration)"
+    echo "  ./scripts/run-tests.sh                    Run all tests (frontend, backend, excludes integration)"
     echo "  ./scripts/run-tests.sh --integration       Run ONLY integration tests"
     echo "  ./scripts/run-tests.sh -i                  Short form for --integration"
     echo "  ./scripts/run-tests.sh --help              Show this help message"
@@ -146,13 +146,13 @@ run_frontend_tests() {
 set +e
 
 echo -e "${BLUE}════════════════════════════════════════${NC}"
-run_backend_tests
-BACKEND_EXIT=$?
+run_frontend_tests
+FRONTEND_EXIT=$?
 
 echo ""
 echo -e "${BLUE}════════════════════════════════════════${NC}"
-run_frontend_tests
-FRONTEND_EXIT=$?
+run_backend_tests
+BACKEND_EXIT=$?
 
 # Re-enable set -e for the rest of the script
 set -e

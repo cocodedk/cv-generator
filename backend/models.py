@@ -26,6 +26,7 @@ class PersonalInfo(BaseModel):
     github: Optional[str] = None
     website: Optional[str] = None
     summary: Optional[str] = None
+    photo: Optional[str] = None
 
     @field_validator("email", mode="before")
     @classmethod
@@ -115,7 +116,7 @@ class CVData(BaseModel):
     skills: List[Skill] = []
     theme: Optional[str] = Field(
         default="classic",
-        description="CV theme: classic, modern, minimal, elegant, or accented",
+        description="CV theme: accented, classic, colorful, creative, elegant, executive, minimal, modern, professional, or tech",
     )
 
 

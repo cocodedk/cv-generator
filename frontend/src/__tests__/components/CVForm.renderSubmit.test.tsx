@@ -107,4 +107,31 @@ describe('CVForm - Render & Submit', () => {
 
     expect(themeSelect).toHaveValue('modern')
   })
+
+  it('has all theme options available', async () => {
+    renderCVForm({
+      onSuccess: mockOnSuccess,
+      onError: mockOnError,
+      setLoading: mockSetLoading,
+    })
+
+    const themeSelect = screen.getByLabelText(/theme/i) as HTMLSelectElement
+    const options = Array.from(themeSelect.options).map(opt => opt.value)
+
+    const expectedThemes = [
+      'accented',
+      'classic',
+      'colorful',
+      'creative',
+      'elegant',
+      'executive',
+      'minimal',
+      'modern',
+      'professional',
+      'tech',
+    ]
+
+    expect(options).toEqual(expect.arrayContaining(expectedThemes))
+    expect(options.length).toBe(expectedThemes.length)
+  })
 })

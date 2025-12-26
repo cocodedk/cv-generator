@@ -154,7 +154,7 @@ class TestGetCVByFilename:
                 "id": "test-id",
                 "created_at": "2024-01-01T00:00:00",
                 "updated_at": "2024-01-01T00:00:00",
-                "filename": "test_cv.docx",
+                "filename": "test_cv.html",
                 "theme": "modern",
             },
             "experiences": [],
@@ -163,11 +163,11 @@ class TestGetCVByFilename:
         }
         mock_session.run.return_value = mock_record
 
-        result = queries.get_cv_by_filename("test_cv.docx")
+        result = queries.get_cv_by_filename("test_cv.html")
 
         assert result is not None
         assert result["cv_id"] == "test-id"
-        assert result["filename"] == "test_cv.docx"
+        assert result["filename"] == "test_cv.html"
         assert result["theme"] == "modern"
 
     def test_get_cv_by_filename_not_found(self, mock_neo4j_connection):
@@ -177,7 +177,7 @@ class TestGetCVByFilename:
         mock_record.single.return_value = None
         mock_session.run.return_value = mock_record
 
-        result = queries.get_cv_by_filename("non_existent.docx")
+        result = queries.get_cv_by_filename("non_existent.html")
 
         assert result is None
 
@@ -191,7 +191,7 @@ class TestGetCVByFilename:
                 "id": "test-id",
                 "created_at": "2024-01-01T00:00:00",
                 "updated_at": "2024-01-01T00:00:00",
-                "filename": "test_cv.docx",
+                "filename": "test_cv.html",
             },
             "experiences": [],
             "educations": [],
@@ -199,7 +199,7 @@ class TestGetCVByFilename:
         }
         mock_session.run.return_value = mock_record
 
-        result = queries.get_cv_by_filename("test_cv.docx")
+        result = queries.get_cv_by_filename("test_cv.html")
 
         assert result is not None
         assert result["theme"] == "classic"

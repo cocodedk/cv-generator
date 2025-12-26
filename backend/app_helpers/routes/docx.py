@@ -50,7 +50,7 @@ async def _handle_generate_cv_docx(
         cv_dict = cv_data.model_dump(exclude_none=False)
         _ensure_theme(cv_dict)
         cv_id = queries.create_cv(cv_dict)
-        filename = cv_file_service.generate_file_for_cv(cv_id, cv_dict)
+        filename = cv_file_service.generate_docx_for_cv(cv_id, cv_dict)
         return CVResponse(cv_id=cv_id, filename=filename, status="success")
     except Exception as exc:
         logger.error("Failed to generate DOCX CV", exc_info=exc)
@@ -63,17 +63,25 @@ async def _handle_download_docx(
     output_dir: Optional[Path],
     cv_file_service: CVFileService,
 ) -> FileResponse:
-    """Handle download DOCX request."""
+    """Handle download DOCX file request."""
     current_output_dir = _resolve_output_dir(request, output_dir)
-    _validate_filename(filename, ".docx")
 
+    # Only accept DOCX files
+    if not filename.endswith(".docx"):
+        raise HTTPException(status_code=400, detail="Invalid file type - only .docx files allowed")
+
+    _validate_filename(filename)
+
+    # Look up CV by filename
     cv = queries.get_cv_by_filename(filename)
     if not cv:
         raise HTTPException(status_code=404, detail="CV not found for filename")
 
     cv_id = cv["cv_id"]
     cv_dict = cv_file_service.prepare_cv_dict(cv)
-    cv_file_service.generate_file_for_cv(cv_id, cv_dict)
+
+    # Generate DOCX file
+    cv_file_service.generate_docx_for_cv(cv_id, cv_dict)
     file_path = _resolve_file_path(current_output_dir, filename)
     return _build_docx_response(file_path, filename)
 
@@ -87,7 +95,7 @@ async def _handle_generate_cv_docx_file(
         if not cv:
             raise HTTPException(status_code=404, detail="CV not found")
         cv_dict = cv_file_service.prepare_cv_dict(cv)
-        filename = cv_file_service.generate_file_for_cv(cv_id, cv_dict)
+        filename = cv_file_service.generate_docx_for_cv(cv_id, cv_dict)
         return CVResponse(cv_id=cv_id, filename=filename, status="success")
     except HTTPException:
         raise
@@ -116,11 +124,9 @@ def _resolve_output_dir(request: Request, output_dir: Optional[Path]) -> Path:
     return current_output_dir
 
 
-def _validate_filename(filename: str, suffix: str) -> None:
+def _validate_filename(filename: str) -> None:
     if ".." in filename or "/" in filename or "\\" in filename:
         raise HTTPException(status_code=400, detail="Invalid filename")
-    if not filename.endswith(suffix):
-        raise HTTPException(status_code=400, detail="Invalid file type")
 
 
 def _resolve_file_path(output_dir: Path, filename: str) -> Path:

@@ -163,7 +163,18 @@ class TestCreateCV:
 
     def test_create_cv_with_all_themes(self, mock_neo4j_connection):
         """Test CV creation with all valid theme values."""
-        themes = ["classic", "modern", "minimal", "elegant", "accented"]
+        themes = [
+            "accented",
+            "classic",
+            "colorful",
+            "creative",
+            "elegant",
+            "executive",
+            "minimal",
+            "modern",
+            "professional",
+            "tech",
+        ]
         for theme in themes:
             data = {
                 "personal_info": {"name": "John Doe"},

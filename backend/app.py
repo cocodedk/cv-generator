@@ -7,7 +7,7 @@ from fastapi.exceptions import RequestValidationError
 from backend.app_helpers.lifespan import lifespan
 from backend.app_helpers.middleware import setup_rate_limiting, setup_cors
 from backend.app_helpers.exception_handlers import validation_exception_handler
-from backend.app_helpers.routes import health, cv, profile, docx, print_html, ai
+from backend.app_helpers.routes import health, cv, profile, docx, html, print_html, ai
 from backend.services.cv_file_service import CVFileService
 
 # Configure logging
@@ -37,6 +37,8 @@ cv_file_service = CVFileService(output_dir)
 app.include_router(health.router)
 cv_router = cv.create_cv_router(limiter, cv_file_service, output_dir)
 app.include_router(cv_router)
+html_router = html.create_html_router(limiter, cv_file_service, output_dir)
+app.include_router(html_router)
 docx_router = docx.create_docx_router(limiter, cv_file_service, output_dir)
 app.include_router(docx_router)
 print_html_router = print_html.create_print_html_router(limiter, cv_file_service)

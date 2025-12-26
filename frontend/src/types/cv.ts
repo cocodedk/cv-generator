@@ -18,6 +18,7 @@ export interface PersonalInfo {
   github?: string
   website?: string
   summary?: string
+  photo?: string
 }
 
 export interface Project {
@@ -57,7 +58,17 @@ export interface CVData {
   experience: Experience[]
   education: Education[]
   skills: Skill[]
-  theme?: 'classic' | 'modern' | 'minimal' | 'elegant' | 'accented'
+  theme?:
+    | 'accented'
+    | 'classic'
+    | 'colorful'
+    | 'creative'
+    | 'elegant'
+    | 'executive'
+    | 'minimal'
+    | 'modern'
+    | 'professional'
+    | 'tech'
 }
 
 export interface CVResponse {

@@ -11,13 +11,13 @@ class TestGenerateCV:
     async def test_generate_cv_success(
         self, client, sample_cv_data, mock_neo4j_connection
     ):
-        """Test successful CV generation."""
+        """Test successful DOCX CV generation."""
         with patch("backend.database.queries.create_cv", return_value="test-cv-id"):
             with patch(
                 "backend.database.queries.set_cv_filename", return_value=True
             ):
                 with patch(
-                    "backend.services.cv_file_service.CVFileService.generate_file_for_cv",
+                    "backend.services.cv_file_service.CVFileService.generate_docx_for_cv",
                     return_value="cv_test.docx",
                 ):
                     response = await client.post(
@@ -61,7 +61,7 @@ class TestGenerateCV:
                 "backend.database.queries.set_cv_filename", return_value=True
             ):
                 with patch(
-                    "backend.services.cv_file_service.CVFileService.generate_file_for_cv",
+                    "backend.services.cv_file_service.CVFileService.generate_docx_for_cv",
                     return_value="cv_test.docx",
                 ):
                     response = await client.post(

@@ -37,7 +37,7 @@ graph LR
 - `created_at` (string): ISO timestamp
 - `updated_at` (string): ISO timestamp
 - `filename` (string, optional): Generated DOCX filename
-- `theme` (string, optional): CV theme name (classic, modern, minimal, elegant, or accented). Defaults to "classic" if not provided.
+- `theme` (string, optional): CV theme name (accented, classic, colorful, creative, elegant, executive, minimal, modern, professional, or tech). Defaults to "classic" if not provided.
 
 ### Person Node
 

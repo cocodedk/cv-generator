@@ -1,6 +1,4 @@
 """Tests for CVFileService."""
-from pathlib import Path
-from unittest.mock import patch
 from backend.services.cv_file_service import CVFileService
 
 
@@ -70,13 +68,9 @@ class TestPrepareCVDict:
         cv_id = "test-cv-123"
         sample_cv_data["theme"] = "elegant"
 
-        with patch(
-            "backend.services.cv_file_service.DocxCVGenerator.generate",
-            side_effect=_fake_generate,
-        ):
-            filename = service.generate_file_for_cv(cv_id, sample_cv_data)
+        filename = service.generate_file_for_cv(cv_id, sample_cv_data)
         assert filename.startswith("cv_")
-        assert filename.endswith(".docx")
+        assert filename.endswith(".html")
 
         # Verify file was created
         output_path = temp_output_dir / filename
@@ -92,13 +86,9 @@ class TestPrepareCVDict:
         if "theme" in sample_cv_data:
             del sample_cv_data["theme"]
 
-        with patch(
-            "backend.services.cv_file_service.DocxCVGenerator.generate",
-            side_effect=_fake_generate,
-        ):
-            filename = service.generate_file_for_cv(cv_id, sample_cv_data)
+        filename = service.generate_file_for_cv(cv_id, sample_cv_data)
         assert filename.startswith("cv_")
-        assert filename.endswith(".docx")
+        assert filename.endswith(".html")
 
         # Verify file was created
         output_path = temp_output_dir / filename
@@ -107,23 +97,26 @@ class TestPrepareCVDict:
     def test_generate_file_for_cv_all_themes(self, temp_output_dir, sample_cv_data):
         """Test generate_file_for_cv with all supported themes."""
         service = CVFileService(temp_output_dir)
-        themes = ["classic", "modern", "minimal", "elegant", "accented"]
+        themes = [
+            "accented",
+            "classic",
+            "colorful",
+            "creative",
+            "elegant",
+            "executive",
+            "minimal",
+            "modern",
+            "professional",
+            "tech",
+        ]
 
         for i, theme in enumerate(themes):
             cv_id = f"test-cv-{i}"
             sample_cv_data["theme"] = theme
-            with patch(
-                "backend.services.cv_file_service.DocxCVGenerator.generate",
-                side_effect=_fake_generate,
-            ):
-                filename = service.generate_file_for_cv(cv_id, sample_cv_data)
+            filename = service.generate_file_for_cv(cv_id, sample_cv_data)
             assert filename.startswith("cv_")
-            assert filename.endswith(".docx")
+            assert filename.endswith(".html")
 
             # Verify file was created
             output_path = temp_output_dir / filename
             assert output_path.exists()
-
-
-def _fake_generate(_cv_data, output_path):
-    Path(output_path).write_text("docx")

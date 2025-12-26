@@ -26,7 +26,7 @@ class TestListCVs:
                             "updated_at": "2024-01-01",
                         },
                         "person_name": "John Doe",
-                        "filename": "cv1.docx",
+                        "filename": "cv1.html",
                     },
                     {
                         "cv": {

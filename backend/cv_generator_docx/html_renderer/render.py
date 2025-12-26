@@ -14,9 +14,15 @@ def render_html(cv_data: Dict[str, Any]) -> str:
         loader=FileSystemLoader(str(TEMPLATES_DIR)),
         autoescape=select_autoescape(["html", "xml"]),
     )
-    template = env.get_template("base.html")
 
     # Prepare data for template
     template_data = prepare_template_data(cv_data)
+
+    # Select template based on theme, fallback to base.html
+    theme = template_data.get("theme", "classic")
+    theme_template_path = TEMPLATES_DIR / f"{theme}.html"
+    template_name = f"{theme}.html" if theme_template_path.exists() else "base.html"
+
+    template = env.get_template(template_name)
 
     return template.render(**template_data)

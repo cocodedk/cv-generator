@@ -49,6 +49,7 @@ def process_cv_record(record: Any) -> Optional[Dict[str, Any]]:
             "github": person.get("github"),
             "website": person.get("website"),
             "summary": person.get("summary"),
+            "photo": person.get("photo"),
         },
         "experience": experiences,
         "education": educations,

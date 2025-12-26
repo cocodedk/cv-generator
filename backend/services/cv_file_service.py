@@ -3,6 +3,7 @@ import logging
 from pathlib import Path
 from typing import Dict, Any
 from backend.cv_generator_docx.generator import DocxCVGenerator
+from backend.cv_generator_docx.print_html_renderer import render_print_html
 from backend.database import queries
 
 logger = logging.getLogger(__name__)
@@ -16,27 +17,49 @@ class CVFileService:
         self.output_dir = output_dir
         self.docx_generator = DocxCVGenerator()
 
-    def _build_output_path(self, cv_id: str) -> tuple[str, Path]:
-        filename = f"cv_{cv_id[:8]}.docx"
+    def _build_output_path(self, cv_id: str, extension: str = ".html") -> tuple[str, Path]:
+        filename = f"cv_{cv_id[:8]}{extension}"
         output_path = self.output_dir / filename
         if output_path.exists():
             output_path.unlink()
         return filename, output_path
 
     def generate_file_for_cv(self, cv_id: str, cv_dict: Dict[str, Any]) -> str:
+        """Generate HTML file for a CV and return filename."""
+        # Ensure theme is always present in cv_dict
+        if "theme" not in cv_dict or cv_dict["theme"] is None:
+            cv_dict["theme"] = "classic"
+        theme = cv_dict["theme"]
+        logger.debug(
+            "Generating HTML file for CV %s with theme: %s (cv_dict keys: %s)",
+            cv_id,
+            theme,
+            list(cv_dict.keys()),
+        )
+
+        filename, output_path = self._build_output_path(cv_id, ".html")
+        html_content = render_print_html(cv_dict)
+        output_path.write_text(html_content, encoding="utf-8")
+
+        # Persist generated filename
+        queries.set_cv_filename(cv_id, filename)
+
+        return filename
+
+    def generate_docx_for_cv(self, cv_id: str, cv_dict: Dict[str, Any]) -> str:
         """Generate DOCX file for a CV and return filename."""
         # Ensure theme is always present in cv_dict
         if "theme" not in cv_dict or cv_dict["theme"] is None:
             cv_dict["theme"] = "classic"
         theme = cv_dict["theme"]
         logger.debug(
-            "Generating file for CV %s with theme: %s (cv_dict keys: %s)",
+            "Generating DOCX file for CV %s with theme: %s (cv_dict keys: %s)",
             cv_id,
             theme,
             list(cv_dict.keys()),
         )
 
-        filename, output_path = self._build_output_path(cv_id)
+        filename, output_path = self._build_output_path(cv_id, ".docx")
         self.docx_generator.generate(cv_dict, str(output_path))
 
         # Persist generated filename

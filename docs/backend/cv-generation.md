@@ -16,11 +16,16 @@ For pipeline details and template guidance, see [DOCX Generation](docx-generatio
 
 ## Supported Themes
 
-- **classic**: Traditional single-column layout
-- **modern**: Clean, contemporary design
-- **minimal**: Simple, minimal styling
-- **elegant**: Sophisticated, professional design
 - **accented**: Two-column layout with accent colors
+- **classic**: Traditional single-column layout
+- **colorful**: Vibrant, bright accent colors
+- **creative**: Creative/design style with vibrant colors
+- **elegant**: Sophisticated, professional design
+- **executive**: Refined, conservative executive style
+- **minimal**: Simple, minimal styling
+- **modern**: Clean, contemporary design
+- **professional**: Professional/corporate style with dark navy colors
+- **tech**: Tech industry style with modern, green accents
 
 ## Document Structure
 
