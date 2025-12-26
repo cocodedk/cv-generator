@@ -9,8 +9,11 @@ input=$(cat)
 # Parse the status and loop count
 status=$(echo "$input" | jq -r '.status')
 loop_count=$(echo "$input" | jq -r '.loop_count // 0')
+workspace_root=$(echo "$input" | jq -r '.workspace_roots[0]')
 
 # Only trigger if task completed successfully and we haven't looped too many times
+echo "Refactor hook: status=$status loop_count=$loop_count workspace_root=$workspace_root" >&2
+
 if [ "$status" = "completed" ] && [ "$loop_count" -lt 2 ]; then
   cat <<EOF
 {
@@ -18,6 +21,7 @@ if [ "$status" = "completed" ] && [ "$loop_count" -lt 2 ]; then
 }
 EOF
 else
+  echo "Refactor hook: no action (status not completed or loop_count too high)" >&2
   echo "{}"
 fi
 
