@@ -84,6 +84,7 @@ export interface ProfileData {
   experience: Experience[]
   education: Education[]
   skills: Skill[]
+  updated_at?: string
 }
 
 export interface ProfileResponse {

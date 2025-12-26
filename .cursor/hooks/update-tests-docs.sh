@@ -16,12 +16,16 @@ if [ "$status" = "completed" ] && [ "$loop_count" -lt 2 ]; then
   # Change to workspace root
   cd "$workspace_root" || exit 1
 
+  echo "Update tests hook: status=$status loop_count=$loop_count workspace_root=$workspace_root" >&2
+
   if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    echo "Update tests hook: not a git repo, exiting" >&2
     echo "{}"
     exit 0
   fi
 
   if git diff --quiet && git diff --cached --quiet; then
+    echo "Update tests hook: working tree clean, exiting" >&2
     echo "{}"
     exit 0
   fi
@@ -33,6 +37,8 @@ if [ "$status" = "completed" ] && [ "$loop_count" -lt 2 ]; then
     echo "Running tests to verify changes..." >&2
     bash scripts/run-tests.sh >&2
     test_status=$?
+  else
+    echo "Update tests hook: scripts/run-tests.sh not found, skipping tests" >&2
   fi
 
   if [ "$test_status" -eq 0 ]; then

@@ -132,6 +132,14 @@ export default function ProfileManager({ onSuccess, onError, setLoading }: Profi
       if (profileUpdatedAt) {
         // Load specific profile from hash
         profile = await getProfileByUpdatedAt(profileUpdatedAt)
+        // If not found (timestamp changed after update), fallback to most recent
+        if (!profile) {
+          profile = await getProfile()
+          // Update URL with current timestamp to prevent future issues
+          if (profile?.updated_at) {
+            window.location.hash = `#profile-edit/${encodeURIComponent(profile.updated_at)}`
+          }
+        }
       } else {
         // Load most recent profile
         profile = await getProfile()
