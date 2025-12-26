@@ -140,12 +140,12 @@ graph LR
   - `person.py` - Person node creation
   - `nodes.py` - Experience, Education, and Skill node creation
   - `create.py` - Main create orchestration function
-- **Update Profile**: Updates existing Profile node by deleting old related nodes (Projects, Experiences, Education, Skills, Person) separately to avoid cartesian products, then creates new nodes with updated data. Nodes are deleted in dependency order (Projects → Experiences → Education/Skills → Person). Implemented in `profile_update/` subfolder:
-  - `delete.py` - Deletion operations (`update_profile_timestamp()`, `delete_profile_nodes()`)
-  - `person.py` - Person node creation
-  - `experience.py` - Experience node creation
-  - `education.py` - Education node creation
-  - `skill.py` - Skill node creation
+- **Update Profile**: Updates existing Profile node by deleting old related nodes (Projects, Experiences, Education, Skills, Person) separately to avoid cartesian products, then creates new nodes with updated data. Nodes are deleted in dependency order (Projects → Experiences → Education/Skills → Person). After deletion, verifies all Person nodes were removed (hard-fails if any remain). Creates new Person node and binds all child nodes (Experiences, Education, Skills) to it via `elementId()` to prevent multiplication. Implemented in `profile_update/` subfolder:
+  - `delete.py` - Deletion operations (`update_profile_timestamp()`, `delete_profile_nodes()`) and verification (`verify_person_deletion()`, `verify_single_person()`)
+  - `person.py` - Person node creation (returns `elementId()`)
+  - `experience.py` - Experience node creation (bound to Person via `elementId()`)
+  - `education.py` - Education node creation (bound to Person via `elementId()`)
+  - `skill.py` - Skill node creation (bound to Person via `elementId()`)
   - `update.py` - Main update orchestration function
 - **Read Profile**: Matches Profile node, uses CALL subqueries to traverse relationships and collect all related data, avoiding cartesian products. Implemented in `profile_read/` subfolder:
   - `get.py` - Full profile retrieval (`get_profile()`, `get_profile_by_updated_at()`)

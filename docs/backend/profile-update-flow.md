@@ -21,12 +21,14 @@ flowchart TD
     DeleteEducation --> DeleteSkills[Delete Skill Nodes]
     DeleteSkills --> DeletePerson[Delete Person Node<br/>Last - references other nodes]
 
-    DeletePerson --> CreatePhase[Create Phase<br/>Build new nodes with updated data]
+    DeletePerson --> VerifyDeletion[Verify Deletion<br/>Check all Person nodes deleted]
+    VerifyDeletion --> CreatePhase[Create Phase<br/>Build new nodes with updated data]
 
-    CreatePhase --> CreatePerson[Create Person Node<br/>Link to Profile]
-    CreatePerson --> CreateExperiences[Create Experience Nodes<br/>with Projects nested]
-    CreateExperiences --> CreateEducation[Create Education Nodes]
-    CreateEducation --> CreateSkills[Create Skill Nodes]
+    CreatePhase --> CreatePerson[Create Person Node<br/>Link to Profile<br/>Return elementId]
+    CreatePerson --> VerifyPerson[Verify Single Person<br/>Check exactly one Person exists]
+    VerifyPerson --> CreateExperiences[Create Experience Nodes<br/>Bound to new Person via elementId<br/>with Projects nested]
+    CreateExperiences --> CreateEducation[Create Education Nodes<br/>Bound to new Person via elementId]
+    CreateEducation --> CreateSkills[Create Skill Nodes<br/>Bound to new Person via elementId]
 
     CreateSkills --> Verify[Verify Profile Updated<br/>Check profile exists with new timestamp]
     Verify --> CommitTx[Commit Transaction]
@@ -80,24 +82,41 @@ Nodes are deleted separately to avoid cartesian products:
 - Deleted last because it references Experiences, Education, and Skills
 - Query: `MATCH (person:Person)-[:BELONGS_TO_PROFILE]->(profile) DETACH DELETE person`
 
+**Step 3.6: Verify Deletion**
+- Verifies all Person nodes were deleted
+- Query: `MATCH (profile:Profile { updated_at: $updated_at }) OPTIONAL MATCH (person:Person)-[:BELONGS_TO_PROFILE]->(profile) RETURN count(person) AS remaining_persons`
+- **Hard-fails** (raises exception) if any Person nodes remain
+- Prevents node multiplication if deletion fails
+
 ### 4. Create New Nodes
 
 **Step 4.1: Create Person Node**
 - Creates new Person node with updated data
 - Links to Profile via `BELONGS_TO_PROFILE` relationship
+- Returns `elementId(newPerson)` for binding child nodes
+- **Note**: `elementId()` is used only within the same transaction; not stored or exposed externally
 
-**Step 4.2: Create Experience Nodes**
-- Creates Experience nodes for each experience in the data
+**Step 4.2: Verify Single Person**
+- Verifies exactly one Person node exists after creation
+- Query: `MATCH (profile:Profile { updated_at: $updated_at }) MATCH (person:Person)-[:BELONGS_TO_PROFILE]->(profile) RETURN count(person) AS person_count`
+- Raises exception if count != 1 (safety check)
+
+**Step 4.3: Create Experience Nodes**
+- Creates Experience nodes bound to the newly created Person via `elementId`
+- Query: `MATCH (person:Person) WHERE elementId(person) = $person_element_id`
 - For each Experience, creates nested Project nodes
 - Links: `Person -[:HAS_EXPERIENCE]-> Experience -[:HAS_PROJECT]-> Project`
 - All link to Profile via `BELONGS_TO_PROFILE`
+- **Key**: Binds to specific Person, not any Person linked to Profile (prevents multiplication)
 
-**Step 4.3: Create Education Nodes**
-- Creates Education nodes
+**Step 4.4: Create Education Nodes**
+- Creates Education nodes bound to the newly created Person via `elementId`
+- Query: `MATCH (person:Person) WHERE elementId(person) = $person_element_id`
 - Links: `Person -[:HAS_EDUCATION]-> Education -[:BELONGS_TO_PROFILE]-> Profile`
 
-**Step 4.4: Create Skill Nodes**
-- Creates Skill nodes
+**Step 4.5: Create Skill Nodes**
+- Creates Skill nodes bound to the newly created Person via `elementId`
+- Query: `MATCH (person:Person) WHERE elementId(person) = $person_element_id`
 - Links: `Person -[:HAS_SKILL]-> Skill -[:BELONGS_TO_PROFILE]-> Profile`
 
 ### 5. Verification
@@ -135,9 +154,22 @@ The refactored code avoids the cartesian product bug by:
 
 This reduces memory usage from ~1.6GB to ~100MB for typical profile updates.
 
+## Duplicate Node Prevention
+
+The update process prevents node multiplication by:
+
+1. **Hard-failing verification**: If deletion doesn't remove all Person nodes, the transaction aborts with an exception
+2. **Binding to specific Person**: Child nodes (Experiences, Education, Skills) are created bound to the newly created Person via `elementId()`, not by matching any Person linked to Profile
+3. **Verification after creation**: Ensures exactly one Person node exists after creation
+
+This prevents the exponential multiplication bug where N Person nodes × M experiences = N×M Experience nodes.
+
 ## Related Files
 
 - `backend/database/queries/profile_update/update.py` - Main orchestration
-- `backend/database/queries/profile_update/delete.py` - Deletion operations
-- `backend/database/queries/profile_update/create.py` - Creation operations
+- `backend/database/queries/profile_update/delete.py` - Deletion operations and verification
+- `backend/database/queries/profile_update/person.py` - Person node creation (returns elementId)
+- `backend/database/queries/profile_update/experience.py` - Experience node creation (bound to Person via elementId)
+- `backend/database/queries/profile_update/education.py` - Education node creation (bound to Person via elementId)
+- `backend/database/queries/profile_update/skill.py` - Skill node creation (bound to Person via elementId)
 - `backend/database/queries/profile_helpers.py` - Parameter building
