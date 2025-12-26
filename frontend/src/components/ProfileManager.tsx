@@ -50,23 +50,6 @@ export default function ProfileManager({ onSuccess, onError, setLoading }: Profi
       setIsSubmitting(true)
       setLoading(true)
       try {
-        // Investigation logging: What HTML is saved to database
-        if (data.personal_info?.summary) {
-          const summary = data.personal_info.summary
-          if (summary.includes('<ul>') || summary.includes('<ol>')) {
-            console.log(
-              '[ProfileManager] Saving profile with HTML (summary):',
-              JSON.stringify(summary)
-            )
-            console.log('[ProfileManager] Summary list format:', {
-              hasUl: summary.includes('<ul>'),
-              hasOl: summary.includes('<ol>'),
-              hasLiWithP: /<li><p>/.test(summary),
-              hasLiWithoutP: /<li>(?!<p>)/.test(summary),
-            })
-          }
-        }
-
         await saveProfile(data)
         setHasProfile(true)
         onSuccess('Profile saved successfully!')
@@ -100,18 +83,6 @@ export default function ProfileManager({ onSuccess, onError, setLoading }: Profi
 
         // Don't trigger if already submitting
         if (isSubmittingRef.current) {
-          return
-        }
-
-        // Don't trigger if user is typing in an input/textarea/rich text editor
-        const activeElement = document.activeElement
-        if (
-          activeElement &&
-          (activeElement.tagName === 'INPUT' ||
-            activeElement.tagName === 'TEXTAREA' ||
-            activeElement.getAttribute('contenteditable') === 'true' ||
-            activeElement.closest('[contenteditable="true"]'))
-        ) {
           return
         }
 
@@ -162,20 +133,6 @@ export default function ProfileManager({ onSuccess, onError, setLoading }: Profi
         profile = await getProfile()
       }
       if (profile) {
-        // Investigation logging: What HTML is loaded from database
-        if (profile.personal_info?.summary) {
-          const summary = profile.personal_info.summary
-          if (summary.includes('<ul>') || summary.includes('<ol>')) {
-            console.log('[ProfileManager] Loaded profile HTML (summary):', JSON.stringify(summary))
-            console.log('[ProfileManager] Loaded summary list format:', {
-              hasUl: summary.includes('<ul>'),
-              hasOl: summary.includes('<ol>'),
-              hasLiWithP: /<li><p>/.test(summary),
-              hasLiWithoutP: /<li>(?!<p>)/.test(summary),
-            })
-          }
-        }
-
         reset(profile)
         setHasProfile(true)
       } else {

@@ -16,6 +16,21 @@ function listToText(value: unknown, separator: string) {
   return Array.isArray(value) ? value.filter(Boolean).join(separator) : ''
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+function highlightsToHtml(value: unknown): string {
+  if (!Array.isArray(value)) return ''
+  const items = value.filter(Boolean).map(highlight => `<li>${escapeHtml(String(highlight))}</li>`)
+  return items.length ? `<ul>${items.join('')}</ul>` : ''
+}
+
 function technologiesFromText(value: string): string[] {
   return value
     .split(',')
@@ -149,7 +164,7 @@ export default function ProjectEditor({
         </label>
         <RichTextarea
           id={`project-highlights-${experienceIndex}-${projectIndex}`}
-          value={listToText(highlights.field.value, '\n')}
+          value={highlightsToHtml(highlights.field.value)}
           onChange={value => {
             // Convert rich text back to plain text lines for highlights array
             const plainText = value

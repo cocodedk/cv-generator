@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { Editor } from '@tiptap/react'
-import { normalizeHtmlForComparison, stripHtml } from './htmlUtils'
+import { hasListHtml, normalizeHtmlForComparison, stripHtml } from './htmlUtils'
 
 interface UseEditorSyncOptions {
   editor: Editor | null
@@ -41,44 +41,26 @@ export function useEditorSync({
     const valueText = stripHtml(normalizedValue)
     const isFocused = editor.isFocused
 
-    // Investigation logging: What HTML TipTap receives
-    if (normalizedValue && (normalizedValue.includes('<ul>') || normalizedValue.includes('<ol>'))) {
-      console.log('[RichTextarea] useEffect - Received value with lists:', {
-        value: normalizedValue,
-        currentHtml,
-        valueHasLiWithP: /<li><p>/.test(normalizedValue),
-        valueHasLiWithoutP: /<li>(?!<p>)/.test(normalizedValue),
-        currentHasLiWithP: /<li><p>/.test(currentHtml),
-        currentHasLiWithoutP: /<li>(?!<p>)/.test(currentHtml),
-      })
-    }
-
     // Normalize HTML for comparison to handle TipTap's normalization differences
     const normalizedCurrentHtml = normalizeHtmlForComparison(currentHtml)
     const normalizedValueHtml = normalizeHtmlForComparison(normalizedValue)
     const normalizedLastEmitted = normalizeHtmlForComparison(lastEmittedValueRef.current)
     const normalizedLastKnown = normalizeHtmlForComparison(lastKnownHtmlRef.current)
-
-    // Investigation logging: Normalized values
-    if (normalizedValue && (normalizedValue.includes('<ul>') || normalizedValue.includes('<ol>'))) {
-      console.log('[RichTextarea] useEffect - Normalized values:', {
-        normalizedValue: normalizedValueHtml,
-        normalizedCurrent: normalizedCurrentHtml,
-        match: normalizedValueHtml === normalizedCurrentHtml,
-      })
-    }
+    const listSensitive = hasListHtml(normalizedValue) || hasListHtml(currentHtml)
 
     // CRITICAL: If editor is focused and user is typing/pasting, prioritize preserving editor content
     // This prevents clearing text during active editing sessions
     if (isFocused) {
       // If plain text matches, skip update (handles HTML normalization)
       if (valueText === currentText && currentText.length > 0) {
-        // Update refs to keep them in sync even if HTML format differs
-        if (normalizedValue !== lastEmittedValueRef.current) {
-          lastEmittedValueRef.current = normalizedValue
-          lastKnownHtmlRef.current = normalizedValue
+        if (!listSensitive || normalizedValueHtml === normalizedCurrentHtml) {
+          // Update refs to keep them in sync even if HTML format differs
+          if (normalizedValue !== lastEmittedValueRef.current) {
+            lastEmittedValueRef.current = normalizedValue
+            lastKnownHtmlRef.current = normalizedValue
+          }
+          return
         }
-        return
       }
       // If normalized HTML matches, definitely skip
       if (normalizedValueHtml === normalizedCurrentHtml) {
@@ -90,7 +72,9 @@ export function useEditorSync({
     // 1. Normalized value HTML matches what we last emitted (this update came from our onChange)
     //    This is the primary safeguard against race conditions
     if (normalizedValueHtml === normalizedLastEmitted) {
-      return
+      if (!listSensitive || normalizedValueHtml === normalizedCurrentHtml) {
+        return
+      }
     }
 
     // 2. Normalized value HTML matches current editor content (already in sync)
@@ -102,7 +86,9 @@ export function useEditorSync({
 
     // 3. Normalized value HTML matches last known value (already synced)
     if (normalizedValueHtml === normalizedLastKnown) {
-      return
+      if (!listSensitive || normalizedValueHtml === normalizedCurrentHtml) {
+        return
+      }
     }
 
     // 4. Plain text content matches AND HTML is normalized to be the same

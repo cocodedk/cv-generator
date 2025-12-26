@@ -48,17 +48,6 @@ export default function RichTextarea({
     onUpdate: ({ editor: currentEditor }) => {
       const html = currentEditor.getHTML()
 
-      // Investigation logging: TipTap's actual HTML format
-      if (html.includes('<ul>') || html.includes('<ol>')) {
-        console.log('[RichTextarea] TipTap getHTML() output (with lists):', html)
-        console.log('[RichTextarea] TipTap getHTML() list format check:', {
-          hasUl: html.includes('<ul>'),
-          hasOl: html.includes('<ol>'),
-          hasLiWithP: /<li><p>/.test(html),
-          hasLiWithoutP: /<li>(?!<p>)/.test(html),
-        })
-      }
-
       lastKnownHtmlRef.current = html
       lastEmittedValueRef.current = html
       setTextLength(currentEditor.getText().length)

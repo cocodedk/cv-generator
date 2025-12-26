@@ -46,3 +46,7 @@ export function normalizeHtmlForComparison(html: string): string {
   normalized = normalized.trim()
   return normalized
 }
+
+export function hasListHtml(html: string): boolean {
+  return /<(ul|ol)(\s|>)/i.test(html)
+}
