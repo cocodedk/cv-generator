@@ -154,7 +154,26 @@ test('renders form', () => {
 
 ## Pre-commit Hooks
 
-Tests run automatically before each commit. See [Development Workflow](workflow.md).
+Tests and coverage checks run automatically before each commit. The pre-commit hooks will:
+
+1. Run all backend and frontend tests
+2. Check test coverage requirements
+3. Run linting and formatting checks
+
+If tests fail or coverage is insufficient, the commit will be blocked. See [Development Workflow](workflow.md) for commit requirements.
+
+### Post-Commit Hooks
+
+After task completion, the `update-tests-docs` hook automatically:
+1. Runs tests and coverage checks
+2. Provides guidance on updating documentation
+3. Prompts for manual commit (auto-commit has been removed)
+
+The hook will guide you through:
+- Fixing any failing tests
+- Improving coverage if needed
+- Updating documentation in `docs/`
+- Committing changes with proper format (including codex identifier)
 
 ## Recent Test Additions
 
