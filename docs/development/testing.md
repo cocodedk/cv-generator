@@ -188,9 +188,11 @@ The hook will guide you through:
   - Shared test helpers and mocks in `helpers/profile_queries/mocks.py`
 
 ### Frontend Tests
-- RichTextarea component tests (25 tests: rendering, onChange, validation, character counting, line break preservation, HTML formatting preservation)
-- HTML stripping utility tests
+- RichTextarea component tests (30 tests: rendering, onChange, validation, character counting, line break preservation, HTML formatting preservation, list preservation)
+- RichTextarea AI assist tests (5 tests: modal, rewrite, bullets)
+- HTML stripping utility tests (`stripHtml`, `normalizeHtmlForComparison` in `app_helpers/richTextarea/htmlUtils.ts`)
 - Updated component tests to reflect RichTextarea usage
+- RichTextarea refactored into modular helpers (`app_helpers/richTextarea/`) - all tests pass
 - ProfileManager tests refactored into smaller, focused test files:
   - Rendering tests separated from functionality tests
   - Loading, saving, deleting, and AI assist tests in separate files

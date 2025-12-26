@@ -147,7 +147,15 @@ React error boundary for graceful error handling.
 
 **Location**: `frontend/src/components/RichTextarea.tsx`
 
-Reusable rich text editor component using TipTap (ProseMirror).
+**Helper Modules**: `frontend/src/app_helpers/richTextarea/`
+
+Reusable rich text editor component using TipTap (ProseMirror). The component has been refactored into modular helper files for maintainability:
+
+- `htmlUtils.ts`: HTML utility functions (`stripHtml`, `normalizeHtmlForComparison`)
+- `editorConfig.ts`: TipTap editor extensions and props configuration
+- `useEditorSync.ts`: Custom hook for syncing editor content with external value prop
+- `useAiAssist.ts`: Custom hook for AI assist functionality (rewrite/bullets)
+- `AiRewriteModal.tsx`: Modal component for AI rewrite prompt input
 
 **Features**:
 - HTML formatting toolbar (bold, italic, underline, strike, headers, lists, links)
@@ -158,9 +166,9 @@ Reusable rich text editor component using TipTap (ProseMirror).
 - Customizable rows/height
 - Optional "AI Assist" actions (rewrite/bullets)
 - Line break support (Enter and Shift+Enter) with race condition prevention
-- List support (bullet lists and ordered lists) with HTML preservation
-- HTML normalization handling for TipTap format differences (including list HTML variations)
-- HTML formatting preservation: Formatting (bold, italic, line breaks, lists) is preserved when profiles are reloaded
+- List support (bullet lists and ordered lists) - **⚠️ Known issue: lists disappear after save/reload**
+- HTML normalization handling for TipTap format differences
+- HTML formatting preservation: Formatting (bold, italic, line breaks) is preserved when profiles are reloaded
 
 **AI Assist Features**:
 - **AI Rewrite**: Opens a modal to enter a custom prompt, then calls LLM API to rewrite text based on user instruction

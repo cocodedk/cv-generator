@@ -6,7 +6,19 @@ The CV Generator uses a rich text editor for textarea fields to allow HTML forma
 
 **Location**: `frontend/src/components/RichTextarea.tsx`
 
+**Helper Modules**: `frontend/src/app_helpers/richTextarea/`
+
 Reusable component built on TipTap (ProseMirror) that provides:
+
+The component has been refactored into smaller, focused modules:
+
+- **`htmlUtils.ts`**: HTML utility functions for stripping HTML and normalizing for comparison
+- **`editorConfig.ts`**: TipTap editor extensions and props configuration
+- **`useEditorSync.ts`**: Custom hook handling editor content synchronization with external value prop, including race condition prevention and HTML normalization
+- **`useAiAssist.ts`**: Custom hook managing AI assist functionality (rewrite and bullets)
+- **`AiRewriteModal.tsx`**: Modal component for AI rewrite prompt input
+
+This modular structure keeps each file focused and maintainable (135-160 lines per file).
 - HTML formatting toolbar (bold, italic, underline, strike, headers, lists, links)
 - Character counter (counts plain text, excludes HTML tags)
 - Max length validation
@@ -51,18 +63,19 @@ The component properly handles line breaks created by:
 
 ### List Support
 
-The component supports both bullet lists (`<ul>`) and ordered lists (`<ol>`) via the toolbar buttons. List HTML is preserved when profiles are saved and reloaded, including:
-- List structure (`<ul>`, `<ol>`, `<li>` tags)
-- Lists with formatting (bold, italic, etc. inside list items)
-- Lists with different HTML normalization formats (paragraph-wrapped items, whitespace variations)
+The component supports both bullet lists (`<ul>`) and ordered lists (`<ol>`) via the toolbar buttons.
+
+**⚠️ Known Issue**: Lists currently disappear after saving and reloading profiles. The plain text content is preserved, but the list structure (`<ul>`, `<ol>`, `<li>` tags) is lost. See [Profile Lists Disappearing Investigation](../troubleshooting/profile-lists-disappearing-investigation.md) and [Real Investigation](../troubleshooting/profile-lists-disappearing-real-investigation.md) for details.
 
 The component includes safeguards to prevent race conditions and HTML normalization issues that could cause formatting to be lost:
 - Active editing state tracking prevents updates during user input
-- HTML normalization handles TipTap's internal format differences (including list HTML variations)
+- HTML normalization handles TipTap's internal format differences
 - Enhanced comparison logic ensures content is preserved correctly
-- HTML formatting preservation: When profiles are reloaded, HTML formatting (bold, italic, line breaks, lists) is preserved by requiring both plain text AND HTML to match before skipping updates
+- HTML formatting preservation: When profiles are reloaded, HTML formatting (bold, italic, line breaks) is preserved by requiring both plain text AND HTML to match before skipping updates
 
-See [Profile Line Breaks Investigation](../troubleshooting/profile-line-breaks-investigation.md), [Profile HTML Formatting Lost Investigation](../troubleshooting/profile-html-formatting-lost.md), and [Profile Lists Disappearing Investigation](../troubleshooting/profile-lists-disappearing-investigation.md) for technical details.
+**Note**: List preservation is not currently working due to TipTap's requirement for paragraphs inside list items conflicting with the normalization approach.
+
+See [Profile Line Breaks Investigation](../troubleshooting/profile-line-breaks-investigation.md) and [Profile HTML Formatting Lost Investigation](../troubleshooting/profile-html-formatting-lost.md) for technical details on other formatting preservation fixes.
 
 ## Validation
 
