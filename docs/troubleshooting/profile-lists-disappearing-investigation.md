@@ -4,15 +4,11 @@
 
 **Issue**: Lists created in rich text fields disappear after saving and reloading the profile. The plain text content is preserved, but the list structure (`<ul>`, `<ol>`, `<li>` tags) is lost.
 
-**Root Cause**: The `normalizeHtmlForComparison` function in `RichTextarea.tsx` only normalized paragraph tags and basic whitespace, but didn't handle list HTML normalization differences. TipTap might output list HTML in different formats (with/without paragraph wrappers, different whitespace) that weren't being normalized correctly.
+**Previous Fix Attempt**: Enhanced `normalizeHtmlForComparison` to handle list HTML normalization by unwrapping paragraphs from list items. However, this fix did not resolve the issue.
 
-**Fix**: Enhanced `normalizeHtmlForComparison` to handle list HTML normalization, including:
-- List items wrapped in paragraphs: `<li><p>text</p></li>` → `<li>text</li>`
-- Empty list items normalization
-- Whitespace inside list items
-- Whitespace between list tags
+**Status**: ⚠️ **NOT FIXED** - See [Real Investigation](./profile-lists-disappearing-real-investigation.md) for updated analysis.
 
-**Status**: ✅ **FIXED**
+**Note**: The initial fix attempted to normalize list HTML by unwrapping paragraphs (`<li><p>text</p></li>` → `<li>text</li>`), but this approach was incorrect. TipTap requires paragraphs inside list items, and unwrapping them causes comparison mismatches that skip necessary updates.
 
 **Files Modified**:
 - `frontend/src/components/RichTextarea.tsx` (lines 29-38) - Enhanced HTML normalization function
@@ -384,31 +380,19 @@ This approach:
 
 ## Implementation Status
 
-**Status**: ✅ **FIXED**
+**Status**: ⚠️ **NOT FIXED** - Previous fix did not resolve the issue
 
-The fix has been implemented in `frontend/src/components/RichTextarea.tsx`:
-- Enhanced `normalizeHtmlForComparison` function to handle list HTML normalization
-- Added normalization for paragraph-wrapped list items
-- Added normalization for empty list items
-- Added normalization for whitespace inside list items
-- All existing safeguards for race conditions remain intact
+The previous fix attempted to normalize list HTML by unwrapping paragraphs, but this was incorrect. TipTap requires paragraphs inside list items, and the normalization approach caused comparison mismatches.
 
-**Test Coverage**:
-- Added test: "preserves bullet list HTML when profile is loaded"
-- Added test: "preserves ordered list HTML when profile is loaded"
-- Added test: "preserves list HTML with formatting when profile is loaded"
-- Added test: "handles list HTML normalization differences (paragraph-wrapped items)"
-- Added test: "handles list HTML normalization differences (whitespace)"
-- All 30 tests pass in RichTextarea.test.tsx
+**Issue with Previous Fix**:
+- Normalization unwrapped paragraphs: `<li><p>text</p></li>` → `<li>text</li>`
+- But TipTap requires paragraphs inside list items
+- This caused comparison logic to skip updates incorrectly
+- Tests passed because they checked DOM (`innerHTML`), not TipTap's HTML (`getHTML()`)
 
-**Verification**:
-- ✅ List HTML structure (`<ul>`, `<ol>`, `<li>`) is preserved when profiles are reloaded
-- ✅ Lists with formatting (bold, italic) are preserved correctly
-- ✅ List HTML normalization differences are handled correctly
-- ✅ Existing safeguards for race conditions remain intact
-- ✅ No breaking changes to component behavior
+**See**: [Real Investigation](./profile-lists-disappearing-real-investigation.md) for updated root cause analysis and proper fix approach.
 
-## Files Modified
+## Files Modified (Previous Attempt)
 
-- `frontend/src/components/RichTextarea.tsx` - Enhanced HTML normalization function (lines 29-38)
-- `frontend/src/__tests__/components/RichTextarea.test.tsx` - Added 5 test cases for list preservation
+- `frontend/src/components/RichTextarea.tsx` - Enhanced HTML normalization function (lines 29-38) - **This fix was incorrect**
+- `frontend/src/__tests__/components/RichTextarea.test.tsx` - Added 5 test cases - **Tests check DOM, not TipTap HTML**
