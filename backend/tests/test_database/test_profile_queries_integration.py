@@ -10,11 +10,17 @@ def _skip_if_no_neo4j():
         pytest.skip("Neo4j is not available for integration tests.")
 
 
+@pytest.mark.integration
 class TestProfileQueriesIntegration:
-    """CRUD coverage for profile queries using live Neo4j."""
+    """CRUD coverage for profile queries using live Neo4j.
+
+    WARNING: These tests run against the live Neo4j database and will delete profiles!
+    Run with: pytest -m integration
+    """
 
     def test_profile_crud_roundtrip(self, sample_cv_data):
         _skip_if_no_neo4j()
+        # Clean up any existing test data before starting
         queries.delete_profile()
 
         initial_data = {

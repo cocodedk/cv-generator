@@ -4,8 +4,9 @@
 # This script runs backend and frontend tests
 #
 # Usage:
-#   ./scripts/run-tests.sh           # Run all tests
-#   ./scripts/run-tests.sh --help    # Show help
+#   ./scripts/run-tests.sh                    # Run all tests (excludes integration tests)
+#   ./scripts/run-tests.sh --integration      # Run ONLY integration tests
+#   ./scripts/run-tests.sh --help             # Show help
 
 set -e
 
@@ -23,11 +24,16 @@ cd "$PROJECT_ROOT"
 
 # Parse command-line arguments
 SHOW_HELP=0
+RUN_INTEGRATION=0
 
 for arg in "$@"; do
     case $arg in
         --help|-h)
             SHOW_HELP=1
+            shift
+            ;;
+        --integration|-i)
+            RUN_INTEGRATION=1
             shift
             ;;
         *)
@@ -43,8 +49,14 @@ if [ $SHOW_HELP -eq 1 ]; then
     echo "CV Generator Test Runner"
     echo ""
     echo "Usage:"
-    echo "  ./scripts/run-tests.sh              Run all tests (backend, frontend)"
-    echo "  ./scripts/run-tests.sh --help       Show this help message"
+    echo "  ./scripts/run-tests.sh                    Run all tests (backend, frontend, excludes integration)"
+    echo "  ./scripts/run-tests.sh --integration       Run ONLY integration tests"
+    echo "  ./scripts/run-tests.sh -i                  Short form for --integration"
+    echo "  ./scripts/run-tests.sh --help              Show this help message"
+    echo ""
+    echo "Options:"
+    echo "  --integration, -i    Run ONLY integration tests (WARNING: These tests run against"
+    echo "                       the live Neo4j database and may delete data!)"
     echo ""
     echo "Note: For E2E tests, use: ./scripts/run-e2e-tests.sh"
     exit 0
@@ -59,7 +71,12 @@ FRONTEND_PASSED=0
 
 # Function to run backend tests
 run_backend_tests() {
-    echo -e "${BLUE}📦 Running backend tests (in Docker)...${NC}"
+    if [ $RUN_INTEGRATION -eq 1 ]; then
+        echo -e "${BLUE}📦 Running backend integration tests (in Docker)...${NC}"
+        echo -e "${YELLOW}⚠️  WARNING: Integration tests run against the live Neo4j database and may delete data!${NC}"
+    else
+        echo -e "${BLUE}📦 Running backend tests (in Docker)...${NC}"
+    fi
 
     # Check if Docker is running
     if ! docker info > /dev/null 2>&1; then
@@ -75,8 +92,17 @@ run_backend_tests() {
         sleep 5
     fi
 
+    # Build pytest command with optional integration marker
+    # Default pytest.ini excludes integration tests with -m "not integration"
+    # When --integration flag is provided, run ONLY integration tests
+    if [ $RUN_INTEGRATION -eq 1 ]; then
+        PYTEST_CMD="python -m pytest -m integration"
+    else
+        PYTEST_CMD="python -m pytest"
+    fi
+
     # Run backend tests
-    if docker-compose exec -T app python -m pytest || docker-compose run --rm app python -m pytest; then
+    if docker-compose exec -T app $PYTEST_CMD || docker-compose run --rm app $PYTEST_CMD; then
         echo -e "${GREEN}✅ Backend tests passed!${NC}"
         BACKEND_PASSED=1
         return 0

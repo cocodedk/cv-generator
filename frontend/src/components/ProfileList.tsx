@@ -49,9 +49,6 @@ export default function ProfileList({ onError }: ProfileListProps) {
       }
     }
 
-    // Check initial hash
-    handleHashChange()
-
     // Listen for hash changes
     window.addEventListener('hashchange', handleHashChange)
     return () => window.removeEventListener('hashchange', handleHashChange)
