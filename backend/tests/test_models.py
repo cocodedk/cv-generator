@@ -219,7 +219,18 @@ class TestCVData:
 
     def test_cv_data_with_valid_theme(self):
         """Test CV data with valid theme values."""
-        valid_themes = ["classic", "modern", "minimal", "elegant", "accented"]
+        valid_themes = [
+            "accented",
+            "classic",
+            "colorful",
+            "creative",
+            "elegant",
+            "executive",
+            "minimal",
+            "modern",
+            "professional",
+            "tech",
+        ]
         for theme in valid_themes:
             cv = CVData(
                 personal_info={"name": "John Doe"},

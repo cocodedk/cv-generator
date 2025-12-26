@@ -61,7 +61,7 @@ interface CVData {
   experience: Experience[];
   education: Education[];
   skills: Skill[];
-  theme?: 'classic' | 'modern' | 'minimal' | 'elegant' | 'accented';
+  theme?: 'accented' | 'classic' | 'colorful' | 'creative' | 'elegant' | 'executive' | 'minimal' | 'modern' | 'professional' | 'tech';
 }
 ```
 

@@ -115,7 +115,7 @@ class CVData(BaseModel):
     skills: List[Skill] = []
     theme: Optional[str] = Field(
         default="classic",
-        description="CV theme: classic, modern, minimal, elegant, or accented",
+        description="CV theme: accented, classic, colorful, creative, elegant, executive, minimal, modern, professional, or tech",
     )
 
 

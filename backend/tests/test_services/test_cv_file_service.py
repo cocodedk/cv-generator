@@ -107,7 +107,18 @@ class TestPrepareCVDict:
     def test_generate_file_for_cv_all_themes(self, temp_output_dir, sample_cv_data):
         """Test generate_file_for_cv with all supported themes."""
         service = CVFileService(temp_output_dir)
-        themes = ["classic", "modern", "minimal", "elegant", "accented"]
+        themes = [
+            "accented",
+            "classic",
+            "colorful",
+            "creative",
+            "elegant",
+            "executive",
+            "minimal",
+            "modern",
+            "professional",
+            "tech",
+        ]
 
         for i, theme in enumerate(themes):
             cv_id = f"test-cv-{i}"

@@ -110,11 +110,16 @@ export default function CVForm({ onSuccess, onError, setLoading, cvId }: CVFormP
                 {...register('theme')}
                 className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
               >
-                <option value="classic">Classic</option>
-                <option value="modern">Modern</option>
-                <option value="minimal">Minimal</option>
-                <option value="elegant">Elegant</option>
                 <option value="accented">Accented</option>
+                <option value="classic">Classic</option>
+                <option value="colorful">Colorful</option>
+                <option value="creative">Creative</option>
+                <option value="elegant">Elegant</option>
+                <option value="executive">Executive</option>
+                <option value="minimal">Minimal</option>
+                <option value="modern">Modern</option>
+                <option value="professional">Professional</option>
+                <option value="tech">Tech</option>
               </select>
             </div>
             <PersonalInfo

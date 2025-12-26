@@ -5,6 +5,11 @@ from backend.themes.modern import THEME as MODERN
 from backend.themes.minimal import THEME as MINIMAL
 from backend.themes.elegant import THEME as ELEGANT
 from backend.themes.accented import THEME as ACCENTED
+from backend.themes.professional import THEME as PROFESSIONAL
+from backend.themes.creative import THEME as CREATIVE
+from backend.themes.tech import THEME as TECH
+from backend.themes.executive import THEME as EXECUTIVE
+from backend.themes.colorful import THEME as COLORFUL
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +19,11 @@ THEMES = {
     "minimal": MINIMAL,
     "elegant": ELEGANT,
     "accented": ACCENTED,
+    "professional": PROFESSIONAL,
+    "creative": CREATIVE,
+    "tech": TECH,
+    "executive": EXECUTIVE,
+    "colorful": COLORFUL,
 }
 
 

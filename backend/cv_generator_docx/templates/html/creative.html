@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <div>
+        <table style="width: 100%; border-collapse: collapse; border: 0;">
+            <colgroup>
+                <col style="width: 75%;" />
+                <col style="width: 25%;" />
+            </colgroup>
+            <tr>
+                <td style="vertical-align: top; border: 0; padding: 0;">
+                    {% if personal_info.name %}
+                    <h1 style="color: #7c3aed;">{{ personal_info.name }}</h1>
+                    {% endif %}
+                    {% if personal_info.title %}
+                    <p custom-style="Subtitle" style="color: #8b5cf6;">{{ personal_info.title }}</p>
+                    {% endif %}
+                    {% if personal_info.summary %}
+                    <div>{{ personal_info.summary | safe }}</div>
+                    {% endif %}
+                </td>
+                <td style="vertical-align: top; text-align: right; border: 0; width: 120px; padding: 0;">
+                    {% if personal_info.photo %}
+                    <img src="{{ personal_info.photo }}" alt="Photo" style="width: 95px; height: 95px; object-fit: cover; border: 3px solid #f59e0b; border-radius: 8px;" />
+                    {% else %}
+                    <div style="width: 95px; height: 95px; border: 3px solid #f59e0b; border-radius: 8px; background-color: #fef3c7; display: inline-block;"></div>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="border: 0; padding: 4px 0 0;">
+                    {% include 'components/contact_info.html' %}
+                </td>
+            </tr>
+        </table>
+
+        {% if experience %}
+        <h2 style="color: #7c3aed;">Experience</h2>
+        {% for exp in experience %}
+            <div>
+                {% include 'components/experience_item.html' %}
+            </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if education %}
+        <h2 style="color: #7c3aed;">Education</h2>
+        {% for edu in education %}
+            <div>
+                {% include 'components/education_item.html' %}
+            </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if skills_by_category %}
+        <h2 style="color: #7c3aed;">Skills</h2>
+        {% include 'components/skills_list.html' %}
+        {% endif %}
+    </div>
+</body>
+</html>
