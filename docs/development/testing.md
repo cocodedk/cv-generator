@@ -205,6 +205,7 @@ The hook will guide you through:
     - `test_duplicate_person_regression.py`: Duplicate Person prevention regression tests (115 lines)
     - `helpers.py`: Shared helper functions (50 lines)
   - Shared test helpers and mocks in `helpers/profile_queries/mocks.py`
+- Fixed test file naming conflict: Removed duplicate `test_profile_queries_integration.py` file that conflicted with `test_profile_queries_integration/` directory, resolving pytest import errors
 
 ### Frontend Tests
 - RichTextarea component tests (30 tests: rendering, onChange, validation, character counting, line break preservation, HTML formatting preservation, list preservation)

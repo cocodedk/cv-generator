@@ -43,15 +43,17 @@ npm test
 
 **Linting**:
 ```bash
-npm run lint:backend   # Backend linting
-npm run lint:frontend   # Frontend linting
+npm run lint:backend   # Backend linting (flake8)
+npm run lint:frontend   # Frontend linting (ESLint)
 ```
 
 **Formatting**:
 ```bash
-npm run format:backend   # Backend formatting
-npm run format:frontend  # Frontend formatting
+npm run format:backend   # Backend formatting (Black)
+npm run format:frontend  # Frontend formatting (Prettier)
 ```
+
+**Note**: All backend code must pass flake8 linting. Unused imports and variables are automatically flagged. Compatibility modules that re-export functions use `# noqa: F401` comments to suppress false positives.
 
 ## Git Workflow
 

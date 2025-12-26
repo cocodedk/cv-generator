@@ -14,6 +14,8 @@ Common problems and their solutions when working with the CV Generator.
 
 **Import Errors**: Rebuild Docker image: `docker-compose build app && docker-compose up -d`.
 
+**Pytest Import File Mismatch**: If you see "import file mismatch" errors, check for duplicate test files (both `.py` file and directory with same name). Remove the duplicate file and clear `__pycache__` directories: `find backend/tests -type d -name __pycache__ -exec rm -rf {} +`.
+
 **Database Query Errors**: Check Neo4j accessible (http://localhost:7474), verify credentials, check query syntax, verify data format.
 
 ## Frontend Issues
