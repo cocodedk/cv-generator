@@ -95,9 +95,19 @@ describe('hashRouting', () => {
     })
 
     it('generates hash for profile-edit mode with updated_at', () => {
+      // URL encoding is applied to handle special characters in timestamps
       expect(viewModeToHash('profile-edit', undefined, '2024-01-01T00:00:00')).toBe(
-        'profile-edit/2024-01-01T00:00:00'
+        'profile-edit/2024-01-01T00%3A00%3A00'
       )
+    })
+
+    it('generates hash for profile-edit mode with special characters', () => {
+      // Test that special characters are properly encoded
+      const timestampWithSpecialChars = '2024-01-01T00:00:00+05:30'
+      const encoded = viewModeToHash('profile-edit', undefined, timestampWithSpecialChars)
+      expect(encoded).toBe('profile-edit/2024-01-01T00%3A00%3A00%2B05%3A30')
+      // Verify it can be decoded back
+      expect(extractProfileUpdatedAtFromHash(`#${encoded}`)).toBe(timestampWithSpecialChars)
     })
 
     it('generates hash for profile-edit mode without updated_at', () => {
@@ -111,6 +121,16 @@ describe('hashRouting', () => {
         '2024-01-01T00:00:00'
       )
       expect(extractProfileUpdatedAtFromHash('profile-edit/2024-01-01T00:00:00')).toBe(
+        '2024-01-01T00:00:00'
+      )
+    })
+
+    it('decodes URL-encoded updated_at from profile-edit hash', () => {
+      // Test decoding of URL-encoded timestamps
+      expect(extractProfileUpdatedAtFromHash('#profile-edit/2024-01-01T00%3A00%3A00')).toBe(
+        '2024-01-01T00:00:00'
+      )
+      expect(extractProfileUpdatedAtFromHash('profile-edit/2024-01-01T00%3A00%3A00')).toBe(
         '2024-01-01T00:00:00'
       )
     })

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import PersonalInfo from './PersonalInfo'
 import Experience from './Experience'
@@ -28,6 +28,8 @@ export default function ProfileManager({ onSuccess, onError, setLoading }: Profi
   const [hasProfile, setHasProfile] = useState(false)
   const [isLoadingProfile, setIsLoadingProfile] = useState(true)
   const [showProfileSelectionModal, setShowProfileSelectionModal] = useState(false)
+  const formRef = useRef<HTMLFormElement>(null)
+  const isSubmittingRef = useRef(isSubmitting)
   const {
     register,
     handleSubmit,
@@ -38,9 +40,80 @@ export default function ProfileManager({ onSuccess, onError, setLoading }: Profi
     defaultValues: defaultProfileData,
   })
 
+  // Keep ref in sync with state
+  useEffect(() => {
+    isSubmittingRef.current = isSubmitting
+  }, [isSubmitting])
+
+  const onSubmit = useCallback(
+    async (data: ProfileData) => {
+      setIsSubmitting(true)
+      setLoading(true)
+      try {
+        await saveProfile(data)
+        setHasProfile(true)
+        onSuccess('Profile saved successfully!')
+      } catch (error: any) {
+        onError(error.message)
+      } finally {
+        setIsSubmitting(false)
+        setLoading(false)
+      }
+    },
+    [setLoading, onSuccess, onError]
+  )
+
   useEffect(() => {
     loadInitialProfile()
   }, [profileUpdatedAt])
+
+  // Keyboard shortcut handler for Ctrl+S / Cmd+S
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Check for Ctrl+S (Windows/Linux) or Cmd+S (Mac)
+      // Handle both lowercase 's' and uppercase 'S' (though 's' should be standard)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+        e.preventDefault() // Prevent browser save dialog
+        e.stopPropagation() // Prevent event from bubbling
+
+        // Don't trigger if form is still loading
+        if (isLoadingProfile) {
+          return
+        }
+
+        // Don't trigger if already submitting
+        if (isSubmittingRef.current) {
+          return
+        }
+
+        // Don't trigger if user is typing in an input/textarea/rich text editor
+        const activeElement = document.activeElement
+        if (
+          activeElement &&
+          (activeElement.tagName === 'INPUT' ||
+            activeElement.tagName === 'TEXTAREA' ||
+            activeElement.getAttribute('contenteditable') === 'true' ||
+            activeElement.closest('[contenteditable="true"]'))
+        ) {
+          return
+        }
+
+        // Ensure form is ready
+        if (!formRef.current) {
+          return
+        }
+
+        // Trigger form submission directly using handleSubmit
+        // This ensures validation is run and form state is properly handled
+        handleSubmit(onSubmit)()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown, true) // Use capture phase
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown, true)
+    }
+  }, [handleSubmit, onSubmit, isLoadingProfile])
 
   const loadProfile = async () => {
     setShowProfileSelectionModal(true)
@@ -75,21 +148,6 @@ export default function ProfileManager({ onSuccess, onError, setLoading }: Profi
       onError(`Failed to load profile: ${error.message || 'Unknown error'}`)
     } finally {
       setIsLoadingProfile(false)
-    }
-  }
-
-  const onSubmit = async (data: ProfileData) => {
-    setIsSubmitting(true)
-    setLoading(true)
-    try {
-      await saveProfile(data)
-      setHasProfile(true)
-      onSuccess('Profile saved successfully!')
-    } catch (error: any) {
-      onError(error.message)
-    } finally {
-      setIsSubmitting(false)
-      setLoading(false)
     }
   }
 
@@ -128,7 +186,7 @@ export default function ProfileManager({ onSuccess, onError, setLoading }: Profi
           onLoad={loadProfile}
           onDelete={handleDelete}
         />
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-8">
+        <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-8">
           <PersonalInfo register={register} errors={errors} control={control} showAiAssist={true} />
           <Experience control={control} register={register} errors={errors} showAiAssist={true} />
           <Education control={control} register={register} />

@@ -36,7 +36,14 @@ export const extractProfileUpdatedAtFromHash = (hash: string): string | null => 
   const normalizedHash = hash.replace(/^#/, '')
   if (normalizedHash.toLowerCase().startsWith('profile-edit/')) {
     const updatedAt = normalizedHash.substring(13) // Remove 'profile-edit/' prefix (case-insensitive)
-    return updatedAt || null
+    if (!updatedAt) {
+      return null
+    }
+    try {
+      return decodeURIComponent(updatedAt)
+    } catch {
+      return updatedAt
+    }
   }
   return null
 }
@@ -50,7 +57,7 @@ export const viewModeToHash = (
     return `edit/${cvId}`
   }
   if (mode === 'profile-edit' && profileUpdatedAt) {
-    return `profile-edit/${profileUpdatedAt}`
+    return `profile-edit/${encodeURIComponent(profileUpdatedAt)}`
   }
   if (mode === 'profile-list') {
     return 'profile-list'
