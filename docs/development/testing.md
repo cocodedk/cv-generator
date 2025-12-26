@@ -130,6 +130,10 @@ npm test
 Most backend tests mock the Neo4j driver. Integration tests run against the live
 Neo4j database in Docker and should clean up after themselves.
 
+**Test Isolation**: Integration tests use test data prefixed with "test" to ensure
+they don't accidentally modify real profile data. Tests verify profiles are test
+profiles before updating or deleting them.
+
 ## Writing Tests
 
 **Backend Example**:
@@ -171,4 +175,6 @@ Tests run automatically before each commit. See [Development Workflow](workflow.
 - ProfileManager tests refactored into smaller, focused test files:
   - Rendering tests separated from functionality tests
   - Loading, saving, deleting, and AI assist tests in separate files
+  - Keyboard shortcut tests (`ProfileManager.keyboardShortcut.test.tsx`)
   - Shared test helpers and mocks in `helpers/profileManager/`
+- Hash routing tests with URL encoding/decoding support

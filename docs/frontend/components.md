@@ -101,6 +101,7 @@ Component for managing the master profile (reusable personal information, experi
 - Dynamic array management for experience, education, and skills
 - Displays profile status (saved/not saved)
 - Per-field AI Assist for rich-text fields (summary, role summary, project highlights)
+- Keyboard shortcut support: Ctrl+S (Windows/Linux) or Cmd+S (Mac) to save profile
 
 **Props**:
 - `onSuccess`: Callback for successful operations
@@ -113,6 +114,14 @@ Component for managing the master profile (reusable personal information, experi
 - Shows "Save Profile" or "Update Profile" based on profile existence
 - Includes delete functionality
 - AI Assist is always enabled (unlike CVForm where it's only enabled in edit mode)
+- Keyboard shortcut (Ctrl+S/Cmd+S) for quick saving
+
+**Keyboard Shortcuts**:
+- **Ctrl+S** (Windows/Linux) or **Cmd+S** (Mac): Saves the profile
+  - Prevents browser default save dialog
+  - Does not trigger while typing in input fields or textareas
+  - Does not trigger while form is loading or submitting
+  - Runs form validation before saving
 
 ### Navigation
 
