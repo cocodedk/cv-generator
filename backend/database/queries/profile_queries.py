@@ -50,12 +50,25 @@ ORDER BY profile.updated_at DESC
 LIMIT 1
 SET profile.updated_at = $updated_at
 WITH profile
-OPTIONAL MATCH (old_person:Person)-[:BELONGS_TO_PROFILE]->(profile)
-OPTIONAL MATCH (old_person)-[:HAS_EXPERIENCE]->(exp:Experience)-[:BELONGS_TO_PROFILE]->(profile)
-OPTIONAL MATCH (exp)-[:HAS_PROJECT]->(proj:Project)-[:BELONGS_TO_PROFILE]->(profile)
-OPTIONAL MATCH (old_person)-[:HAS_EDUCATION]->(edu:Education)-[:BELONGS_TO_PROFILE]->(profile)
-OPTIONAL MATCH (old_person)-[:HAS_SKILL]->(skill:Skill)-[:BELONGS_TO_PROFILE]->(profile)
-DETACH DELETE proj, exp, edu, skill, old_person
+// Delete Projects first (leaf nodes, no dependencies)
+MATCH (profile)<-[:BELONGS_TO_PROFILE]-(proj:Project)
+DETACH DELETE proj
+WITH profile
+// Delete Experiences (after Projects are deleted)
+MATCH (profile)<-[:BELONGS_TO_PROFILE]-(exp:Experience)
+DETACH DELETE exp
+WITH profile
+// Delete Education nodes
+MATCH (profile)<-[:BELONGS_TO_PROFILE]-(edu:Education)
+DETACH DELETE edu
+WITH profile
+// Delete Skill nodes
+MATCH (profile)<-[:BELONGS_TO_PROFILE]-(skill:Skill)
+DETACH DELETE skill
+WITH profile
+// Delete Person node last (it references other nodes)
+MATCH (old_person:Person)-[:BELONGS_TO_PROFILE]->(profile)
+DETACH DELETE old_person
 WITH profile
 CREATE (newPerson:Person { name: $name, title: $title, email: $email, phone: $phone,
     address_street: $address_street, address_city: $address_city,

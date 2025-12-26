@@ -135,8 +135,9 @@ graph LR
 
 ## Query Patterns
 
-- **Create Profile**: Deletes existing profile if present, then creates Profile node, Person node, and all related nodes with relationships in a single transaction.
-- **Read Profile**: Matches Profile node, traverses relationships to collect all related data.
+- **Create Profile**: Creates Profile node, Person node, and all related nodes with relationships in a single transaction.
+- **Update Profile**: Updates existing Profile node by deleting old related nodes (Projects, Experiences, Education, Skills, Person) separately to avoid cartesian products, then creates new nodes with updated data. Nodes are deleted in dependency order (Projects → Experiences → Education/Skills → Person).
+- **Read Profile**: Matches Profile node, uses CALL subqueries to traverse relationships and collect all related data, avoiding cartesian products.
 - **Delete Profile**: Deletes Profile node and all related nodes and relationships.
 
 - **Create CV**: Creates CV node, Person node, and all related nodes with relationships in a single transaction.
