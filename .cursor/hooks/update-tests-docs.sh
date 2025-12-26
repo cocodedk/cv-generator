@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Hook script that automatically runs tests and prompts to update docs after task completion
+# Hook script that runs tests/coverage and prompts for docs + commit after task completion
 # This hook is called when the agent loop ends
 
 # Read JSON input from stdin
@@ -39,29 +39,41 @@ if [ "$status" = "completed" ] && [ "$loop_count" -lt 2 ]; then
     test_status=$?
   else
     echo "Update tests hook: scripts/run-tests.sh not found, skipping tests" >&2
+    test_status=1
   fi
 
+  # Run coverage check after tests
+  coverage_status=0
   if [ "$test_status" -eq 0 ]; then
-    if ! git diff --quiet || ! git diff --cached --quiet; then
-      git add -A
-      files=$(git diff --cached --name-only)
-      if [ -n "$files" ]; then
-        {
-          echo "chore: update files"
-          echo ""
-          echo "$files"
-        } | git commit -F - >/dev/null 2>&1 || true
-      fi
+    if npm run -s test:coverage >/dev/null 2>&1; then
+      echo "Coverage check passed." >&2
+      coverage_status=0
+    else
+      echo "Coverage check failed." >&2
+      coverage_status=1
     fi
-
-    echo "{}"
   else
-    # Return a followup message that will be automatically submitted
-    # This asks the agent to update tests (if needed) and documentation
-    # The agent can use /update-tests and /update-docs commands
+    coverage_status=1
+  fi
+
+  # Return a followup message that will be automatically submitted
+  # The agent can use /update-tests and /update-docs commands
+  if [ "$test_status" -ne 0 ]; then
     cat <<EOF
 {
-  "followup_message": "Please review the test results above. Use /update-tests to update any failing tests and /update-docs to ensure documentation in the docs/ directory is accurate and reflects the recent changes."
+  "followup_message": "Tests failed. Please fix tests for the refactor, then re-run tests. After they pass, ensure coverage is high with `npm run test:coverage`, update docs in docs/, and commit with a good message."
+}
+EOF
+  elif [ "$coverage_status" -ne 0 ]; then
+    cat <<EOF
+{
+  "followup_message": "Coverage check failed. Please improve coverage (see `npm run test:coverage`), then update docs in docs/ and commit with a good message."
+}
+EOF
+  else
+    cat <<EOF
+{
+  "followup_message": "Tests and coverage passed. Please update docs in docs/ to reflect changes and then commit with a good message."
 }
 EOF
   fi
