@@ -3,6 +3,12 @@
 # Alternative hook script that runs commands directly to update tests and docs
 # This version executes commands instead of prompting the agent
 
+# Check if jq is installed
+if ! command -v jq >/dev/null 2>&1; then
+  echo "jq is required but not installed" >&2
+  exit 1
+fi
+
 # Read JSON input from stdin
 input=$(cat)
 

@@ -24,10 +24,12 @@ Welcome to the CV Generator documentation. This documentation is organized by to
 - [DOCX Generation](backend/docx-generation.md) - Markdown -> DOCX pipeline option
 - [Print HTML Generation](backend/print-html-generation.md) - Browser-printable HTML output
 - [Data Models](backend/models.md) - Pydantic models
+- [Scripts](backend/scripts.md) - Utility scripts for database inspection and maintenance
 
 ### Frontend
 
 - [Components](frontend/components.md) - React component structure
+- [Rich Text Editor](frontend/rich-text-editor.md) - RichTextarea component and HTML handling
 - [TypeScript Types](frontend/types.md) - Type definitions
 - [State Management](frontend/state-management.md) - Form and app state
 
@@ -41,6 +43,14 @@ Welcome to the CV Generator documentation. This documentation is organized by to
 
 - [Docker Setup](deployment/docker.md) - Docker configuration
 - [Production Deployment](deployment/production.md) - Production deployment guide
+
+### AI
+
+- [AI Overview](ai/overview.md) - JD-based draft flow and guardrails
+- [In-Form AI Assist](ai/in-form-assist.md) - Per-field rewrite/bullets helpers (Edit CV)
+- [AI Configuration](ai/configuration.md) - `.env` variables and provider setup
+- [AI API](ai/api.md) - Endpoints and payloads
+- [AI Rollout](ai/rollout.md) - Incremental implementation plan
 
 ### Troubleshooting
 

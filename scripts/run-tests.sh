@@ -1,7 +1,12 @@
 #!/bin/bash
 
 # CV Generator - Run All Tests
-# This script runs both backend and frontend tests
+# This script runs backend and frontend tests
+#
+# Usage:
+#   ./scripts/run-tests.sh                    # Run all tests (excludes integration tests)
+#   ./scripts/run-tests.sh --integration      # Run ONLY integration tests
+#   ./scripts/run-tests.sh --help             # Show help
 
 set -e
 
@@ -17,6 +22,46 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$PROJECT_ROOT"
 
+# Parse command-line arguments
+SHOW_HELP=0
+RUN_INTEGRATION=0
+
+for arg in "$@"; do
+    case $arg in
+        --help|-h)
+            SHOW_HELP=1
+            shift
+            ;;
+        --integration|-i)
+            RUN_INTEGRATION=1
+            shift
+            ;;
+        *)
+            echo -e "${RED}Unknown option: $arg${NC}"
+            echo "Use --help to see usage information"
+            exit 1
+            ;;
+    esac
+done
+
+# Show help if requested
+if [ $SHOW_HELP -eq 1 ]; then
+    echo "CV Generator Test Runner"
+    echo ""
+    echo "Usage:"
+    echo "  ./scripts/run-tests.sh                    Run all tests (backend, frontend, excludes integration)"
+    echo "  ./scripts/run-tests.sh --integration       Run ONLY integration tests"
+    echo "  ./scripts/run-tests.sh -i                  Short form for --integration"
+    echo "  ./scripts/run-tests.sh --help              Show this help message"
+    echo ""
+    echo "Options:"
+    echo "  --integration, -i    Run ONLY integration tests (WARNING: These tests run against"
+    echo "                       the live Neo4j database and may delete data!)"
+    echo ""
+    echo "Note: For E2E tests, use: ./scripts/run-e2e-tests.sh"
+    exit 0
+fi
+
 echo -e "${BLUE}🧪 Running CV Generator Tests...${NC}"
 echo ""
 
@@ -26,7 +71,12 @@ FRONTEND_PASSED=0
 
 # Function to run backend tests
 run_backend_tests() {
-    echo -e "${BLUE}📦 Running backend tests (in Docker)...${NC}"
+    if [ $RUN_INTEGRATION -eq 1 ]; then
+        echo -e "${BLUE}📦 Running backend integration tests (in Docker)...${NC}"
+        echo -e "${YELLOW}⚠️  WARNING: Integration tests run against the live Neo4j database and may delete data!${NC}"
+    else
+        echo -e "${BLUE}📦 Running backend tests (in Docker)...${NC}"
+    fi
 
     # Check if Docker is running
     if ! docker info > /dev/null 2>&1; then
@@ -42,8 +92,17 @@ run_backend_tests() {
         sleep 5
     fi
 
+    # Build pytest command with optional integration marker
+    # Default pytest.ini excludes integration tests with -m "not integration"
+    # When --integration flag is provided, run ONLY integration tests
+    if [ $RUN_INTEGRATION -eq 1 ]; then
+        PYTEST_CMD="python -m pytest -m integration"
+    else
+        PYTEST_CMD="python -m pytest"
+    fi
+
     # Run backend tests
-    if docker-compose exec -T app python -m pytest || docker-compose run --rm app python -m pytest; then
+    if docker-compose exec -T app $PYTEST_CMD || docker-compose run --rm app $PYTEST_CMD; then
         echo -e "${GREEN}✅ Backend tests passed!${NC}"
         BACKEND_PASSED=1
         return 0
@@ -85,6 +144,9 @@ run_frontend_tests() {
 }
 
 # Run tests
+# Temporarily disable set -e to allow capturing exit codes
+set +e
+
 echo -e "${BLUE}════════════════════════════════════════${NC}"
 run_backend_tests
 BACKEND_EXIT=$?
@@ -93,6 +155,9 @@ echo ""
 echo -e "${BLUE}════════════════════════════════════════${NC}"
 run_frontend_tests
 FRONTEND_EXIT=$?
+
+# Re-enable set -e for the rest of the script
+set -e
 
 # Summary
 echo ""
@@ -115,7 +180,12 @@ fi
 echo ""
 
 # Exit with appropriate code
-if [ $BACKEND_PASSED -eq 1 ] && [ $FRONTEND_PASSED -eq 1 ]; then
+ALL_PASSED=1
+if [ $BACKEND_PASSED -ne 1 ] || [ $FRONTEND_PASSED -ne 1 ]; then
+    ALL_PASSED=0
+fi
+
+if [ $ALL_PASSED -eq 1 ]; then
     echo -e "${GREEN}🎉 All tests passed!${NC}"
     exit 0
 else

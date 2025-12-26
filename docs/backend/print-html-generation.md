@@ -50,6 +50,14 @@ Templates use Jinja2 for rendering:
   - `education_item.html`: Education entry rendering
   - `skills_list.html`: Skills section rendering
 
+## HTML Content Rendering
+
+Templates safely render HTML content from CV data:
+- `personal_info.summary` - Rendered with `|safe` filter in Jinja2
+- `experience[].description` - Rendered with `|safe` filter in Jinja2
+- HTML formatting (bold, italic, lists, links) is preserved and displayed
+- Plain text length validation ensures content stays within limits
+
 ## Output Format
 
 The generated HTML includes:

@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { hashToViewMode, extractCvIdFromHash, viewModeToHash } from '../../app_helpers/hashRouting'
+import {
+  hashToViewMode,
+  extractCvIdFromHash,
+  extractProfileUpdatedAtFromHash,
+  viewModeToHash,
+} from '../../app_helpers/hashRouting'
 
 describe('hashRouting', () => {
   describe('hashToViewMode', () => {
@@ -17,6 +22,18 @@ describe('hashRouting', () => {
     it('identifies profile mode', () => {
       expect(hashToViewMode('#profile')).toBe('profile')
       expect(hashToViewMode('profile')).toBe('profile')
+    })
+
+    it('identifies profile-list mode', () => {
+      expect(hashToViewMode('#profile-list')).toBe('profile-list')
+      expect(hashToViewMode('profile-list')).toBe('profile-list')
+      expect(hashToViewMode('#profiles')).toBe('profile-list')
+      expect(hashToViewMode('profiles')).toBe('profile-list')
+    })
+
+    it('identifies profile-edit mode', () => {
+      expect(hashToViewMode('#profile-edit/2024-01-01T00:00:00')).toBe('profile-edit')
+      expect(hashToViewMode('profile-edit/2024-01-01T00:00:00')).toBe('profile-edit')
     })
 
     it('identifies edit mode', () => {
@@ -71,6 +88,64 @@ describe('hashRouting', () => {
 
     it('generates hash for edit mode without CV ID', () => {
       expect(viewModeToHash('edit')).toBe('edit')
+    })
+
+    it('generates hash for profile-list mode', () => {
+      expect(viewModeToHash('profile-list')).toBe('profile-list')
+    })
+
+    it('generates hash for profile-edit mode with updated_at', () => {
+      // URL encoding is applied to handle special characters in timestamps
+      expect(viewModeToHash('profile-edit', undefined, '2024-01-01T00:00:00')).toBe(
+        'profile-edit/2024-01-01T00%3A00%3A00'
+      )
+    })
+
+    it('generates hash for profile-edit mode with special characters', () => {
+      // Test that special characters are properly encoded
+      const timestampWithSpecialChars = '2024-01-01T00:00:00+05:30'
+      const encoded = viewModeToHash('profile-edit', undefined, timestampWithSpecialChars)
+      expect(encoded).toBe('profile-edit/2024-01-01T00%3A00%3A00%2B05%3A30')
+      // Verify it can be decoded back
+      expect(extractProfileUpdatedAtFromHash(`#${encoded}`)).toBe(timestampWithSpecialChars)
+    })
+
+    it('generates hash for profile-edit mode without updated_at', () => {
+      expect(viewModeToHash('profile-edit')).toBe('profile-edit')
+    })
+  })
+
+  describe('extractProfileUpdatedAtFromHash', () => {
+    it('extracts updated_at from profile-edit hash', () => {
+      expect(extractProfileUpdatedAtFromHash('#profile-edit/2024-01-01T00:00:00')).toBe(
+        '2024-01-01T00:00:00'
+      )
+      expect(extractProfileUpdatedAtFromHash('profile-edit/2024-01-01T00:00:00')).toBe(
+        '2024-01-01T00:00:00'
+      )
+    })
+
+    it('decodes URL-encoded updated_at from profile-edit hash', () => {
+      // Test decoding of URL-encoded timestamps
+      expect(extractProfileUpdatedAtFromHash('#profile-edit/2024-01-01T00%3A00%3A00')).toBe(
+        '2024-01-01T00:00:00'
+      )
+      expect(extractProfileUpdatedAtFromHash('profile-edit/2024-01-01T00%3A00%3A00')).toBe(
+        '2024-01-01T00:00:00'
+      )
+    })
+
+    it('returns null for non-profile-edit hashes', () => {
+      expect(extractProfileUpdatedAtFromHash('#form')).toBeNull()
+      expect(extractProfileUpdatedAtFromHash('#list')).toBeNull()
+      expect(extractProfileUpdatedAtFromHash('#profile')).toBeNull()
+      expect(extractProfileUpdatedAtFromHash('#edit/cv-123')).toBeNull()
+      expect(extractProfileUpdatedAtFromHash('')).toBeNull()
+    })
+
+    it('returns null for empty profile-edit hash', () => {
+      expect(extractProfileUpdatedAtFromHash('#profile-edit/')).toBeNull()
+      expect(extractProfileUpdatedAtFromHash('profile-edit/')).toBeNull()
     })
   })
 })

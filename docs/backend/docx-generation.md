@@ -71,6 +71,14 @@ python backend/cv_generator_docx/template_builder.py
 Run this inside the backend Docker container if dependencies were updated.
 Regenerate templates if theme tokens or font choices change.
 
+## HTML Content Rendering
+
+Templates safely render HTML content from CV data:
+- `personal_info.summary` - Rendered with `|safe` filter in Jinja2
+- `experience[].description` - Rendered with `|safe` filter in Jinja2
+- HTML tags are preserved and rendered in the final DOCX output
+- Plain text length validation ensures content stays within limits
+
 ## Theme Evolution
 
 - Reuse theme definitions by mapping theme tokens to template styles.

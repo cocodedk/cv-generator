@@ -1,5 +1,7 @@
+import { useState, useEffect } from 'react'
 import { Control, UseFormRegister, useController } from 'react-hook-form'
 import { CVData } from '../types/cv'
+import RichTextarea from './RichTextarea'
 
 interface ProjectEditorProps {
   control: Control<CVData>
@@ -7,10 +9,26 @@ interface ProjectEditorProps {
   experienceIndex: number
   projectIndex: number
   onRemove: () => void
+  showAiAssist?: boolean
 }
 
 function listToText(value: unknown, separator: string) {
   return Array.isArray(value) ? value.filter(Boolean).join(separator) : ''
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+function highlightsToHtml(value: unknown): string {
+  if (!Array.isArray(value)) return ''
+  const items = value.filter(Boolean).map(highlight => `<li>${escapeHtml(String(highlight))}</li>`)
+  return items.length ? `<ul>${items.join('')}</ul>` : ''
 }
 
 function technologiesFromText(value: string): string[] {
@@ -33,10 +51,26 @@ export default function ProjectEditor({
   experienceIndex,
   projectIndex,
   onRemove,
+  showAiAssist,
 }: ProjectEditorProps) {
   const base = `experience.${experienceIndex}.projects.${projectIndex}` as const
+  const nameField = useController({
+    control,
+    name: `${base}.name` as const,
+    rules: { required: 'Project name is required' },
+  })
   const technologies = useController({ control, name: `${base}.technologies` as const })
   const highlights = useController({ control, name: `${base}.highlights` as const })
+
+  // Local state for technologies text input to allow free typing
+  const [technologiesText, setTechnologiesText] = useState(
+    listToText(technologies.field.value, ', ')
+  )
+
+  // Sync local state when form value changes externally
+  useEffect(() => {
+    setTechnologiesText(listToText(technologies.field.value, ', '))
+  }, [technologies.field.value])
 
   return (
     <div className="border border-gray-200 rounded-md p-3 space-y-3 dark:border-gray-800 dark:bg-gray-900/30">
@@ -64,9 +98,12 @@ export default function ProjectEditor({
           <input
             id={`project-name-${experienceIndex}-${projectIndex}`}
             type="text"
-            {...register(`${base}.name` as const, { required: 'Project name is required' })}
+            {...nameField.field}
             className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
           />
+          {nameField.fieldState.error?.message && (
+            <p className="mt-1 text-xs text-red-600">{nameField.fieldState.error.message}</p>
+          )}
         </div>
 
         <div>
@@ -110,25 +147,39 @@ export default function ProjectEditor({
         <input
           id={`project-tech-${experienceIndex}-${projectIndex}`}
           type="text"
-          value={listToText(technologies.field.value, ', ')}
-          onChange={e => technologies.field.onChange(technologiesFromText(e.target.value))}
+          value={technologiesText}
+          onChange={e => setTechnologiesText(e.target.value)}
+          onBlur={() => technologies.field.onChange(technologiesFromText(technologiesText))}
           className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
         />
       </div>
 
       <div>
         <label
+          id={`project-highlights-${experienceIndex}-${projectIndex}-label`}
           htmlFor={`project-highlights-${experienceIndex}-${projectIndex}`}
           className="block text-xs font-medium text-gray-700 dark:text-gray-300"
         >
-          Highlights (one per line)
+          Highlights
         </label>
-        <textarea
+        <RichTextarea
           id={`project-highlights-${experienceIndex}-${projectIndex}`}
+          value={highlightsToHtml(highlights.field.value)}
+          onChange={value => {
+            // Convert rich text back to plain text lines for highlights array
+            const plainText = value
+              .replace(/<br\s*\/?>/g, '\n')
+              .replace(/<\/li>/g, '\n')
+              .replace(/<\/p>/g, '\n')
+              .replace(/<[^>]*>/g, '')
+              .replace(/&nbsp;/g, ' ')
+              .trim()
+            highlights.field.onChange(highlightsFromText(plainText))
+          }}
           rows={3}
-          value={listToText(highlights.field.value, '\n')}
-          onChange={e => highlights.field.onChange(highlightsFromText(e.target.value))}
-          className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
+          placeholder="Enter highlights (one per line)..."
+          className="mt-1"
+          showAiAssist={showAiAssist}
         />
       </div>
     </div>

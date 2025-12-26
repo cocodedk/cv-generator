@@ -76,6 +76,7 @@ def get_cv_by_id(cv_id: str) -> Optional[Dict[str, Any]]:
             "theme": record["cv"].get("theme", "classic"),
             "personal_info": {
                 "name": person.get("name"),
+                "title": person.get("title"),
                 "email": person.get("email"),
                 "phone": person.get("phone"),
                 "address": address,
@@ -163,6 +164,7 @@ def get_cv_by_filename(filename: str) -> Optional[Dict[str, Any]]:
             "theme": record["cv"].get("theme", "classic"),
             "personal_info": {
                 "name": person.get("name"),
+                "title": person.get("title"),
                 "email": person.get("email"),
                 "phone": person.get("phone"),
                 "address": address,

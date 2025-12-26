@@ -4,16 +4,20 @@ export type MessageType = 'success' | 'error'
 
 export interface Message {
   type: MessageType
-  text: string
+  text: string | string[]
 }
 
 export const useMessage = () => {
   const [message, setMessage] = useState<Message | null>(null)
 
-  const showMessage = (type: MessageType, text: string) => {
+  const showMessage = (type: MessageType, text: string | string[]) => {
     setMessage({ type, text })
-    setTimeout(() => setMessage(null), 5000)
+    // Don't auto-hide - user must close manually
   }
 
-  return { message, showMessage }
+  const clearMessage = () => {
+    setMessage(null)
+  }
+
+  return { message, showMessage, clearMessage }
 }

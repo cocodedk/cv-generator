@@ -24,7 +24,7 @@
         <p>{{ para }}</p>
       {% endfor %}
     {% elif exp.description_text %}
-      <p>{{ exp.description_text }}</p>
+      <div>{{ exp.description_text | safe }}</div>
     {% endif %}
   </div>
   {% endif %}

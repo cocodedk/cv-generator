@@ -7,14 +7,18 @@ import { CVData } from '../../types/cv'
 
 // Wrapper component to provide form context
 function ExperienceWrapper() {
-  const { control, register } = useForm<CVData>({
+  const {
+    control,
+    register,
+    formState: { errors },
+  } = useForm<CVData>({
     defaultValues: {
       personal_info: { name: 'Test' },
       experience: [],
     },
   })
 
-  return <Experience control={control} register={register} />
+  return <Experience control={control} register={register} errors={errors} />
 }
 
 describe('Experience', () => {
@@ -45,6 +49,8 @@ describe('Experience', () => {
       expect(screen.getByLabelText(/job title/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/company/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/start date/i)).toBeInTheDocument()
+      // RichTextarea for role summary is present (check by label or by quill editor)
+      expect(screen.getByLabelText(/role summary/i)).toBeInTheDocument()
       expect(screen.getByRole('heading', { name: /projects/i })).toBeInTheDocument()
       expect(screen.getByRole('button', { name: /add project/i })).toBeInTheDocument()
     })
@@ -74,7 +80,11 @@ describe('Experience', () => {
     const user = userEvent.setup()
 
     function ExperienceWithData() {
-      const { control, register } = useForm<CVData>({
+      const {
+        control,
+        register,
+        formState: { errors },
+      } = useForm<CVData>({
         defaultValues: {
           personal_info: { name: 'Test' },
           experience: [
@@ -91,7 +101,7 @@ describe('Experience', () => {
         },
       })
 
-      return <Experience control={control} register={register} />
+      return <Experience control={control} register={register} errors={errors} />
     }
 
     render(<ExperienceWithData />)

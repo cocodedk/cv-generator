@@ -5,7 +5,7 @@ import CVForm from '../../../components/CVForm'
 
 export interface CVFormProps {
   onSuccess: (message: string) => void
-  onError: (message: string) => void
+  onError: (message: string | string[]) => void
   setLoading: (loading: boolean) => void
   cvId?: string | null
 }
@@ -64,6 +64,15 @@ export const clickSaveToProfileButton = async () => {
     await user.click(saveButton)
   })
   return saveButton
+}
+
+export const clickGenerateFromJdButton = async () => {
+  const user = userEvent.setup()
+  const generateButton = screen.getByRole('button', { name: /generate from jd/i })
+  await act(async () => {
+    await user.click(generateButton)
+  })
+  return generateButton
 }
 
 export const waitForFormToLoad = async () => {

@@ -31,8 +31,12 @@ def mock_neo4j_driver():
     mock_session.execute_write = Mock(
         return_value=Mock(single=Mock(return_value={"cv_id": "test-cv-id"}))
     )
-    # Keep write_transaction for backwards compatibility in tests
+    mock_session.execute_read = Mock(
+        return_value=Mock(single=Mock(return_value=None))
+    )
+    # Keep write_transaction and read_transaction for backwards compatibility in tests
     mock_session.write_transaction = mock_session.execute_write
+    mock_session.read_transaction = mock_session.execute_read
 
     # Configure mock driver
     mock_driver.session = Mock(return_value=mock_session)

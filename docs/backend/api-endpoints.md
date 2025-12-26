@@ -87,9 +87,19 @@ See [Print HTML Generation](print-html-generation.md) for details.
 **Response**: `ProfileResponse` with status and message
 **Errors**: 404 (profile not found), 500 (server error)
 
+### AI Endpoints
+
+**POST** `/api/ai/rewrite` - Rewrite text using LLM with a custom prompt.
+**Request**: `AIRewriteRequest` with `text` (string) and `prompt` (string)
+**Response**: `AIRewriteResponse` with `rewritten_text` (string)
+**Errors**: 400 (validation error), 503 (LLM not configured), 500 (server error)
+**Rate Limit**: 20 requests per minute
+
+See [AI API Documentation](../ai/api.md) for details.
+
 ## Rate Limiting
 
-Rate limits (per IP): Profile (30/min), CV save/list (20/min), DOCX generation (10/min), Print HTML (20-30/min). Returns 429 when exceeded.
+Rate limits (per IP): Profile (30/min), CV save/list (20/min), DOCX generation (10/min), Print HTML (20-30/min), AI rewrite (20/min). Returns 429 when exceeded.
 
 ## Interactive Documentation
 

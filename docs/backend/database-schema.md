@@ -135,13 +135,46 @@ graph LR
 
 ## Query Patterns
 
-- **Create Profile**: Deletes existing profile if present, then creates Profile node, Person node, and all related nodes with relationships in a single transaction.
-- **Read Profile**: Matches Profile node, traverses relationships to collect all related data.
-- **Delete Profile**: Deletes Profile node and all related nodes and relationships.
+- **Create Profile**: Creates Profile node, Person node, and all related nodes with relationships in a single transaction. Implemented in `profile_create/` subfolder:
+  - `profile.py` - Profile node creation
+  - `person.py` - Person node creation
+  - `nodes.py` - Experience, Education, and Skill node creation
+  - `create.py` - Main create orchestration function
+- **Update Profile**: Updates existing Profile node by deleting old related nodes (Projects, Experiences, Education, Skills, Person) separately to avoid cartesian products, then creates new nodes with updated data. Nodes are deleted in dependency order (Projects → Experiences → Education/Skills → Person). After deletion, verifies all Person nodes were removed (hard-fails if any remain). Creates new Person node and binds all child nodes (Experiences, Education, Skills) to it via `elementId()` to prevent multiplication. Implemented in `profile_update/` subfolder:
+  - `delete.py` - Deletion operations (`update_profile_timestamp()`, `delete_profile_nodes()`) and verification (`verify_person_deletion()`, `verify_single_person()`)
+  - `person.py` - Person node creation (returns `elementId()`)
+  - `experience.py` - Experience node creation (bound to Person via `elementId()`)
+  - `education.py` - Education node creation (bound to Person via `elementId()`)
+  - `skill.py` - Skill node creation (bound to Person via `elementId()`)
+  - `update.py` - Main update orchestration function
+- **Read Profile**: Matches Profile node, uses CALL subqueries to traverse relationships and collect all related data, avoiding cartesian products. Implemented in `profile_read/` subfolder:
+  - `get.py` - Full profile retrieval (`get_profile()`, `get_profile_by_updated_at()`)
+  - `list.py` - Basic profile listing (`list_profiles()`)
+  - `queries.py` - Shared query building functions
+- **Delete Profile**: Deletes Profile node and all related nodes and relationships. Implemented in `profile_delete/` subfolder:
+  - `delete.py` - Deletion operations (`delete_profile()`, `delete_profile_by_updated_at()`)
 
-- **Create CV**: Creates CV node, Person node, and all related nodes with relationships in a single transaction.
-- **Read CV**: Matches CV by ID, traverses relationships to collect all related data.
-- **Update CV**: Deletes old relationships and nodes, creates new ones with updated data.
-- **Delete CV**: Deletes CV node and all related nodes and relationships.
+- **Create CV**: Creates CV node, Person node, and all related nodes with relationships in a single transaction. The implementation makes multiple separate `tx.run()` calls within the transaction (one per node type) for better modularity and maintainability. Implemented in `create/` subfolder:
+  - `cv.py` - CV node creation (`create_cv_node()`)
+  - `person.py` - Person node creation (`create_person_node()`)
+  - `nodes.py` - Experience, Education, and Skill node creation (`create_experience_nodes()`, `create_education_nodes()`, `create_skill_nodes()`)
+  - `create.py` - Main create orchestration function (`create_cv()`) - returns CV ID (UUID) directly
+- **Read CV**: Matches CV by ID, traverses relationships to collect all related data. Implemented in `read/` subfolder:
+  - `get.py` - CV retrieval functions (`get_cv_by_id()`, `get_cv_by_filename()`)
+  - `queries.py` - Shared query building functions
+  - `process.py` - Record processing functions
+- **Update CV**: Deletes old relationships and nodes, creates new ones with updated data. Implemented in `update/` subfolder:
+  - `delete.py` - Deletion operations (`update_cv_timestamp()`, `delete_cv_relationships()`)
+  - `person.py` - Person node creation
+  - `experience.py` - Experience node creation
+  - `education.py` - Education node creation
+  - `skill.py` - Skill node creation
+  - `update.py` - Main update orchestration functions (`update_cv()`, `set_cv_filename()`)
+- **Delete CV**: Deletes CV node and all related nodes and relationships. Implemented in `delete.py`.
+- **List CVs**: Lists and searches CVs with pagination. Implemented in `list/` subfolder:
+  - `list.py` - CV listing with pagination (`list_cvs()`)
+  - `search.py` - CV search by skills/experience/education (`search_cvs()`)
 
-See `backend/database/queries/` for implementation details.
+See `backend/database/queries/` for implementation details. Profile queries are modularized into separate files following the 135-160 line guideline for maintainability.
+
+For detailed flow diagrams, see [Profile Update Flow](profile-update-flow.md).

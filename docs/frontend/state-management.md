@@ -56,6 +56,32 @@ Most state is managed at component level using React hooks:
 - `useForm` for form state
 - `useEffect` for side effects
 
+### Hash-Based Routing
+
+Navigation state is managed via URL hash using `useHashRouting` hook:
+
+**Location**: `frontend/src/app_helpers/hashRouting.ts`
+
+**View Modes**:
+- `form`: New CV form
+- `list`: CV list view
+- `edit`: Edit existing CV (requires `cvId`)
+- `profile`: Profile management
+- `profile-list`: Profile list view
+- `profile-edit`: Edit existing profile (requires `profileUpdatedAt`)
+
+**Hash Format**:
+- `#form` - New CV form
+- `#list` - CV list
+- `#edit/{cvId}` - Edit CV
+- `#profile` - Profile management
+- `#profile-list` - Profile list
+- `#profile-edit/{updatedAt}` - Edit profile (URL-encoded timestamp)
+
+**URL Encoding**: Profile timestamps are URL-encoded in hash to handle special
+characters (e.g., colons in ISO timestamps). The `extractProfileUpdatedAtFromHash`
+function automatically decodes them.
+
 ### Global State
 
 Currently, there is no global state management library. State is passed via props or managed locally.

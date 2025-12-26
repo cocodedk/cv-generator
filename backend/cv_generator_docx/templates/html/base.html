@@ -21,7 +21,7 @@
                     <p custom-style="Subtitle">{{ personal_info.title }}</p>
                     {% endif %}
                     {% if personal_info.summary %}
-                    <p>{{ personal_info.summary }}</p>
+                    <div>{{ personal_info.summary | safe }}</div>
                     {% endif %}
                 </td>
                 <td style="vertical-align: top; text-align: right; border: 0; width: 120px; padding: 0;">

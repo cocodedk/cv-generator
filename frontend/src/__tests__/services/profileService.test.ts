@@ -70,12 +70,12 @@ describe('profileService', () => {
     it('throws error on failure', async () => {
       const error = {
         response: {
-          data: { detail: 'Save failed' },
+          data: { detail: 'Failed to save profile' },
         },
       }
       mockedAxios.post.mockRejectedValue(error)
 
-      await expect(saveProfile({} as any)).rejects.toThrow('Save failed')
+      await expect(saveProfile({} as any)).rejects.toThrow('Failed to save profile')
     })
   })
 
@@ -87,7 +87,9 @@ describe('profileService', () => {
       const result = await deleteProfile()
 
       expect(result).toEqual(response)
-      expect(mockedAxios.delete).toHaveBeenCalledWith('/api/profile')
+      expect(mockedAxios.delete).toHaveBeenCalledWith('/api/profile', {
+        headers: { 'X-Confirm-Delete-Profile': 'true' },
+      })
     })
 
     it('throws error on failure', async () => {

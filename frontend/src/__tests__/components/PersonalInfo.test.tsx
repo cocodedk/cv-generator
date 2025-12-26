@@ -8,6 +8,7 @@ import { CVData } from '../../types/cv'
 function PersonalInfoWrapper() {
   const {
     register,
+    control,
     formState: { errors },
   } = useForm<CVData>({
     defaultValues: {
@@ -26,7 +27,7 @@ function PersonalInfoWrapper() {
     },
   })
 
-  return <PersonalInfo register={register} errors={errors} />
+  return <PersonalInfo register={register} errors={errors} control={control} />
 }
 
 describe('PersonalInfo', () => {
@@ -52,16 +53,19 @@ describe('PersonalInfo', () => {
     expect(screen.getByLabelText(/country/i)).toBeInTheDocument()
   })
 
-  it('renders summary textarea', () => {
+  it('renders summary rich text editor', () => {
     render(<PersonalInfoWrapper />)
 
     expect(screen.getByLabelText(/professional summary/i)).toBeInTheDocument()
+    // Check that RichTextarea is rendered
+    expect(document.querySelector('.ql-editor')).toBeInTheDocument()
   })
 
   it('displays validation error for required name field', () => {
     function PersonalInfoWithError() {
       const {
         register,
+        control,
         formState: { errors },
       } = useForm<CVData>({
         defaultValues: {
@@ -74,7 +78,7 @@ describe('PersonalInfo', () => {
         name: { type: 'required', message: 'Name is required' },
       } as any
 
-      return <PersonalInfo register={register} errors={errors} />
+      return <PersonalInfo register={register} errors={errors} control={control} />
     }
 
     render(<PersonalInfoWithError />)

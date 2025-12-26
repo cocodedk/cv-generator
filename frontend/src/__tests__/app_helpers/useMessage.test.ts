@@ -42,7 +42,7 @@ describe('useMessage', () => {
     })
   })
 
-  it('auto-clears message after 5 seconds', () => {
+  it('clears message when clearMessage is called', () => {
     const { result } = renderHook(() => useMessage())
 
     act(() => {
@@ -52,7 +52,7 @@ describe('useMessage', () => {
     expect(result.current.message).not.toBe(null)
 
     act(() => {
-      vi.advanceTimersByTime(5000)
+      result.current.clearMessage()
     })
 
     expect(result.current.message).toBe(null)

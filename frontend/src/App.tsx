@@ -1,26 +1,36 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import CVForm from './components/CVForm'
 import CVList from './components/CVList'
+import ProfileList from './components/ProfileList'
 import ProfileManager from './components/ProfileManager'
 import Navigation from './components/Navigation'
-import MessageDisplay from './components/MessageDisplay'
+import NotificationModal from './components/NotificationModal'
+import Footer from './components/Footer'
 import { useHashRouting } from './app_helpers/useHashRouting'
 import { useTheme } from './app_helpers/useTheme'
 import { useMessage } from './app_helpers/useMessage'
+import { BRANDING } from './app_helpers/branding'
 import './index.css'
 
 function App() {
-  const { viewMode, cvId } = useHashRouting()
+  const { viewMode, cvId, profileUpdatedAt } = useHashRouting()
   const { isDark, setIsDark } = useTheme()
-  const { message, showMessage } = useMessage()
+  const { message, showMessage, clearMessage } = useMessage()
   const [_loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    document.title = `${BRANDING.appName} — ${BRANDING.ownerName} (${BRANDING.companyName})`
+  }, [BRANDING.appName, BRANDING.ownerName, BRANDING.companyName])
 
   const handleSuccess = useCallback(
     (message: string) => showMessage('success', message),
     [showMessage]
   )
 
-  const handleError = useCallback((message: string) => showMessage('error', message), [showMessage])
+  const handleError = useCallback(
+    (message: string | string[]) => showMessage('error', message),
+    [showMessage]
+  )
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -30,7 +40,7 @@ function App() {
         onThemeToggle={() => setIsDark(current => !current)}
       />
 
-      <MessageDisplay message={message} />
+      <NotificationModal message={message} onClose={clearMessage} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {viewMode === 'form' || viewMode === 'edit' ? (
@@ -42,10 +52,13 @@ function App() {
           />
         ) : viewMode === 'list' ? (
           <CVList onError={handleError} />
+        ) : viewMode === 'profile-list' ? (
+          <ProfileList onError={handleError} />
         ) : (
           <ProfileManager onSuccess={handleSuccess} onError={handleError} setLoading={setLoading} />
         )}
       </main>
+      <Footer />
     </div>
   )
 }

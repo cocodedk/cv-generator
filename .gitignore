@@ -19,6 +19,7 @@ yarn-error.log*
 .env
 .env.local
 .env.*.local
+!.env.example
 
 # IDE
 .vscode/
@@ -46,6 +47,14 @@ logs/
 .coverage
 .pytest_cache/
 htmlcov/
+test-results/
+playwright-report/
+.playwright-mcp/*.png
+*.png
+!frontend/public/*.png
+coverage*.json
+coverage/
+frontend/coverage/
 
 # Build
 dist/

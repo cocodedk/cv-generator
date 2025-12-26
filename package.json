@@ -10,6 +10,7 @@
     "build:watch": "vite build --watch",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
+    "type-check:e2e": "tsc -p tests/e2e/tsconfig.json --noEmit",
     "test": "npm run test:backend && npm run test:frontend",
     "test:backend": "docker-compose exec -T app pytest || docker-compose run --rm app pytest",
     "test:backend:local": "cd backend && pytest",
@@ -23,12 +24,21 @@
     "format:frontend": "prettier --write \"frontend/src/**/*.{ts,tsx,css}\""
   },
   "dependencies": {
+    "@tiptap/extension-link": "^2.27.1",
+    "@tiptap/extension-placeholder": "^2.27.1",
+    "@tiptap/extension-underline": "^2.27.1",
+    "@tiptap/react": "^2.27.1",
+    "@tiptap/starter-kit": "^2.27.1",
     "axios": "^1.6.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.49.2"
   },
+  "_comment": {
+    "rich-text-html-security": "Rich-text fields store HTML. All stored HTML should be sanitized server-side before persistence/rendering to avoid stored XSS."
+  },
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "@testing-library/jest-dom": "^6.1.5",
     "@testing-library/react": "^14.1.2",
     "@testing-library/user-event": "^14.5.1",

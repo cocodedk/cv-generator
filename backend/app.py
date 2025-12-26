@@ -7,7 +7,7 @@ from fastapi.exceptions import RequestValidationError
 from backend.app_helpers.lifespan import lifespan
 from backend.app_helpers.middleware import setup_rate_limiting, setup_cors
 from backend.app_helpers.exception_handlers import validation_exception_handler
-from backend.app_helpers.routes import health, cv, profile, docx, print_html
+from backend.app_helpers.routes import health, cv, profile, docx, print_html, ai
 from backend.services.cv_file_service import CVFileService
 
 # Configure logging
@@ -43,6 +43,8 @@ print_html_router = print_html.create_print_html_router(limiter, cv_file_service
 app.include_router(print_html_router)
 profile_router = profile.create_profile_router(limiter)
 app.include_router(profile_router)
+ai_router = ai.create_ai_router(limiter)
+app.include_router(ai_router)
 
 # Mount static files for frontend (only in production/Docker)
 # This must be after all API routes to ensure routes are checked first

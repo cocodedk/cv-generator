@@ -1,0 +1,151 @@
+"""Tests for AI drafting endpoints."""
+
+import pytest
+from unittest.mock import patch, AsyncMock
+
+
+@pytest.mark.asyncio
+@pytest.mark.api
+class TestGenerateCvDraft:
+    """Test POST /api/ai/generate-cv endpoint."""
+
+    async def test_generate_cv_draft_success(self, client, sample_cv_data, mock_neo4j_connection):
+        profile_data = {
+            "personal_info": sample_cv_data["personal_info"],
+            "experience": sample_cv_data["experience"],
+            "education": sample_cv_data["education"],
+            "skills": sample_cv_data["skills"],
+            "updated_at": "2024-01-01T00:00:00",
+        }
+        with patch("backend.app_helpers.routes.ai.queries.get_profile", return_value=profile_data):
+            response = await client.post(
+                "/api/ai/generate-cv",
+                json={
+                    "job_description": "We require FastAPI and React. You will build and improve web features.",
+                    "target_role": "Full-stack Engineer",
+                    "seniority": "Senior",
+                    "style": "select_and_reorder",
+                    "max_experiences": 4,
+                },
+            )
+            assert response.status_code == 200
+            data = response.json()
+            assert "draft_cv" in data
+            assert data["draft_cv"]["personal_info"]["name"] == "John Doe"
+            assert data["draft_cv"]["experience"]
+            skill_names = {skill["name"] for skill in data["draft_cv"]["skills"]}
+            assert "React" in skill_names
+
+    async def test_generate_cv_draft_profile_missing(self, client, mock_neo4j_connection):
+        with patch("backend.app_helpers.routes.ai.queries.get_profile", return_value=None):
+            response = await client.post(
+                "/api/ai/generate-cv",
+                json={"job_description": "We require FastAPI and React."},
+            )
+            assert response.status_code == 404
+
+
+@pytest.mark.asyncio
+@pytest.mark.api
+class TestAIRewrite:
+    """Test POST /api/ai/rewrite endpoint."""
+
+    async def test_rewrite_text_success(self, client):
+        """Test successful text rewrite."""
+        mock_llm_client = AsyncMock()
+        mock_llm_client.rewrite_text = AsyncMock(return_value="Rewritten text from LLM")
+
+        with patch("backend.app_helpers.routes.ai.get_llm_client", return_value=mock_llm_client):
+            response = await client.post(
+                "/api/ai/rewrite",
+                json={
+                    "text": "Original text to rewrite",
+                    "prompt": "Make it more professional",
+                },
+            )
+
+            assert response.status_code == 200
+            data = response.json()
+            assert "rewritten_text" in data
+            assert data["rewritten_text"] == "Rewritten text from LLM"
+            mock_llm_client.rewrite_text.assert_called_once_with(
+                "Original text to rewrite", "Make it more professional"
+            )
+
+    async def test_rewrite_text_validation_error(self, client):
+        """Test rewrite with invalid request data."""
+        response = await client.post(
+            "/api/ai/rewrite",
+            json={
+                "text": "",  # Empty text
+                "prompt": "Make it better",
+            },
+        )
+        assert response.status_code == 422
+
+    async def test_rewrite_text_missing_fields(self, client):
+        """Test rewrite with missing fields."""
+        response = await client.post(
+            "/api/ai/rewrite",
+            json={
+                "text": "Some text",
+                # Missing prompt
+            },
+        )
+        assert response.status_code == 422
+
+    async def test_rewrite_text_llm_not_configured(self, client):
+        """Test rewrite when LLM is not configured."""
+        mock_llm_client = AsyncMock()
+        mock_llm_client.rewrite_text = AsyncMock(
+            side_effect=ValueError("LLM is not configured")
+        )
+
+        with patch("backend.app_helpers.routes.ai.get_llm_client", return_value=mock_llm_client):
+            response = await client.post(
+                "/api/ai/rewrite",
+                json={
+                    "text": "Some text",
+                    "prompt": "Make it better",
+                },
+            )
+
+            assert response.status_code == 400
+            data = response.json()
+            assert "LLM is not configured" in data["detail"]
+
+    async def test_rewrite_text_llm_error(self, client):
+        """Test rewrite when LLM API returns error."""
+        mock_llm_client = AsyncMock()
+        mock_llm_client.rewrite_text = AsyncMock(side_effect=Exception("API Error"))
+
+        with patch("backend.app_helpers.routes.ai.get_llm_client", return_value=mock_llm_client):
+            response = await client.post(
+                "/api/ai/rewrite",
+                json={
+                    "text": "Some text",
+                    "prompt": "Make it better",
+                },
+            )
+
+            assert response.status_code == 500
+            data = response.json()
+            assert "Failed to rewrite text" in data["detail"]
+
+    async def test_rewrite_text_long_text(self, client):
+        """Test rewrite with long text."""
+        long_text = "A" * 5000  # Within 10000 char limit
+        mock_llm_client = AsyncMock()
+        mock_llm_client.rewrite_text = AsyncMock(return_value="Rewritten")
+
+        with patch("backend.app_helpers.routes.ai.get_llm_client", return_value=mock_llm_client):
+            response = await client.post(
+                "/api/ai/rewrite",
+                json={
+                    "text": long_text,
+                    "prompt": "Make it shorter",
+                },
+            )
+
+            assert response.status_code == 200
+            mock_llm_client.rewrite_text.assert_called_once_with(long_text, "Make it shorter")

@@ -48,6 +48,7 @@ class TestUpdateCV:
 
         assert success is False
 
+    @pytest.mark.integration
     def test_update_cv_integration(self, sample_cv_data):
         """Test CV update against real Neo4j to catch Cypher syntax errors."""
         if not Neo4jConnection.verify_connectivity():
@@ -127,6 +128,7 @@ class TestUpdateCV:
         ]
         assert len(update_calls) > 0
 
+    @pytest.mark.integration
     def test_update_cv_changes_theme(self, sample_cv_data):
         """Test that theme can be changed from one value to another."""
         if not Neo4jConnection.verify_connectivity():
@@ -157,6 +159,7 @@ class TestUpdateCV:
             # Clean up
             queries.delete_cv(cv_id)
 
+    @pytest.mark.integration
     def test_update_cv_integration_with_theme(self, sample_cv_data):
         """Test CV update integration including theme persistence."""
         if not Neo4jConnection.verify_connectivity():

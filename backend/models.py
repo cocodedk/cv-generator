@@ -1,6 +1,7 @@
 """Pydantic models for CV data validation."""
 from typing import Optional, List
-from pydantic import BaseModel, EmailStr, Field
+import re
+from pydantic import BaseModel, EmailStr, Field, field_validator, ValidationInfo
 
 
 class Address(BaseModel):
@@ -17,6 +18,7 @@ class PersonalInfo(BaseModel):
     """Personal information model."""
 
     name: str = Field(..., min_length=1, max_length=200)
+    title: Optional[str] = None
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
     address: Optional[Address] = None
@@ -24,6 +26,13 @@ class PersonalInfo(BaseModel):
     github: Optional[str] = None
     website: Optional[str] = None
     summary: Optional[str] = None
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def _empty_email_to_none(cls, value: object) -> object:
+        if value == "":
+            return None
+        return value
 
 
 class Project(BaseModel):
@@ -47,11 +56,36 @@ class Experience(BaseModel):
     )
     description: Optional[str] = Field(
         None,
-        max_length=300,
-        description="Keep this short; put details under projects.",
+        description="Keep this short; put details under projects. HTML formatting is supported.",
     )
     location: Optional[str] = None
     projects: List[Project] = Field(default_factory=list)
+
+    @field_validator('description')
+    @classmethod
+    def validate_description_length(cls, v: str | None, info: ValidationInfo) -> str | None:
+        """Validate description length by counting plain text (HTML stripped)."""
+        if v is None:
+            return v
+        # Strip HTML tags to count only plain text
+        plain_text = re.sub(r'<[^>]+>', '', v)
+        # Replace HTML entities with single characters
+        plain_text = plain_text.replace('&nbsp;', ' ')
+        plain_text = plain_text.replace('&amp;', '&')
+        plain_text = plain_text.replace('&lt;', '<')
+        plain_text = plain_text.replace('&gt;', '>')
+        plain_text = plain_text.replace('&quot;', '"')
+        plain_text = plain_text.replace('&#39;', "'")
+        # Decode numeric entities
+        plain_text = re.sub(r'&#(\d+);', lambda m: chr(int(m.group(1))), plain_text)
+        if len(plain_text) > 300:
+            from pydantic_core import PydanticCustomError
+            raise PydanticCustomError(
+                'string_too_long',
+                'String should have at most 300 characters',
+                {'max_length': 300}
+            )
+        return v
 
 
 class Education(BaseModel):
@@ -124,3 +158,16 @@ class ProfileResponse(BaseModel):
 
     status: str = "success"
     message: Optional[str] = None
+
+
+class ProfileListItem(BaseModel):
+    """Profile list item with basic info."""
+
+    name: str
+    updated_at: str
+
+
+class ProfileListResponse(BaseModel):
+    """Response model for profile list."""
+
+    profiles: List[ProfileListItem]

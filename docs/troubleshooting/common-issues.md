@@ -30,6 +30,8 @@ Common problems and their solutions when working with the CV Generator.
 
 **Data Not Persisting**: Verify volume mounted (`docker volume ls`), check docker-compose.yml, don't use `-v` flag with down.
 
+**Profile Save Memory Error**: Fixed in UPDATE_QUERY - profile updates now delete nodes separately to avoid cartesian products. If you encounter memory errors, see [Profile Memory Error Investigation](profile-memory-error-investigation.md).
+
 ## File Generation Issues
 
 **DOCX Not Generated**: Check `backend/output/` exists, verify permissions, check logs, verify CV data.

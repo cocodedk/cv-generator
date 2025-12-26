@@ -61,6 +61,11 @@ class TestPersonalInfo:
         with pytest.raises(ValidationError):
             PersonalInfo(name="John Doe", email="invalid-email")
 
+    def test_empty_email_is_allowed(self):
+        """Test that empty-string email is treated as missing."""
+        info = PersonalInfo(name="John Doe", email="")
+        assert info.email is None
+
 
 class TestExperience:
     """Test Experience model."""
@@ -81,6 +86,63 @@ class TestExperience:
         """Test that end_date is optional."""
         exp = Experience(title="Developer", company="Tech Corp", start_date="2020-01")
         assert exp.end_date is None
+
+    def test_description_accepts_html(self):
+        """Test that description can contain HTML formatting."""
+        html_desc = "<p>Built <strong>web services</strong> using <em>FastAPI</em>.</p>"
+        exp = Experience(
+            title="Developer", company="Tech Corp", start_date="2020-01", description=html_desc
+        )
+        assert exp.description == html_desc
+
+    def test_description_validates_plain_text_length(self):
+        """Test that description validates plain text length (HTML stripped)."""
+        # HTML with 50 chars of plain text should pass
+        html_short = "<p>" + "x" * 50 + "</p>"
+        exp = Experience(
+            title="Developer", company="Tech Corp", start_date="2020-01", description=html_short
+        )
+        assert exp.description == html_short
+
+        # Plain text over 300 chars should fail
+        long_text = "x" * 301
+        with pytest.raises(ValidationError) as exc_info:
+            Experience(
+                title="Developer", company="Tech Corp", start_date="2020-01", description=long_text
+            )
+        assert "300" in str(exc_info.value)
+
+    def test_description_strips_html_for_validation(self):
+        """Test that HTML tags are stripped when validating length."""
+        # HTML with tags that make it look long, but plain text is short
+        html_with_tags = "<p><strong><em>" + "x" * 50 + "</em></strong></p>"
+        exp = Experience(
+            title="Developer",
+            company="Tech Corp",
+            start_date="2020-01",
+            description=html_with_tags,
+        )
+        assert exp.description == html_with_tags
+
+        # HTML with 301 chars of plain text should fail even with tags
+        long_plain = "x" * 301
+        html_long = f"<p>{long_plain}</p>"
+        with pytest.raises(ValidationError):
+            Experience(
+                title="Developer", company="Tech Corp", start_date="2020-01", description=html_long
+            )
+
+    def test_description_handles_html_entities(self):
+        """Test that HTML entities are decoded when counting plain text length."""
+        # &nbsp; should count as 1 character, not 5
+        text_with_entities = "x" * 299 + "&nbsp;"
+        exp = Experience(
+            title="Developer",
+            company="Tech Corp",
+            start_date="2020-01",
+            description=text_with_entities,
+        )
+        assert exp.description == text_with_entities
 
 
 class TestProject:

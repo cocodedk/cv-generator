@@ -23,6 +23,7 @@ def create_cv(cv_data: Dict[str, Any]) -> str:
     // Create Person node
     CREATE (person:Person {
         name: $name,
+        title: $title,
         email: $email,
         phone: $phone,
         address_street: $address_street,
@@ -104,6 +105,7 @@ def create_cv(cv_data: Dict[str, Any]) -> str:
                 created_at=created_at,
                 theme=theme,
                 name=personal_info.get("name", ""),
+                title=personal_info.get("title"),
                 email=personal_info.get("email"),
                 phone=personal_info.get("phone"),
                 address_street=address.get("street"),
