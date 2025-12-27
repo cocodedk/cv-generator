@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Classic Two-Column CV</title>
+    <style>
+      :root { --text: #111; --muted: #555; --rule: #ddd; }
+      body { font-family: "Georgia", serif; color: var(--text); margin: 0; }
+      .page { max-width: 900px; margin: 32px auto; padding: 0 24px; }
+      header { border-bottom: 1px solid var(--rule); padding-bottom: 16px; }
+      h1 { margin: 0 0 4px; font-size: 32px; }
+      .title { color: var(--muted); margin: 0; }
+      main { display: grid; grid-template-columns: 240px 1fr; gap: 24px; margin-top: 24px; }
+      aside section, article section { margin-bottom: 20px; }
+      h2 { font-size: 16px; text-transform: uppercase; letter-spacing: 0.04em; margin: 0 0 8px; }
+      h3 { margin: 0 0 4px; font-size: 16px; }
+      .meta { color: var(--muted); font-size: 14px; margin: 0 0 8px; }
+      ul { margin: 0; padding-left: 18px; }
+      @media (max-width: 720px) {
+        main { grid-template-columns: 1fr; }
+        aside { order: -1; }
+      }
+      @media print {
+        body { margin: 0; }
+        .page { max-width: none; margin: 0; padding: 24px; }
+        main { grid-template-columns: 220px 1fr; }
+        * { box-shadow: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <h1>Jordan Lee</h1>
+        <p class="title">Senior Product Designer</p>
+        <p class="meta">jordan@example.com · 555-123-4567 · city, country · portfolio.com</p>
+      </header>
+      <main>
+        <aside>
+          <section>
+            <h2>Skills</h2>
+            <ul>
+              <li>Design systems</li>
+              <li>Prototyping</li>
+              <li>UX research</li>
+            </ul>
+          </section>
+          <section>
+            <h2>Tools</h2>
+            <ul>
+              <li>Figma</li>
+              <li>FigJam</li>
+              <li>Notion</li>
+            </ul>
+          </section>
+          <section>
+            <h2>Languages</h2>
+            <ul>
+              <li>English (native)</li>
+              <li>Spanish (B2)</li>
+            </ul>
+          </section>
+        </aside>
+        <article>
+          <section>
+            <h2>Summary</h2>
+            <p>Product designer with 8 years of experience building B2B SaaS platforms.</p>
+          </section>
+          <section>
+            <h2>Experience</h2>
+            <h3>Lead Designer, Atlas</h3>
+            <p class="meta">2021–Present · Remote</p>
+            <ul>
+              <li>Led redesign of onboarding, improving activation by 18%.</li>
+              <li>Built a token-based design system for 6 teams.</li>
+            </ul>
+          </section>
+          <section>
+            <h2>Education</h2>
+            <h3>BFA in Design, State University</h3>
+            <p class="meta">2012–2016</p>
+          </section>
+        </article>
+      </main>
+    </div>
+  </body>
+</html>

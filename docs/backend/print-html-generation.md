@@ -24,7 +24,11 @@ Print HTML generation creates HTML documents that are:
 
 See [API Endpoints](api-endpoints.md) for details.
 
-## Theme Support
+## Theme and Layout Support
+
+The print HTML generator supports both themes (styling) and layouts (structure):
+
+### Themes
 
 All CV themes are supported:
 - **classic**: Traditional single-column layout
@@ -32,8 +36,33 @@ All CV themes are supported:
 - **minimal**: Simple, minimal styling
 - **elegant**: Sophisticated, professional design
 - **accented**: Two-column layout with accent colors
+- And more (see [CV Generation](cv-generation.md))
 
 If no theme is specified, defaults to "classic".
+
+### Layouts
+
+Layouts define the structural arrangement of CV content:
+
+**Print-First Layouts:**
+- **classic-two-column**: Traditional two-column layout with sidebar
+- **ats-single-column**: ATS-optimized single column format
+- **modern-sidebar**: Modern sidebar layout, still printable
+
+**Web-First Layouts:**
+- **section-cards-grid**: Card-based grid layout
+- **project-case-studies**: Long-scroll case study format
+- **portfolio-spa**: Multi-route portfolio layout
+- **dark-mode-tech**: Dark mode tech showcase
+
+**Special Layouts:**
+- **career-timeline**: Timeline visualization
+- **interactive-skills-matrix**: Interactive skills filtering
+- **academic-cv**: Academic/research format
+
+If no layout is specified, defaults to "classic-two-column".
+
+Themes and layouts work independently - you can combine any theme with any layout.
 
 ## Implementation
 
@@ -44,11 +73,22 @@ The print HTML renderer is located in:
 ## Template Structure
 
 Templates use Jinja2 for rendering:
-- `base.html`: Main template structure
-- `components/`: Reusable component templates
-  - `experience_item.html`: Experience entry rendering
-  - `education_item.html`: Education entry rendering
-  - `skills_list.html`: Skills section rendering
+
+**Layout Templates:**
+- Located in `backend/cv_generator_docx/templates/layouts/`
+- Each layout has its own template file (e.g., `01-classic-two-column.html`)
+- Layouts use shared components from `layouts/components/`
+
+**Shared Components:**
+- `components/header.html`: Header with name, title, contact
+- `components/summary.html`: Professional summary section
+- `components/experience_item.html`: Experience entry rendering
+- `components/education_item.html`: Education entry rendering
+- `components/skills_list.html`: Skills section rendering
+
+**Legacy Templates:**
+- `print_html/base.html`: Fallback template for theme-based rendering
+- `print_html/components/`: Legacy component templates
 
 ## HTML Content Rendering
 

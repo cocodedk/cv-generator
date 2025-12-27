@@ -91,6 +91,7 @@ export function normalizeCvDataForApi(data: CVData): CVData {
     education: normalizeEducation(data.education),
     skills: normalizeSkills(data.skills),
     theme: data.theme,
+    layout: data.layout,
   }
 }
 

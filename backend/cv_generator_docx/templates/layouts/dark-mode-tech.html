@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ personal_info.name or "CV" }}</title>
+  <style>
+    :root {
+      --text: var(--ink, #111);
+      --muted: var(--muted, #555);
+      --accent: var(--accent, #0f766e);
+      --bg: #fff;
+      --bg-secondary: #f9fafb;
+      --border: #e5e7eb;
+    }
+    {% if theme_css %}{{ theme_css }}{% endif %}
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --text: #e5e7eb;
+        --muted: #9ca3af;
+        --accent: #10b981;
+        --bg: #1f2937;
+        --bg-secondary: #111827;
+        --border: #374151;
+      }
+    }
+    body {
+      font-family: 'SF Mono', 'Monaco', 'Cascadia Code', monospace;
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+      padding: 32px;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    h1 {
+      font-size: 36px;
+      margin: 0 0 8px;
+      color: var(--accent);
+      font-weight: bold;
+    }
+    .cv-title {
+      font-size: 20px;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+    .cv-contact {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 14px;
+    }
+    .cv-contact a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .cv-contact a:hover {
+      text-decoration: underline;
+    }
+    section {
+      margin-bottom: 48px;
+    }
+    section h2 {
+      font-size: 24px;
+      margin: 0 0 24px;
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 8px;
+    }
+    .code-block {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 16px;
+      margin: 16px 0;
+      font-family: inherit;
+      font-size: 14px;
+      overflow-x: auto;
+    }
+    .experience-item, .education-item {
+      margin-bottom: 24px;
+      padding: 20px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      border-left: 4px solid var(--accent);
+    }
+    .exp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+    .exp-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--accent);
+    }
+    .exp-company {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .exp-meta {
+      color: var(--muted);
+      font-size: 12px;
+      margin: 4px 0;
+      font-family: inherit;
+    }
+    .exp-description {
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    .exp-description code {
+      background: var(--bg);
+      padding: 2px 6px;
+      border-radius: 2px;
+      font-size: 12px;
+    }
+    .skills-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .skill-item {
+      font-size: 14px;
+      padding: 4px 12px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: inherit;
+    }
+    @media print {
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --text: #111;
+          --muted: #555;
+          --bg: #fff;
+          --bg-secondary: #f9fafb;
+          --border: #e5e7eb;
+        }
+      }
+      .code-block, .experience-item, .education-item {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      {% if personal_info.name %}<h1>{{ personal_info.name }}</h1>{% endif %}
+      {% if personal_info.title %}<p class="cv-title">{{ personal_info.title }}</p>{% endif %}
+      <div class="cv-contact">
+        {% if personal_info.email %}<span><a href="mailto:{{ personal_info.email }}">{{ personal_info.email }}</a></span>{% endif %}
+        {% if personal_info.phone %}<span>{{ personal_info.phone }}</span>{% endif %}
+        {% if personal_info.website %}<span><a href="{{ personal_info.website }}">{{ personal_info.website }}</a></span>{% endif %}
+        {% if personal_info.linkedin %}<span><a href="{{ personal_info.linkedin }}">LinkedIn</a></span>{% endif %}
+        {% if personal_info.github %}<span><a href="{{ personal_info.github }}">GitHub</a></span>{% endif %}
+      </div>
+    </header>
+    <main>
+      {% include "components/summary.html" %}
+      {% if experience %}
+      <section>
+        <h2>Experience</h2>
+        {% for exp in experience %}
+          {% include "components/experience_item.html" %}
+        {% endfor %}
+      </section>
+      {% endif %}
+      {% if education %}
+      <section>
+        <h2>Education</h2>
+        {% for edu in education %}
+          {% include "components/education_item.html" %}
+        {% endfor %}
+      </section>
+      {% endif %}
+      {% if skills_by_category %}
+      <section>
+        <h2>Skills</h2>
+        {% include "components/skills_list.html" %}
+      </section>
+      {% endif %}
+    </main>
+  </div>
+</body>
+</html>

@@ -50,7 +50,7 @@ Main form component for CV data entry. The component has been refactored into sm
 
 - `useKeyboardShortcut.ts`: Custom hook for Ctrl+S / Cmd+S keyboard shortcut handling
 - `CVFormModals.tsx`: Component for rendering AI generation and profile loader modals
-- `CVFormContent.tsx`: Component for rendering the main form content (header, theme selector, form sections)
+- `CVFormContent.tsx`: Component for rendering the main form content (header, theme selector, layout selector, form sections)
 - `CVFormLoading.tsx`: Component for displaying loading state while CV data is being loaded
 - `useCvLoader.ts`: Hook for loading existing CV data
 - `useCvSubmit.ts`: Hook for handling form submission
@@ -59,6 +59,8 @@ Main form component for CV data entry. The component has been refactored into sm
 **Features**:
 - React Hook Form integration
 - Form validation
+- Theme selection (styling/colors)
+- Layout selection (structural arrangement)
 - Dynamic array management for experience, education, and skills
 - API submission handling
 - File download after generation

@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ personal_info.name or "CV" }}</title>
+  <style>
+    :root {
+      --text: var(--ink, #111);
+      --muted: var(--muted, #555);
+      --accent: var(--accent, #0f766e);
+      --bg-card: #fff;
+      --border: #e5e7eb;
+    }
+    {% if theme_css %}{{ theme_css }}{% endif %}
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      background: #f9fafb;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .hero {
+      text-align: center;
+      padding: 48px 24px;
+      margin-bottom: 48px;
+    }
+    h1 {
+      font-size: 48px;
+      margin: 0 0 8px;
+      color: var(--text);
+    }
+    .cv-title {
+      font-size: 24px;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+    .cv-contact {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 0;
+    }
+    .cv-contact span {
+      font-size: 14px;
+    }
+    .cv-contact a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .card h2 {
+      font-size: 20px;
+      margin: 0 0 16px;
+      color: var(--accent);
+    }
+    .card-content {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .expanded-section {
+      margin-top: 48px;
+    }
+    .expanded-section h2 {
+      font-size: 28px;
+      margin: 0 0 24px;
+      color: var(--text);
+    }
+    .experience-item, .education-item {
+      margin-bottom: 24px;
+      padding: 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .exp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+    .exp-title {
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .exp-company {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .exp-meta {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 4px 0;
+    }
+    .exp-description {
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    .skills-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .skill-item {
+      font-size: 14px;
+      padding: 4px 12px;
+      background: #f3f4f6;
+      border-radius: 4px;
+    }
+    @media (max-width: 768px) {
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media print {
+      .card {
+        box-shadow: none;
+        page-break-inside: avoid;
+      }
+      .card:hover {
+        transform: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="hero">
+      {% if personal_info.name %}<h1>{{ personal_info.name }}</h1>{% endif %}
+      {% if personal_info.title %}<p class="cv-title">{{ personal_info.title }}</p>{% endif %}
+      <div class="cv-contact">
+        {% if personal_info.email %}<span><a href="mailto:{{ personal_info.email }}">{{ personal_info.email }}</a></span>{% endif %}
+        {% if personal_info.phone %}<span>{{ personal_info.phone }}</span>{% endif %}
+        {% if personal_info.website %}<span><a href="{{ personal_info.website }}">{{ personal_info.website }}</a></span>{% endif %}
+        {% if personal_info.linkedin %}<span><a href="{{ personal_info.linkedin }}">LinkedIn</a></span>{% endif %}
+        {% if personal_info.github %}<span><a href="{{ personal_info.github }}">GitHub</a></span>{% endif %}
+      </div>
+    </header>
+    <main>
+      <div class="cards-grid">
+        {% if personal_info.summary %}
+        <div class="card">
+          <h2>Summary</h2>
+          <div class="card-content">{{ personal_info.summary | safe }}</div>
+        </div>
+        {% endif %}
+        {% if skills_by_category %}
+        <div class="card">
+          <h2>Skills</h2>
+          <div class="card-content">
+            {% include "components/skills_list.html" %}
+          </div>
+        </div>
+        {% endif %}
+        {% if experience %}
+        <div class="card">
+          <h2>Experience Highlights</h2>
+          <div class="card-content">
+            {% for exp in experience[:3] %}
+              <div style="margin-bottom: 12px;">
+                <strong>{{ exp.title }}</strong> at {{ exp.company }}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      <div class="expanded-section">
+        {% if experience %}
+        <section>
+          <h2>Experience</h2>
+          {% for exp in experience %}
+            {% include "components/experience_item.html" %}
+          {% endfor %}
+        </section>
+        {% endif %}
+        {% if education %}
+        <section>
+          <h2>Education</h2>
+          {% for edu in education %}
+            {% include "components/education_item.html" %}
+          {% endfor %}
+        </section>
+        {% endif %}
+      </div>
+    </main>
+  </div>
+</body>
+</html>

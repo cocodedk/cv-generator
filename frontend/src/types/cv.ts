@@ -69,6 +69,17 @@ export interface CVData {
     | 'modern'
     | 'professional'
     | 'tech'
+  layout?:
+    | 'classic-two-column'
+    | 'ats-single-column'
+    | 'modern-sidebar'
+    | 'section-cards-grid'
+    | 'career-timeline'
+    | 'project-case-studies'
+    | 'portfolio-spa'
+    | 'interactive-skills-matrix'
+    | 'academic-cv'
+    | 'dark-mode-tech'
 }
 
 export interface CVResponse {

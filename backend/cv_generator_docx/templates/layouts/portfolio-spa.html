@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ personal_info.name or "CV" }}</title>
+  <style>
+    :root {
+      --text: var(--ink, #111);
+      --muted: var(--muted, #555);
+      --accent: var(--accent, #0f766e);
+      --bg-nav: #f9fafb;
+    }
+    {% if theme_css %}{{ theme_css }}{% endif %}
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+    nav {
+      background: var(--bg-nav);
+      padding: 16px 24px;
+      border-bottom: 1px solid #e5e7eb;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    nav a {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 500;
+      padding: 8px 0;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.2s;
+    }
+    nav a:hover {
+      border-bottom-color: var(--accent);
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+    .hero {
+      text-align: center;
+      padding: 64px 24px;
+      margin-bottom: 48px;
+    }
+    h1 {
+      font-size: 48px;
+      margin: 0 0 8px;
+      color: var(--text);
+    }
+    .cv-title {
+      font-size: 24px;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+    .cv-contact {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 14px;
+    }
+    .cv-contact a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    section {
+      margin-bottom: 64px;
+      scroll-margin-top: 80px;
+    }
+    section h2 {
+      font-size: 32px;
+      margin: 0 0 24px;
+      color: var(--text);
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 12px;
+    }
+    .experience-item, .education-item {
+      margin-bottom: 32px;
+      padding: 24px;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+    .exp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+    .exp-title {
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .exp-company {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .exp-meta {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 4px 0;
+    }
+    .exp-description {
+      margin-top: 12px;
+      font-size: 16px;
+    }
+    footer {
+      background: var(--bg-nav);
+      padding: 32px 24px;
+      text-align: center;
+      border-top: 1px solid #e5e7eb;
+      margin-top: 64px;
+    }
+    @media (max-width: 768px) {
+      nav ul {
+        flex-direction: column;
+        gap: 8px;
+      }
+    }
+    @media print {
+      nav {
+        display: none;
+      }
+      section {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="#home">Home</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#education">Education</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+  <div class="container">
+    <section id="home" class="hero">
+      {% if personal_info.name %}<h1>{{ personal_info.name }}</h1>{% endif %}
+      {% if personal_info.title %}<p class="cv-title">{{ personal_info.title }}</p>{% endif %}
+      <div class="cv-contact">
+        {% if personal_info.email %}<span><a href="mailto:{{ personal_info.email }}">{{ personal_info.email }}</a></span>{% endif %}
+        {% if personal_info.phone %}<span>{{ personal_info.phone }}</span>{% endif %}
+        {% if personal_info.website %}<span><a href="{{ personal_info.website }}">{{ personal_info.website }}</a></span>{% endif %}
+        {% if personal_info.linkedin %}<span><a href="{{ personal_info.linkedin }}">LinkedIn</a></span>{% endif %}
+        {% if personal_info.github %}<span><a href="{{ personal_info.github }}">GitHub</a></span>{% endif %}
+      </div>
+      {% include "components/summary.html" %}
+    </section>
+    {% if experience %}
+    <section id="experience">
+      <h2>Experience</h2>
+      {% for exp in experience %}
+        {% include "components/experience_item.html" %}
+      {% endfor %}
+    </section>
+    {% endif %}
+    {% if experience %}
+    <section id="projects">
+      <h2>Projects</h2>
+      {% for exp in experience %}
+        {% if exp.projects %}
+          {% for project in exp.projects %}
+            <div class="experience-item">
+              <h3 class="exp-title">{{ project.name }}</h3>
+              {% if project.url %}<div class="exp-meta"><a href="{{ project.url }}">{{ project.url }}</a></div>{% endif %}
+              {% if project.description %}<div class="exp-description">{{ project.description }}</div>{% endif %}
+              {% if project.technologies %}<div class="exp-meta">Technologies: {{ project.technologies | join(', ') }}</div>{% endif %}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endfor %}
+    </section>
+    {% endif %}
+    {% if education %}
+    <section id="education">
+      <h2>Education</h2>
+      {% for edu in education %}
+        {% include "components/education_item.html" %}
+      {% endfor %}
+    </section>
+    {% endif %}
+    <section id="contact">
+      <h2>Contact</h2>
+      <div class="cv-contact">
+        {% if personal_info.email %}<span><a href="mailto:{{ personal_info.email }}">{{ personal_info.email }}</a></span>{% endif %}
+        {% if personal_info.phone %}<span>{{ personal_info.phone }}</span>{% endif %}
+        {% if personal_info.website %}<span><a href="{{ personal_info.website }}">{{ personal_info.website }}</a></span>{% endif %}
+        {% if personal_info.linkedin %}<span><a href="{{ personal_info.linkedin }}">LinkedIn</a></span>{% endif %}
+        {% if personal_info.github %}<span><a href="{{ personal_info.github }}">GitHub</a></span>{% endif %}
+      </div>
+    </section>
+  </div>
+  <footer>
+    <p>Generated by cocode.dk CV Generator</p>
+  </footer>
+</body>
+</html>

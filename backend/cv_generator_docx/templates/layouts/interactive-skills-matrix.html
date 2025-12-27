@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ personal_info.name or "CV" }}</title>
+  <style>
+    :root {
+      --text: var(--ink, #111);
+      --muted: var(--muted, #555);
+      --accent: var(--accent, #0f766e);
+      --bg-filter: #f9fafb;
+    }
+    {% if theme_css %}{{ theme_css }}{% endif %}
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+      padding-bottom: 24px;
+      border-bottom: 2px solid var(--accent);
+    }
+    h1 {
+      font-size: 36px;
+      margin: 0 0 8px;
+      color: var(--text);
+    }
+    .cv-title {
+      font-size: 20px;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+    .filters {
+      background: var(--bg-filter);
+      padding: 24px;
+      border-radius: 8px;
+      margin-bottom: 32px;
+    }
+    .filters h3 {
+      margin: 0 0 16px;
+      font-size: 18px;
+    }
+    .filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .filter-btn {
+      padding: 8px 16px;
+      border: 1px solid var(--accent);
+      background: white;
+      color: var(--accent);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--accent);
+      color: white;
+    }
+    .skills-matrix {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+    .skill-domain {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 20px;
+    }
+    .skill-domain h3 {
+      font-size: 18px;
+      margin: 0 0 16px;
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 8px;
+    }
+    .skill-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .skill-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .skill-list li:last-child {
+      border-bottom: none;
+    }
+    .skill-level {
+      display: inline-block;
+      width: 60px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    section {
+      margin-bottom: 48px;
+    }
+    section h2 {
+      font-size: 28px;
+      margin: 0 0 24px;
+      color: var(--text);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 8px;
+    }
+    .experience-item {
+      margin-bottom: 24px;
+      padding: 20px;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+    .exp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+    .exp-title {
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .exp-company {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    @media (max-width: 768px) {
+      .skills-matrix {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media print {
+      .filters {
+        display: none;
+      }
+      .filter-btn {
+        display: none;
+      }
+    }
+  </style>
+  <script>
+    function filterSkills(event, category) {
+      const buttons = document.querySelectorAll('.filter-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const domains = document.querySelectorAll('.skill-domain');
+      if (category === 'all') {
+        domains.forEach(domain => domain.style.display = 'block');
+      } else {
+        domains.forEach(domain => {
+          if (domain.dataset.category === category) {
+            domain.style.display = 'block';
+          } else {
+            domain.style.display = 'none';
+          }
+        });
+      }
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      {% if personal_info.name %}<h1>{{ personal_info.name }}</h1>{% endif %}
+      {% if personal_info.title %}<p class="cv-title">{{ personal_info.title }}</p>{% endif %}
+      <div class="cv-contact">
+        {% if personal_info.email %}<span><a href="mailto:{{ personal_info.email }}">{{ personal_info.email }}</a></span>{% endif %}
+        {% if personal_info.phone %}<span>{{ personal_info.phone }}</span>{% endif %}
+        {% if personal_info.website %}<span><a href="{{ personal_info.website }}">{{ personal_info.website }}</a></span>{% endif %}
+        {% if personal_info.linkedin %}<span><a href="{{ personal_info.linkedin }}">LinkedIn</a></span>{% endif %}
+        {% if personal_info.github %}<span><a href="{{ personal_info.github }}">GitHub</a></span>{% endif %}
+      </div>
+    </header>
+    <main>
+      {% include "components/summary.html" %}
+      {% if skills_by_category %}
+      <section>
+        <div class="filters">
+          <h3>Filter by Category</h3>
+          <div class="filter-group">
+            <button class="filter-btn active" onclick="filterSkills(event, 'all')">All</button>
+            {% for category in skills_by_category.keys() %}
+            <button class="filter-btn" onclick="filterSkills(event, '{{ category }}')">{{ category }}</button>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="skills-matrix">
+          {% for category, skills in skills_by_category.items() %}
+          <div class="skill-domain" data-category="{{ category }}">
+            <h3>{{ category }}</h3>
+            <ul class="skill-list">
+              {% for skill in skills %}
+              <li>
+                {% if skill.level %}<span class="skill-level">{{ skill.level }}</span>{% endif %}
+                <span>{{ skill.name }}</span>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+      {% if experience %}
+      <section>
+        <h2>Experience</h2>
+        {% for exp in experience %}
+          {% include "components/experience_item.html" %}
+        {% endfor %}
+      </section>
+      {% endif %}
+      {% if education %}
+      <section>
+        <h2>Education</h2>
+        {% for edu in education %}
+          {% include "components/education_item.html" %}
+        {% endfor %}
+      </section>
+      {% endif %}
+    </main>
+  </div>
+</body>
+</html>

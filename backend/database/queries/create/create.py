@@ -20,12 +20,13 @@ def create_cv(cv_data: Dict[str, Any]) -> str:
     created_at = datetime.utcnow().isoformat()
     personal_info = cv_data.get("personal_info", {})
     theme = cv_data.get("theme", "classic")
+    layout = cv_data.get("layout", "classic-two-column")
 
     with driver.session(database=database) as session:
 
         def work(tx):
             # Create CV node
-            create_cv_node(tx, cv_id, created_at, theme)
+            create_cv_node(tx, cv_id, created_at, theme, layout)
 
             # Create Person node
             create_person_node(tx, cv_id, personal_info)

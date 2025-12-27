@@ -38,6 +38,7 @@ graph LR
 - `updated_at` (string): ISO timestamp
 - `filename` (string, optional): Generated DOCX filename
 - `theme` (string, optional): CV theme name (accented, classic, colorful, creative, elegant, executive, minimal, modern, professional, or tech). Defaults to "classic" if not provided.
+- `layout` (string, optional): CV layout name (classic-two-column, ats-single-column, modern-sidebar, section-cards-grid, career-timeline, project-case-studies, portfolio-spa, interactive-skills-matrix, academic-cv, dark-mode-tech). Defaults to "classic-two-column" if not provided.
 
 ### Person Node
 

@@ -40,6 +40,7 @@ def _prepare_template_data(cv_data: Dict[str, Any]) -> Dict[str, Any]:
         "education": cv_data.get("education", []),
         "skills_by_category": skills_by_category,
         "theme": cv_data.get("theme", "classic"),
+        "layout": cv_data.get("layout", "classic-two-column"),
     }
 
 
