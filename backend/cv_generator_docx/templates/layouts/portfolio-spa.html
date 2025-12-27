@@ -180,7 +180,7 @@
             <div class="experience-item">
               <h3 class="exp-title">{{ project.name }}</h3>
               {% if project.url %}<div class="exp-meta"><a href="{{ project.url }}">{{ project.url }}</a></div>{% endif %}
-              {% if project.description %}<div class="exp-description">{{ project.description }}</div>{% endif %}
+              {% if project.description %}<div class="exp-description">{{ project.description | safe }}</div>{% endif %}
               {% if project.technologies %}<div class="exp-meta">Technologies: {{ project.technologies | join(', ') }}</div>{% endif %}
             </div>
           {% endfor %}
