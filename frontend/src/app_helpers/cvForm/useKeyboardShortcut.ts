@@ -80,20 +80,8 @@ export function useKeyboardShortcut({
           return
         }
 
-        // Don't trigger if user is typing in an input/textarea/select
-        const activeElement = document.activeElement
-        if (
-          activeElement &&
-          (activeElement.tagName === 'INPUT' ||
-            activeElement.tagName === 'TEXTAREA' ||
-            activeElement.tagName === 'SELECT' ||
-            activeElement.getAttribute('contenteditable') === 'true')
-        ) {
-          console.debug('[Ctrl+S] Blocked: User is typing in', activeElement.tagName)
-          return
-        }
-
         // Trigger form submission using refs to ensure we use latest functions
+        // Note: Ctrl+S works from anywhere, including while typing in fields
         console.debug('[Ctrl+S] Triggering form submission')
         handleSubmitRef.current(onSubmitRef.current)()
       }

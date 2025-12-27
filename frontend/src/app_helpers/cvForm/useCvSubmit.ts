@@ -14,7 +14,11 @@ interface UseCvSubmitProps {
 }
 
 function openPrintable(cvId: string) {
-  window.open(`/api/cv/${cvId}/print-html`, '_blank', 'noopener,noreferrer')
+  // Add cache-busting parameter and small delay to ensure database is updated
+  const timestamp = Date.now()
+  setTimeout(() => {
+    window.open(`/api/cv/${cvId}/print-html?t=${timestamp}`, '_blank', 'noopener,noreferrer')
+  }, 100)
 }
 
 function _extractFieldPath(loc: any[]): string | null {
@@ -100,8 +104,11 @@ export function useCvSubmit({
     setLoading(true)
     try {
       const payload = normalizeCvDataForApi(data)
+      console.debug('[useCvSubmit] Form data - theme:', data.theme, 'layout:', data.layout)
+      console.debug('[useCvSubmit] Payload - theme:', payload.theme, 'layout:', payload.layout)
       if (isEditMode && cvId) {
         await axios.put(`/api/cv/${cvId}`, payload)
+        console.debug('[useCvSubmit] PUT completed for CV:', cvId)
         openPrintable(cvId)
         onSuccess('CV updated. Printable view opened.')
       } else {

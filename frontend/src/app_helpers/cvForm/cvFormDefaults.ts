@@ -22,4 +22,5 @@ export const defaultCvData: CVData = {
   education: [],
   skills: [],
   theme: 'classic',
+  layout: 'classic-two-column',
 }

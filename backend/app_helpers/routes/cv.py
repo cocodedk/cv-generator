@@ -75,14 +75,18 @@ def create_cv_router(  # noqa: C901
         """Update CV data."""
         try:
             cv_dict = cv_data.model_dump(exclude_none=False)
-            # Ensure theme is always present
+            # Ensure theme and layout are always present
             if "theme" not in cv_dict or cv_dict["theme"] is None:
                 cv_dict["theme"] = "classic"
+            if "layout" not in cv_dict or cv_dict["layout"] is None:
+                cv_dict["layout"] = "classic-two-column"
             theme = cv_dict["theme"]
+            layout = cv_dict["layout"]
             logger.debug(
-                "Update CV endpoint for %s: theme=%s",
+                "Update CV endpoint for %s: theme=%s, layout=%s",
                 cv_id,
                 theme,
+                layout,
             )
             success = queries.update_cv(cv_id, cv_dict)
             if not success:

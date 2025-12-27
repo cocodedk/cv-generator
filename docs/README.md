@@ -33,6 +33,10 @@ Welcome to the CV Generator documentation. This documentation is organized by to
 - [TypeScript Types](frontend/types.md) - Type definitions
 - [State Management](frontend/state-management.md) - Form and app state
 
+### CV Layouts
+
+- [HTML Layout Options](cv-layouts/README.md) - Alternative HTML CV looks (print and web)
+
 ### Development
 
 - [Setup](development/setup.md) - Development environment setup

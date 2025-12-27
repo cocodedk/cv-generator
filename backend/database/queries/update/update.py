@@ -19,11 +19,12 @@ def update_cv(cv_id: str, cv_data: Dict[str, Any]) -> bool:
     updated_at = datetime.utcnow().isoformat()
     personal_info = cv_data.get("personal_info", {})
     theme = cv_data.get("theme", "classic")
+    layout = cv_data.get("layout", "classic-two-column")
 
     with driver.session(database=database) as session:
 
         def work(tx):
-            update_cv_timestamp(tx, cv_id, updated_at, theme)
+            update_cv_timestamp(tx, cv_id, updated_at, theme, layout)
             delete_cv_relationships(tx, cv_id)
             create_person_node(tx, cv_id, personal_info)
             create_experience_nodes(tx, cv_id, cv_data.get("experience", []))

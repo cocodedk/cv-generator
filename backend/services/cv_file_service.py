@@ -70,9 +70,11 @@ class CVFileService:
     def prepare_cv_dict(self, cv: Dict[str, Any]) -> Dict[str, Any]:
         """Prepare CV data dict for generator from database result."""
         theme = cv.get("theme", "classic")
+        layout = cv.get("layout", "classic-two-column")
         logger.debug(
-            "Preparing CV dict with theme: %s (from cv keys: %s)",
+            "Preparing CV dict with theme: %s, layout: %s (from cv keys: %s)",
             theme,
+            layout,
             list(cv.keys()),
         )
         return {
@@ -83,4 +85,5 @@ class CVFileService:
             # Default to "classic" for backward compatibility; can be overridden
             # by providing a "theme" field in the cv dict
             "theme": theme,
+            "layout": layout,
         }

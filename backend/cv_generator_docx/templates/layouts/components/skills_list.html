@@ -1,0 +1,14 @@
+{% if skills_by_category %}
+<div class="skills-container">
+  {% for category, skills in skills_by_category.items() %}
+    <div class="skill-category">
+      <h3 class="skill-category-title">{{ category }}</h3>
+      <div class="skills-list">
+        {% for skill in skills %}
+          <span class="skill-item">{{ skill.name }}</span>
+        {% endfor %}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endif %}

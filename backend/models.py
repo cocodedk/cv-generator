@@ -118,6 +118,10 @@ class CVData(BaseModel):
         default="classic",
         description="CV theme: accented, classic, colorful, creative, elegant, executive, minimal, modern, professional, or tech",
     )
+    layout: Optional[str] = Field(
+        default="classic-two-column",
+        description="CV layout: classic-two-column, ats-single-column, modern-sidebar, section-cards-grid, career-timeline, project-case-studies, portfolio-spa, interactive-skills-matrix, academic-cv, dark-mode-tech",
+    )
 
 
 class CVResponse(BaseModel):

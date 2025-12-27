@@ -52,26 +52,58 @@ export default function CVFormContent({
         onGenerateFromJd={onGenerateFromJd}
       />
       <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-8">
-        <div className="grid gap-2">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="theme">
-            Theme
-          </label>
-          <select
-            id="theme"
-            {...register('theme')}
-            className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
-          >
-            <option value="accented">Accented</option>
-            <option value="classic">Classic</option>
-            <option value="colorful">Colorful</option>
-            <option value="creative">Creative</option>
-            <option value="elegant">Elegant</option>
-            <option value="executive">Executive</option>
-            <option value="minimal">Minimal</option>
-            <option value="modern">Modern</option>
-            <option value="professional">Professional</option>
-            <option value="tech">Tech</option>
-          </select>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid gap-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="theme">
+              Theme
+            </label>
+            <select
+              id="theme"
+              {...register('theme')}
+              className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
+            >
+              <option value="accented">Accented</option>
+              <option value="classic">Classic</option>
+              <option value="colorful">Colorful</option>
+              <option value="creative">Creative</option>
+              <option value="elegant">Elegant</option>
+              <option value="executive">Executive</option>
+              <option value="minimal">Minimal</option>
+              <option value="modern">Modern</option>
+              <option value="professional">Professional</option>
+              <option value="tech">Tech</option>
+            </select>
+          </div>
+          <div className="grid gap-2">
+            <label
+              className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              htmlFor="layout"
+            >
+              Layout
+            </label>
+            <select
+              id="layout"
+              {...register('layout')}
+              className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
+            >
+              <optgroup label="Print-First">
+                <option value="classic-two-column">Classic Two-Column</option>
+                <option value="ats-single-column">ATS Single Column</option>
+                <option value="modern-sidebar">Modern Sidebar</option>
+              </optgroup>
+              <optgroup label="Web-First">
+                <option value="section-cards-grid">Section Cards Grid</option>
+                <option value="project-case-studies">Project Case Studies</option>
+                <option value="portfolio-spa">Portfolio SPA</option>
+                <option value="dark-mode-tech">Dark Mode Tech</option>
+              </optgroup>
+              <optgroup label="Special">
+                <option value="career-timeline">Career Timeline</option>
+                <option value="interactive-skills-matrix">Interactive Skills Matrix</option>
+                <option value="academic-cv">Academic CV</option>
+              </optgroup>
+            </select>
+          </div>
         </div>
         <PersonalInfo
           register={register}

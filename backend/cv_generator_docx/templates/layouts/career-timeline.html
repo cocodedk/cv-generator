@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ personal_info.name or "CV" }}</title>
+  <style>
+    :root {
+      --text: var(--ink, #111);
+      --muted: var(--muted, #555);
+      --accent: var(--accent, #0f766e);
+      --timeline: #e5e7eb;
+    }
+    {% if theme_css %}{{ theme_css }}{% endif %}
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      background: #fff;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+      padding-bottom: 24px;
+      border-bottom: 2px solid var(--accent);
+    }
+    h1 {
+      font-size: 36px;
+      margin: 0 0 8px;
+      color: var(--text);
+    }
+    .cv-title {
+      font-size: 20px;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+    .cv-contact {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .cv-contact a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .timeline {
+      position: relative;
+      padding-left: 32px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--timeline);
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 32px;
+      padding-left: 24px;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -20px;
+      top: 4px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 2px var(--accent);
+    }
+    .timeline-date {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .timeline-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 0 0 4px;
+    }
+    .timeline-company {
+      font-size: 16px;
+      color: var(--accent);
+      margin: 0 0 8px;
+    }
+    .timeline-description {
+      font-size: 14px;
+      line-height: 1.6;
+      margin-top: 8px;
+    }
+    .timeline-description ul {
+      margin: 8px 0;
+      padding-left: 20px;
+    }
+    section {
+      margin-bottom: 48px;
+    }
+    section h2 {
+      font-size: 24px;
+      margin: 0 0 24px;
+      color: var(--text);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 8px;
+    }
+    .education-item {
+      margin-bottom: 24px;
+      padding-left: 32px;
+    }
+    .edu-degree {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 0 0 4px;
+    }
+    .edu-meta {
+      font-size: 14px;
+      color: var(--muted);
+    }
+    @media (max-width: 768px) {
+      .timeline {
+        padding-left: 24px;
+      }
+      .timeline::before {
+        left: 4px;
+      }
+      .timeline-item::before {
+        left: -16px;
+      }
+    }
+    @page{size:A4;margin:0}
+    .hint {
+      display: block;
+    }
+    @media print {
+      .hint {
+        display: none;
+      }
+      .timeline::before {
+        background: #ccc;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="hint" style="width: 210mm; margin: 8mm auto 0; font-size: 12px; color: #64748b;">A4 preview (open print dialog and select A4).</div>
+  <div class="container">
+    {% include "components/header.html" %}
+    <main>
+      {% include "components/summary.html" %}
+      {% if experience %}
+      <section>
+        <h2>Career Timeline</h2>
+        <ol class="timeline">
+          {% for exp in experience %}
+          <li class="timeline-item">
+            <div class="timeline-date">
+              {% if exp.start_date %}{{ exp.start_date }}{% endif %}
+              {% if exp.start_date and exp.end_date %} – {% endif %}
+              {% if exp.end_date %}{{ exp.end_date }}{% endif %}
+            </div>
+            <h3 class="timeline-title">{{ exp.title }}</h3>
+            <div class="timeline-company">{{ exp.company }}</div>
+            {% if exp.location %}<div class="timeline-meta">{{ exp.location }}</div>{% endif %}
+            {% if exp.description %}
+            <div class="timeline-description">
+              {% if exp.description_format == 'list' and exp.description_lines %}
+                <ul>
+                {% for line in exp.description_lines %}
+                  <li>{{ line }}</li>
+                {% endfor %}
+                </ul>
+              {% elif exp.description_format == 'paragraphs' and exp.description_paragraphs %}
+                {% for para in exp.description_paragraphs %}
+                  <p>{{ para }}</p>
+                {% endfor %}
+              {% elif exp.description_text %}
+                <div>{{ exp.description_text | safe }}</div>
+              {% endif %}
+            </div>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ol>
+      </section>
+      {% endif %}
+      {% if education %}
+      <section>
+        <h2>Education</h2>
+        {% for edu in education %}
+          {% include "components/education_item.html" %}
+        {% endfor %}
+      </section>
+      {% endif %}
+      {% if skills_by_category %}
+      <section>
+        <h2>Skills</h2>
+        {% include "components/skills_list.html" %}
+      </section>
+      {% endif %}
+    </main>
+  </div>
+</body>
+</html>

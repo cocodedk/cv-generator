@@ -29,7 +29,7 @@ describe('CVForm - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
     })
   }
 
-  it('saves CV when Ctrl+S is pressed and not in input field', async () => {
+  it('saves CV when Ctrl+S is pressed', async () => {
     mockedAxios.post.mockResolvedValue({ data: mockCvResponse })
 
     renderCVForm({
@@ -44,12 +44,8 @@ describe('CVForm - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
 
     // Fill in name field
     const nameInput = await fillNameField('John Doe')
-    // Blur the input to simulate user clicking elsewhere
-    await act(async () => {
-      nameInput.blur()
-    })
 
-    // Simulate Ctrl+S keypress
+    // Simulate Ctrl+S keypress (works even when input is focused)
     const ctrlSEvent = createKeyboardEvent('s', { ctrlKey: true })
     await act(async () => {
       document.dispatchEvent(ctrlSEvent)
@@ -101,7 +97,7 @@ describe('CVForm - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
     expect(mockOnSuccess).toHaveBeenCalled()
   })
 
-  it('does not save when Ctrl+S is pressed while typing in input field', async () => {
+  it('saves CV when Ctrl+S is pressed while typing in input field', async () => {
     mockedAxios.post.mockResolvedValue({ data: mockCvResponse })
 
     renderCVForm({
@@ -114,26 +110,72 @@ describe('CVForm - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
       expect(screen.getByText('Create Your CV')).toBeInTheDocument()
     })
 
-    // Focus on name input
+    // Focus on name input and type
     const nameInput = screen.getByLabelText(/full name/i) as HTMLInputElement
     await act(async () => {
       nameInput.focus()
+      await userEvent.type(nameInput, 'John Doe')
     })
 
-    // Simulate Ctrl+S while input is focused
+    // Simulate Ctrl+S while input is focused - should now work
     const ctrlSEvent = createKeyboardEvent('s', { ctrlKey: true })
     await act(async () => {
       document.dispatchEvent(ctrlSEvent)
     })
 
-    // Wait a bit to ensure save is not called
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 100))
+    // Wait for save to be called
+    await waitFor(() => {
+      expect(mockedAxios.post).toHaveBeenCalledWith(
+        '/api/save-cv',
+        expect.objectContaining({
+          personal_info: expect.objectContaining({
+            name: 'John Doe',
+          }),
+        })
+      )
     })
 
-    // Save should not have been called
-    expect(mockedAxios.post).not.toHaveBeenCalled()
-    expect(mockOnSuccess).not.toHaveBeenCalled()
+    expect(mockOnSuccess).toHaveBeenCalled()
+  })
+
+  it('saves CV when Ctrl+S is pressed while typing in rich text editor', async () => {
+    mockedAxios.post.mockResolvedValue({ data: mockCvResponse })
+
+    renderCVForm({
+      onSuccess: mockOnSuccess,
+      onError: mockOnError,
+      setLoading: mockSetLoading,
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('Create Your CV')).toBeInTheDocument()
+    })
+
+    // Fill in the required name field first
+    await fillNameField('John Doe')
+
+    // Find the rich text editor (TipTap contenteditable)
+    const summaryEditor = document.querySelector('.ql-editor') as HTMLElement
+    expect(summaryEditor).toBeInTheDocument()
+
+    // Type in the editor
+    await act(async () => {
+      summaryEditor.focus()
+      await userEvent.type(summaryEditor, 'Test summary text')
+    })
+
+    // Simulate Ctrl+S while editor is focused - should now work
+    const ctrlSEvent = createKeyboardEvent('s', { ctrlKey: true })
+    await act(async () => {
+      document.dispatchEvent(ctrlSEvent)
+    })
+
+    // Wait for save to be called
+    await waitFor(() => {
+      expect(mockedAxios.post).toHaveBeenCalled()
+    })
+
+    expect(mockOnSuccess).toHaveBeenCalled()
   })
 
   it('does not save when Ctrl+S is pressed while form is submitting', async () => {

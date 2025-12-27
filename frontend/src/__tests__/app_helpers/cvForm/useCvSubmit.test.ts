@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import axios from 'axios'
 import { UseFormSetError } from 'react-hook-form'
@@ -40,8 +40,13 @@ describe('useCvSubmit', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.useFakeTimers()
     window.open = vi.fn()
     window.location.hash = '#form'
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it('creates CV successfully', async () => {
@@ -66,8 +71,14 @@ describe('useCvSubmit', () => {
 
     expect(mockedAxios.post).toHaveBeenCalledWith('/api/save-cv', cvData)
     expect(window.location.hash).toBe('#edit/test-id')
+
+    // openPrintable uses setTimeout with 100ms delay
+    await act(async () => {
+      vi.advanceTimersByTime(150)
+    })
+
     expect(window.open).toHaveBeenCalledWith(
-      '/api/cv/test-id/print-html',
+      expect.stringMatching(/^\/api\/cv\/test-id\/print-html\?t=\d+$/),
       '_blank',
       'noopener,noreferrer'
     )
@@ -95,8 +106,14 @@ describe('useCvSubmit', () => {
     })
 
     expect(mockedAxios.put).toHaveBeenCalledWith('/api/cv/test-id', cvData)
+
+    // openPrintable uses setTimeout with 100ms delay
+    await act(async () => {
+      vi.advanceTimersByTime(150)
+    })
+
     expect(window.open).toHaveBeenCalledWith(
-      '/api/cv/test-id/print-html',
+      expect.stringMatching(/^\/api\/cv\/test-id\/print-html\?t=\d+$/),
       '_blank',
       'noopener,noreferrer'
     )
@@ -122,6 +139,12 @@ describe('useCvSubmit', () => {
     })
 
     expect(mockedAxios.put).toHaveBeenCalledWith('/api/cv/test-id', cvData)
+
+    // openPrintable uses setTimeout with 100ms delay
+    await act(async () => {
+      vi.advanceTimersByTime(150)
+    })
+
     expect(window.open).toHaveBeenCalled()
     expect(mockOnSuccess).toHaveBeenCalledWith('CV updated. Printable view opened.')
   })

@@ -1,14 +1,15 @@
 """Delete operations for CV update."""
 
 
-def update_cv_timestamp(tx, cv_id: str, updated_at: str, theme: str = "classic"):
-    """Update CV timestamp and theme."""
+def update_cv_timestamp(tx, cv_id: str, updated_at: str, theme: str = "classic", layout: str = "classic-two-column"):
+    """Update CV timestamp, theme, and layout."""
     query = """
     MATCH (cv:CV {id: $cv_id})
     SET cv.updated_at = $updated_at,
-        cv.theme = $theme
+        cv.theme = $theme,
+        cv.layout = $layout
     """
-    result = tx.run(query, cv_id=cv_id, updated_at=updated_at, theme=theme)
+    result = tx.run(query, cv_id=cv_id, updated_at=updated_at, theme=theme, layout=layout)
     result.consume()
 
 

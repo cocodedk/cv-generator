@@ -1,0 +1,6 @@
+{% if personal_info.summary %}
+<section class="cv-summary">
+  <h2 class="section-title">Summary</h2>
+  <div class="summary-content">{{ personal_info.summary | safe }}</div>
+</section>
+{% endif %}

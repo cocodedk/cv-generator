@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ personal_info.name or "CV" }}</title>
+  <style>
+    :root {
+      --text: var(--ink, #111);
+      --muted: var(--muted, #555);
+      --rule: #ddd;
+      --accent: var(--accent, #0f766e);
+    }
+    {% if theme_css %}{{ theme_css }}{% endif %}
+    body {
+      font-family: "Georgia", serif;
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+    }
+    .page {
+      max-width: 900px;
+      margin: 32px auto;
+      padding: 0 24px;
+    }
+    header {
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+    }
+    h1 {
+      margin: 0 0 4px;
+      font-size: 32px;
+      color: var(--text);
+    }
+    .cv-title {
+      color: var(--muted);
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+    .cv-contact {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0;
+    }
+    .cv-contact span {
+      margin-right: 8px;
+    }
+    .cv-contact a {
+      color: inherit;
+      text-decoration: none;
+    }
+    main {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 24px;
+      margin-top: 24px;
+    }
+    aside section, article section {
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin: 0 0 8px;
+      color: var(--accent);
+    }
+    h3 {
+      margin: 0 0 4px;
+      font-size: 16px;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0 0 8px;
+    }
+    ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+    .experience-item, .education-item {
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .experience-item:last-child, .education-item:last-child {
+      border-bottom: none;
+    }
+    .exp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .exp-title {
+      font-weight: bold;
+    }
+    .exp-company {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .exp-meta {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 4px 0;
+    }
+    .exp-description {
+      margin-top: 8px;
+      font-size: 14px;
+    }
+    .skills-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .skill-item {
+      font-size: 14px;
+    }
+    @media (max-width: 720px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+      aside {
+        order: -1;
+      }
+    }
+    @page{size:A4;margin:0}
+    .hint {
+      display: block;
+    }
+    @media print {
+      .hint {
+        display: none;
+      }
+      body {
+        margin: 0;
+      }
+      .page {
+        max-width: none;
+        margin: 0;
+        padding: 24px;
+      }
+      main {
+        grid-template-columns: 220px 1fr;
+      }
+      * {
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="hint" style="width: 210mm; margin: 8mm auto 0; font-size: 12px; color: #64748b;">A4 preview (open print dialog and select A4).</div>
+  <div class="page">
+    {% include "components/header.html" %}
+    <main>
+      <aside>
+        {% if skills_by_category %}
+        <section>
+          <h2>Skills</h2>
+          {% include "components/skills_list.html" %}
+        </section>
+        {% endif %}
+      </aside>
+      <article>
+        {% include "components/summary.html" %}
+        {% if experience %}
+        <section>
+          <h2>Experience</h2>
+          {% for exp in experience %}
+            {% include "components/experience_item.html" %}
+          {% endfor %}
+        </section>
+        {% endif %}
+        {% if education %}
+        <section>
+          <h2>Education</h2>
+          {% for edu in education %}
+            {% include "components/education_item.html" %}
+          {% endfor %}
+        </section>
+        {% endif %}
+      </article>
+    </main>
+  </div>
+</body>
+</html>

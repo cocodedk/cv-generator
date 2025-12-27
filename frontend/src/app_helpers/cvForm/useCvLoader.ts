@@ -40,6 +40,7 @@ export function useCvLoader({ cvId, reset, onError, setLoading }: UseCvLoaderPro
           education: cvData.education || [],
           skills: cvData.skills || [],
           theme: cvData.theme || 'classic',
+          layout: cvData.layout || 'classic-two-column',
         })
       } catch (error: any) {
         if (error.response?.status === 404) {

@@ -35,8 +35,30 @@ def create_print_html_router(limiter: Limiter, cv_file_service: CVFileService) -
             cv = queries.get_cv_by_id(cv_id)
             if not cv:
                 raise HTTPException(status_code=404, detail="CV not found")
+            # Log raw CV data from database
+            logger.info(
+                "[print-html] Raw CV from DB - layout: %s, theme: %s",
+                cv.get("layout"),
+                cv.get("theme"),
+            )
             cv_dict = cv_file_service.prepare_cv_dict(cv)
-            return HTMLResponse(render_print_html(cv_dict))
+            layout = cv_dict.get("layout", "classic-two-column")
+            logger.info(
+                "[print-html] Prepared cv_dict for CV %s - layout: %s, theme: %s",
+                cv_id,
+                layout,
+                cv_dict.get("theme"),
+            )
+            html = render_print_html(cv_dict)
+            # Set no-cache headers to ensure fresh data
+            return HTMLResponse(
+                content=html,
+                headers={
+                    "Cache-Control": "no-cache, no-store, must-revalidate",
+                    "Pragma": "no-cache",
+                    "Expires": "0",
+                },
+            )
         except HTTPException:
             raise
         except Exception as exc:

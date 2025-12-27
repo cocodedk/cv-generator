@@ -1,0 +1,10 @@
+<article class="education-item">
+  <h3 class="edu-degree">
+    {% if edu.degree %}{{ edu.degree }}{% endif %}{% if edu.degree and edu.institution %}, {% endif %}{% if edu.institution %}{{ edu.institution }}{% endif %}
+  </h3>
+  <div class="edu-meta">
+    {% if edu.year %}<span>{{ edu.year }}</span>{% endif %}
+    {% if edu.field %}<span>{{ edu.field }}</span>{% endif %}
+    {% if edu.gpa %}<span>GPA {{ edu.gpa }}</span>{% endif %}
+  </div>
+</article>
