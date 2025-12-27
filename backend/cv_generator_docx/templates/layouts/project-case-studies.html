@@ -200,7 +200,7 @@
                     <span class="project-name">{{ project.name }}</span>
                     {% if project.url %}<a href="{{ project.url }}" class="project-url">{{ project.url }}</a>{% endif %}
                   </div>
-                  {% if project.description %}<div class="project-description">{{ project.description }}</div>{% endif %}
+                  {% if project.description %}<div class="project-description">{{ project.description | safe }}</div>{% endif %}
                   {% if project.technologies %}<div class="project-tech">{{ project.technologies | join(', ') }}</div>{% endif %}
                   {% if project.highlights %}
                     <ul class="project-highlights">

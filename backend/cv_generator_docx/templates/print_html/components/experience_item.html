@@ -38,7 +38,7 @@
           <span class="proj-name">{{ project.name }}</span>
           {% if project.url %}<span class="proj-url">{{ project.url }}</span>{% endif %}
         </div>
-        {% if project.description %}<div class="proj-desc">{{ project.description }}</div>{% endif %}
+        {% if project.description %}<div class="proj-desc">{{ project.description | safe }}</div>{% endif %}
         {% if project.technologies %}<div class="proj-tech">{{ project.technologies | join(', ') }}</div>{% endif %}
         {% if project.highlights %}
           <ul class="proj-list">

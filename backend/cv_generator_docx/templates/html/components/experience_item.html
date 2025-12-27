@@ -53,7 +53,7 @@
 {% for project in exp.projects %}
 <p custom-style="Exp Body">
   <strong>{{ project.name }}</strong>
-  {% if project.description %} — {{ project.description }}{% endif %}
+  {% if project.description %} — {{ project.description | safe }}{% endif %}
   {% if project.url %} ({{ project.url }}){% endif %}
 </p>
 {% if project.technologies %}
