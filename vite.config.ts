@@ -5,6 +5,10 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   root: './frontend',
+  // Base path for GitHub Pages deployment
+  // Set via VITE_BASE_PATH environment variable (e.g., /cv/ for repo named 'cv')
+  // Defaults to empty string for local development
+  base: process.env.VITE_BASE_PATH || '',
   server: {
     port: 5173,
     hmr: {
