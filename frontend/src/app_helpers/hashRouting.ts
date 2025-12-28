@@ -9,6 +9,7 @@ export const hashToViewMode = (hash: string): ViewMode => {
     return 'profile-edit'
   }
   if (
+    normalizedHash === 'introduction' ||
     normalizedHash === 'form' ||
     normalizedHash === 'list' ||
     normalizedHash === 'profile' ||
@@ -20,7 +21,7 @@ export const hashToViewMode = (hash: string): ViewMode => {
     }
     return normalizedHash as ViewMode
   }
-  return 'form'
+  return 'introduction'
 }
 
 export const extractCvIdFromHash = (hash: string): string | null => {

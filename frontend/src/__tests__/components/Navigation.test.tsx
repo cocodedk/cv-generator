@@ -11,9 +11,17 @@ describe('Navigation', () => {
   it('renders all navigation buttons', () => {
     render(<Navigation viewMode="form" isDark={false} onThemeToggle={() => {}} />)
 
+    expect(screen.getByText('Introduction')).toBeInTheDocument()
     expect(screen.getByText('Create CV')).toBeInTheDocument()
     expect(screen.getByText('My CVs')).toBeInTheDocument()
     expect(screen.getByText('Profile')).toBeInTheDocument()
+  })
+
+  it('highlights active introduction button', () => {
+    render(<Navigation viewMode="introduction" isDark={false} onThemeToggle={() => {}} />)
+
+    const introductionButton = screen.getByText('Introduction')
+    expect(introductionButton).toHaveClass('bg-blue-600')
   })
 
   it('highlights active form button', () => {
@@ -96,5 +104,17 @@ describe('Navigation', () => {
     })
 
     expect(window.location.hash).toBe('#profile')
+  })
+
+  it('navigates to introduction when Introduction clicked', async () => {
+    const user = userEvent.setup()
+    render(<Navigation viewMode="form" isDark={false} onThemeToggle={() => {}} />)
+
+    const introductionButton = screen.getByText('Introduction')
+    await act(async () => {
+      await user.click(introductionButton)
+    })
+
+    expect(window.location.hash).toBe('#introduction')
   })
 })

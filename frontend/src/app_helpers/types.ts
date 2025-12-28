@@ -1,1 +1,8 @@
-export type ViewMode = 'form' | 'list' | 'profile' | 'profile-list' | 'edit' | 'profile-edit'
+export type ViewMode =
+  | 'introduction'
+  | 'form'
+  | 'list'
+  | 'profile'
+  | 'profile-list'
+  | 'edit'
+  | 'profile-edit'

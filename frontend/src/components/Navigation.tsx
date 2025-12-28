@@ -26,6 +26,18 @@ export default function Navigation({ viewMode, isDark, onThemeToggle }: Navigati
           </div>
           <div className="flex items-center space-x-4">
             <button
+              onClick={() => {
+                window.location.hash = 'introduction'
+              }}
+              className={`px-4 py-2 rounded-md text-sm font-medium ${
+                viewMode === 'introduction'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800'
+              }`}
+            >
+              Introduction
+            </button>
+            <button
               type="button"
               onClick={onThemeToggle}
               aria-pressed={isDark}
