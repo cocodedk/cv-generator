@@ -10,7 +10,7 @@ import {
 export const useHashRouting = () => {
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     if (typeof window === 'undefined') {
-      return 'form'
+      return 'introduction'
     }
     return hashToViewMode(window.location.hash)
   })

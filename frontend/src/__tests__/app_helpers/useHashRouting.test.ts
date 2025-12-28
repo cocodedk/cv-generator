@@ -34,4 +34,12 @@ describe('useHashRouting', () => {
     expect(result.current.viewMode).toBe('profile')
     expect(result.current.cvId).toBeNull()
   })
+
+  it('defaults to introduction mode when no hash is present', () => {
+    window.location.hash = ''
+    const { result } = renderHook(() => useHashRouting())
+
+    expect(result.current.viewMode).toBe('introduction')
+    expect(result.current.cvId).toBeNull()
+  })
 })

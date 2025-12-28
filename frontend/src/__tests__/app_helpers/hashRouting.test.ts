@@ -8,6 +8,12 @@ import {
 
 describe('hashRouting', () => {
   describe('hashToViewMode', () => {
+    it('identifies introduction mode', () => {
+      expect(hashToViewMode('#introduction')).toBe('introduction')
+      expect(hashToViewMode('introduction')).toBe('introduction')
+      expect(hashToViewMode('#INTRODUCTION')).toBe('introduction')
+    })
+
     it('identifies form mode', () => {
       expect(hashToViewMode('#form')).toBe('form')
       expect(hashToViewMode('form')).toBe('form')
@@ -42,9 +48,9 @@ describe('hashRouting', () => {
       expect(hashToViewMode('#EDIT/CV-123')).toBe('edit')
     })
 
-    it('defaults to form mode for unknown hashes', () => {
-      expect(hashToViewMode('#unknown')).toBe('form')
-      expect(hashToViewMode('')).toBe('form')
+    it('defaults to introduction mode for unknown hashes', () => {
+      expect(hashToViewMode('#unknown')).toBe('introduction')
+      expect(hashToViewMode('')).toBe('introduction')
     })
   })
 
@@ -69,6 +75,10 @@ describe('hashRouting', () => {
   })
 
   describe('viewModeToHash', () => {
+    it('generates hash for introduction mode', () => {
+      expect(viewModeToHash('introduction')).toBe('introduction')
+    })
+
     it('generates hash for form mode', () => {
       expect(viewModeToHash('form')).toBe('form')
     })

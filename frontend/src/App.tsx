@@ -3,6 +3,7 @@ import CVForm from './components/CVForm'
 import CVList from './components/CVList'
 import ProfileList from './components/ProfileList'
 import ProfileManager from './components/ProfileManager'
+import Introduction from './components/Introduction'
 import Navigation from './components/Navigation'
 import NotificationModal from './components/NotificationModal'
 import Footer from './components/Footer'
@@ -43,7 +44,9 @@ function App() {
       <NotificationModal message={message} onClose={clearMessage} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {viewMode === 'form' || viewMode === 'edit' ? (
+        {viewMode === 'introduction' ? (
+          <Introduction />
+        ) : viewMode === 'form' || viewMode === 'edit' ? (
           <CVForm
             onSuccess={handleSuccess}
             onError={handleError}
