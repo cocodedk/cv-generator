@@ -1,5 +1,16 @@
 """Tests for CVFileService."""
+import json
 from backend.services.cv_file_service import CVFileService
+from backend.cv_generator_docx.layouts import LAYOUTS
+
+
+def build_service(temp_output_dir, showcase_enabled=False):
+    return CVFileService(
+        temp_output_dir,
+        temp_output_dir / "showcase",
+        temp_output_dir / "showcase_keys",
+        showcase_enabled=showcase_enabled,
+    )
 
 
 class TestPrepareCVDict:
@@ -7,7 +18,7 @@ class TestPrepareCVDict:
 
     def test_prepare_cv_dict_with_theme(self, temp_output_dir):
         """Test that theme from cv dict is preserved."""
-        service = CVFileService(temp_output_dir)
+        service = build_service(temp_output_dir, showcase_enabled=False)
         cv = {
             "personal_info": {"name": "John Doe"},
             "experience": [],
@@ -21,7 +32,7 @@ class TestPrepareCVDict:
 
     def test_prepare_cv_dict_defaults_to_classic(self, temp_output_dir):
         """Test that theme defaults to 'classic' when not provided."""
-        service = CVFileService(temp_output_dir)
+        service = build_service(temp_output_dir, showcase_enabled=False)
         cv = {
             "personal_info": {"name": "John Doe"},
             "experience": [],
@@ -33,7 +44,7 @@ class TestPrepareCVDict:
 
     def test_prepare_cv_dict_extracts_all_fields(self, temp_output_dir):
         """Test that all fields are correctly extracted."""
-        service = CVFileService(temp_output_dir)
+        service = build_service(temp_output_dir, showcase_enabled=False)
         cv = {
             "personal_info": {"name": "Jane Doe", "email": "jane@example.com"},
             "experience": [{"title": "Developer", "company": "Tech Corp"}],
@@ -50,7 +61,7 @@ class TestPrepareCVDict:
 
     def test_prepare_cv_dict_handles_missing_optional_fields(self, temp_output_dir):
         """Test that missing optional fields default to empty collections."""
-        service = CVFileService(temp_output_dir)
+        service = build_service(temp_output_dir, showcase_enabled=False)
         cv = {
             "personal_info": {"name": "John Doe"},
         }
@@ -64,7 +75,7 @@ class TestPrepareCVDict:
         self, temp_output_dir, sample_cv_data
     ):
         """Test that generate_file_for_cv passes theme to generator."""
-        service = CVFileService(temp_output_dir)
+        service = build_service(temp_output_dir, showcase_enabled=False)
         cv_id = "test-cv-123"
         sample_cv_data["theme"] = "elegant"
 
@@ -80,7 +91,7 @@ class TestPrepareCVDict:
         self, temp_output_dir, sample_cv_data
     ):
         """Test that generate_file_for_cv defaults theme when missing."""
-        service = CVFileService(temp_output_dir)
+        service = build_service(temp_output_dir, showcase_enabled=False)
         cv_id = "test-cv-456"
         # Remove theme from sample data
         if "theme" in sample_cv_data:
@@ -96,7 +107,7 @@ class TestPrepareCVDict:
 
     def test_generate_file_for_cv_all_themes(self, temp_output_dir, sample_cv_data):
         """Test generate_file_for_cv with all supported themes."""
-        service = CVFileService(temp_output_dir)
+        service = build_service(temp_output_dir, showcase_enabled=False)
         themes = [
             "accented",
             "classic",
@@ -120,3 +131,101 @@ class TestPrepareCVDict:
             # Verify file was created
             output_path = temp_output_dir / filename
             assert output_path.exists()
+
+
+class TestGenerateShowcaseForCV:
+    """Test generate_showcase_for_cv method."""
+
+    def test_generate_showcase_disabled_returns_none(self, temp_output_dir, sample_cv_data):
+        """Test that generate_showcase_for_cv returns None when disabled."""
+        service = build_service(temp_output_dir, showcase_enabled=False)
+        cv_id = "test-cv-123"
+        result = service.generate_showcase_for_cv(cv_id, sample_cv_data)
+        assert result is None
+
+    def test_generate_showcase_enabled_generates_files(self, temp_output_dir, sample_cv_data):
+        """Test that generate_showcase_for_cv generates files when enabled."""
+        service = build_service(temp_output_dir, showcase_enabled=True)
+        cv_id = "test-cv-123"
+        result = service.generate_showcase_for_cv(cv_id, sample_cv_data)
+        assert result is not None
+        assert result["cv_id"] == cv_id
+        assert "layouts" in result
+        assert "theme" in result
+
+    def test_generate_showcase_all_layouts_generated(self, temp_output_dir, sample_cv_data):
+        """Test that all layouts are generated."""
+        service = build_service(temp_output_dir, showcase_enabled=True)
+        cv_id = "test-cv-123"
+        result = service.generate_showcase_for_cv(cv_id, sample_cv_data)
+        assert len(result["layouts"]) == len(LAYOUTS)
+        layout_names = {layout["layout"] for layout in result["layouts"]}
+        assert layout_names == set(LAYOUTS.keys())
+
+    def test_generate_showcase_manifest_created(self, temp_output_dir, sample_cv_data):
+        """Test that manifest.json is created with correct structure."""
+        service = build_service(temp_output_dir, showcase_enabled=True)
+        cv_id = "test-cv-123"
+        service.generate_showcase_for_cv(cv_id, sample_cv_data)
+        manifest_path = temp_output_dir / "showcase" / cv_id / "manifest.json"
+        assert manifest_path.exists()
+        manifest_content = json.loads(manifest_path.read_text(encoding="utf-8"))
+        assert manifest_content["cv_id"] == cv_id
+        assert manifest_content["name"] == sample_cv_data["personal_info"]["name"]
+        assert manifest_content["theme"] == sample_cv_data.get("theme", "classic")
+        assert "layouts" in manifest_content
+        assert "updated_at" in manifest_content
+
+    def test_generate_showcase_index_json_updated(self, temp_output_dir, sample_cv_data):
+        """Test that index.json is updated."""
+        service = build_service(temp_output_dir, showcase_enabled=True)
+        cv_id = "test-cv-123"
+        service.generate_showcase_for_cv(cv_id, sample_cv_data)
+        index_path = temp_output_dir / "showcase" / "index.json"
+        assert index_path.exists()
+        index_content = json.loads(index_path.read_text(encoding="utf-8"))
+        assert "generated_at" in index_content
+        assert "cvs" in index_content
+        assert len(index_content["cvs"]) == 1
+        assert index_content["cvs"][0]["cv_id"] == cv_id
+
+    def test_generate_showcase_key_generation(self, temp_output_dir, sample_cv_data):
+        """Test key generation and persistence."""
+        service = build_service(temp_output_dir, showcase_enabled=True)
+        cv_id = "test-cv-123"
+        service.generate_showcase_for_cv(cv_id, sample_cv_data)
+        key_path = temp_output_dir / "showcase_keys" / f"{cv_id}.key"
+        assert key_path.exists()
+        key = key_path.read_text(encoding="utf-8").strip()
+        assert len(key) > 0
+
+    def test_generate_showcase_same_cv_uses_same_key(self, temp_output_dir, sample_cv_data):
+        """Test that same CV ID uses same key on subsequent calls."""
+        service = build_service(temp_output_dir, showcase_enabled=True)
+        cv_id = "test-cv-123"
+        service.generate_showcase_for_cv(cv_id, sample_cv_data)
+        key_path = temp_output_dir / "showcase_keys" / f"{cv_id}.key"
+        first_key = key_path.read_text(encoding="utf-8").strip()
+        # Generate again
+        service.generate_showcase_for_cv(cv_id, sample_cv_data)
+        second_key = key_path.read_text(encoding="utf-8").strip()
+        assert first_key == second_key
+
+    def test_generate_showcase_scrambled_html_files_created(self, temp_output_dir, sample_cv_data):
+        """Test that scrambled HTML files are created in correct directory structure."""
+        service = build_service(temp_output_dir, showcase_enabled=True)
+        cv_id = "test-cv-123"
+        theme = sample_cv_data.get("theme", "classic")
+        service.generate_showcase_for_cv(cv_id, sample_cv_data)
+        cv_output_dir = temp_output_dir / "showcase" / cv_id
+        assert cv_output_dir.exists()
+        # Check that HTML files are created for each layout
+        for layout_name in LAYOUTS.keys():
+            filename = f"{layout_name}-{theme}.html"
+            html_path = cv_output_dir / filename
+            assert html_path.exists()
+            # Verify HTML contains scramble script
+            html_content = html_path.read_text(encoding="utf-8")
+            assert "unlockWithKey" in html_content
+            # Verify personal info is scrambled (original name should not be in HTML)
+            assert sample_cv_data["personal_info"]["name"] not in html_content

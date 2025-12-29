@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>John Doe</title>
+  <style>
+    :root {
+      --text: var(--ink, #111);
+      --muted: var(--muted, #555);
+      --accent: var(--accent, #0f766e);
+      --bg-nav: #f9fafb;
+    }
+    :root{--accent:#f6ad55;--accent-2:#2c5282;--ink:#1a365d;--muted:#4299e1;}
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+    nav {
+      background: var(--bg-nav);
+      padding: 16px 24px;
+      border-bottom: 1px solid #e5e7eb;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    nav a {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 500;
+      padding: 8px 0;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.2s;
+    }
+    nav a:hover {
+      border-bottom-color: var(--accent);
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+    .hero {
+      text-align: center;
+      padding: 64px 24px;
+      margin-bottom: 48px;
+    }
+    h1 {
+      font-size: 48px;
+      margin: 0 0 8px;
+      color: var(--text);
+    }
+    .cv-title {
+      font-size: 24px;
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+    .cv-contact {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 14px;
+    }
+    .cv-contact a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    section {
+      margin-bottom: 64px;
+      scroll-margin-top: 80px;
+    }
+    section h2 {
+      font-size: 32px;
+      margin: 0 0 24px;
+      color: var(--text);
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 12px;
+    }
+    .experience-item, .education-item {
+      margin-bottom: 32px;
+      padding: 24px;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+    .exp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+    .exp-title {
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .exp-company {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .exp-meta {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 4px 0;
+    }
+    .exp-description {
+      margin-top: 12px;
+      font-size: 16px;
+    }
+    footer {
+      background: var(--bg-nav);
+      padding: 32px 24px;
+      text-align: center;
+      border-top: 1px solid #e5e7eb;
+      margin-top: 64px;
+    }
+    @media (max-width: 768px) {
+      nav ul {
+        flex-direction: column;
+        gap: 8px;
+      }
+    }
+    @media print {
+      nav {
+        display: none;
+      }
+      section {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="#home">Home</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#education">Education</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+  <div class="container">
+    <section id="home" class="hero">
+      <h1 data-scramble="1">John Doe</h1>
+      
+      <div class="cv-contact">
+        <span><a data-scramble="1" data-scramble-href="1" href="mailto:john.doe@example.com">john.doe@example.com</a></span>
+        <span data-scramble="1">+1234567890</span>
+        
+        <span><a href="https://linkedin.com/in/johndoe">LinkedIn</a></span>
+        <span><a href="https://github.com/johndoe">GitHub</a></span>
+      </div>
+      
+<section class="cv-summary">
+  <h2 class="section-title">Summary</h2>
+  <div class="summary-content" data-scramble="1" data-scramble-mode="html">
+    Experienced software developer
+  </div>
+</section>
+
+    </section>
+    
+    <section id="experience">
+      <h2>Experience</h2>
+      
+        <article class="experience-item">
+  <div class="exp-header">
+    <h3 class="exp-title">Senior Developer</h3>
+    <div class="exp-company">Tech Corp</div>
+  </div>
+  <div class="exp-meta">
+    <span class="exp-location">Remote</span>
+    <span class="exp-dates">
+      2020-01
+       – 
+      2023-12
+    </span>
+  </div>
+  
+  <div class="exp-description">
+    
+      <div>Led a small team delivering product features.</div>
+    
+  </div>
+  
+  
+  <div class="exp-projects">
+    
+      <div class="project-item">
+        <div class="project-header">
+          <span class="project-name">Internal Platform</span>
+          <a href="https://example.com/platform" class="project-url">https://example.com/platform</a>
+        </div>
+        <div class="project-description">Unified services into a single developer platform.</div>
+        <div class="project-tech">FastAPI, PostgreSQL, React</div>
+        
+          <ul class="project-highlights">
+          
+            <li>Reduced onboarding time by standardizing templates and tooling.</li>
+          
+            <li>Improved reliability with automated health checks and alerting.</li>
+          
+          </ul>
+        
+      </div>
+    
+  </div>
+  
+</article>
+      
+    </section>
+    
+    
+    <section id="projects">
+      <h2>Projects</h2>
+      
+        
+          
+            <div class="experience-item">
+              <h3 class="exp-title">Internal Platform</h3>
+              <div class="exp-meta"><a href="https://example.com/platform">https://example.com/platform</a></div>
+              <div class="exp-description">Unified services into a single developer platform.</div>
+              <div class="exp-meta">Technologies: FastAPI, PostgreSQL, React</div>
+            </div>
+          
+        
+      
+    </section>
+    
+    
+    <section id="education">
+      <h2>Education</h2>
+      
+        <article class="education-item">
+  <h3 class="edu-degree">
+    BS Computer Science, University of Technology
+  </h3>
+  <div class="edu-meta">
+    <span>2018</span>
+    <span>Computer Science</span>
+    <span>GPA 3.8</span>
+  </div>
+</article>
+      
+    </section>
+    
+    <section id="contact">
+      <h2>Contact</h2>
+      <div class="cv-contact">
+        <span><a data-scramble="1" data-scramble-href="1" href="mailto:john.doe@example.com">john.doe@example.com</a></span>
+        <span data-scramble="1">+1234567890</span>
+        
+        <span><a href="https://linkedin.com/in/johndoe">LinkedIn</a></span>
+        <span><a href="https://github.com/johndoe">GitHub</a></span>
+      </div>
+    </section>
+  </div>
+  <footer>
+    <p>Generated by cocode.dk CV Generator</p>
+  </footer>
+<style>
+@media print {
+  .scramble-unlock {
+    display: none !important;
+  }
+}
+</style>
+<script>
+(function () {
+  const SELECTOR = '[data-scramble="1"]';
+
+  function transformText(text, alphaOffset, digitOffset) {
+    const out = [];
+    for (let i = 0; i < text.length; i += 1) {
+      const ch = text[i];
+      const code = ch.charCodeAt(0);
+      if (code >= 65 && code <= 90) {
+        out.push(String.fromCharCode(((code - 65 + alphaOffset) % 26) + 65));
+      } else if (code >= 97 && code <= 122) {
+        out.push(String.fromCharCode(((code - 97 + alphaOffset) % 26) + 97));
+      } else if (code >= 48 && code <= 57) {
+        out.push(String.fromCharCode(((code - 48 + digitOffset) % 10) + 48));
+      } else {
+        out.push(ch);
+      }
+    }
+    return out.join('');
+  }
+
+  function transformHtml(html, alphaOffset, digitOffset) {
+    return html.split(/(<[^>]+>)/g).map((part) => {
+      if (part.startsWith('<') && part.endsWith('>')) {
+        return part;
+      }
+      return transformText(part, alphaOffset, digitOffset);
+    }).join('');
+  }
+
+  async function deriveOffsets(key) {
+    const data = new TextEncoder().encode(key);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    const view = new DataView(hash);
+    const offset = view.getUint32(0);
+    return {
+      alpha: offset % 26,
+      digit: offset % 10
+    };
+  }
+
+  function decodeHref(href, alphaOffset, digitOffset) {
+    if (!href) return href;
+    if (href.startsWith('mailto:')) {
+      const value = href.slice(7);
+      return `mailto:${transformText(value, alphaOffset, digitOffset)}`;
+    }
+    if (href.startsWith('tel:')) {
+      const value = href.slice(4);
+      return `tel:${transformText(value, alphaOffset, digitOffset)}`;
+    }
+    return href;
+  }
+
+  async function unlockWithKey(key) {
+    if (!key) return;
+    const offsets = await deriveOffsets(key);
+    const alphaOffset = (26 - offsets.alpha) % 26;
+    const digitOffset = (10 - offsets.digit) % 10;
+    document.querySelectorAll(SELECTOR).forEach((el) => {
+      const mode = el.getAttribute('data-scramble-mode');
+      if (mode === 'html') {
+        el.innerHTML = transformHtml(el.innerHTML, alphaOffset, digitOffset);
+      } else {
+        el.textContent = transformText(el.textContent || '', alphaOffset, digitOffset);
+      }
+      if (el.tagName === 'A' && el.getAttribute('data-scramble-href') === '1') {
+        el.setAttribute('href', decodeHref(el.getAttribute('href'), alphaOffset, digitOffset));
+      }
+    });
+  }
+
+  function createUnlockUi() {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'scramble-unlock';
+    wrapper.style.position = 'fixed';
+    wrapper.style.right = '16px';
+    wrapper.style.bottom = '16px';
+    wrapper.style.background = 'rgba(15, 23, 42, 0.88)';
+    wrapper.style.color = '#fff';
+    wrapper.style.padding = '10px';
+    wrapper.style.borderRadius = '8px';
+    wrapper.style.fontSize = '12px';
+    wrapper.style.zIndex = '9999';
+    wrapper.style.display = 'flex';
+    wrapper.style.gap = '8px';
+    wrapper.style.alignItems = 'center';
+
+    const input = document.createElement('input');
+    input.type = 'password';
+    input.placeholder = 'Unlock key';
+    input.style.padding = '6px 8px';
+    input.style.borderRadius = '6px';
+    input.style.border = '1px solid rgba(148, 163, 184, 0.3)';
+    input.style.background = 'rgba(15, 23, 42, 0.35)';
+    input.style.color = '#fff';
+
+    const button = document.createElement('button');
+    button.textContent = 'Unlock';
+    button.style.padding = '6px 10px';
+    button.style.borderRadius = '6px';
+    button.style.border = 'none';
+    button.style.background = '#2563eb';
+    button.style.color = '#fff';
+    button.style.cursor = 'pointer';
+
+    button.addEventListener('click', () => {
+      unlockWithKey(input.value.trim());
+    });
+
+    wrapper.appendChild(input);
+    wrapper.appendChild(button);
+    document.body.appendChild(wrapper);
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const keyFromUrl = params.get('unlock');
+  if (keyFromUrl) {
+    unlockWithKey(keyFromUrl).then(() => {
+      params.delete('unlock');
+      const newUrl = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+      window.history.replaceState({}, '', newUrl);
+    });
+  }
+  createUnlockUi();
+})();
+</script></body>
+</html>
