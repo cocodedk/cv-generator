@@ -26,6 +26,10 @@ def create_cv_router(  # noqa: C901
         try:
             cv_dict = cv_data.model_dump()
             cv_id = queries.create_cv(cv_dict)
+            try:
+                cv_file_service.generate_showcase_for_cv(cv_id, cv_dict)
+            except Exception as e:
+                logger.warning("Failed to generate showcase for %s", cv_id, exc_info=e)
             return CVResponse(cv_id=cv_id, status="success")
         except Exception as e:
             logger.error("Failed to save CV", exc_info=e)
@@ -91,6 +95,10 @@ def create_cv_router(  # noqa: C901
             success = queries.update_cv(cv_id, cv_dict)
             if not success:
                 raise HTTPException(status_code=404, detail="CV not found")
+            try:
+                cv_file_service.generate_showcase_for_cv(cv_id, cv_dict)
+            except Exception as e:
+                logger.warning("Failed to generate showcase for %s", cv_id, exc_info=e)
             return CVResponse(cv_id=cv_id, status="success")
         except HTTPException:
             raise

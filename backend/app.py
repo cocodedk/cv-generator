@@ -1,5 +1,6 @@
 """FastAPI application for CV generator."""
 import logging
+import os
 from pathlib import Path
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
@@ -31,7 +32,19 @@ output_dir.mkdir(exist_ok=True)
 app.state.output_dir = output_dir
 
 # Initialize CV file service
-cv_file_service = CVFileService(output_dir)
+showcase_dir_env = os.getenv("CV_SHOWCASE_OUTPUT_DIR")
+showcase_keys_dir_env = os.getenv("CV_SHOWCASE_KEYS_DIR")
+showcase_enabled = os.getenv("CV_SHOWCASE_ENABLED", "true").lower() in {"1", "true", "yes"}
+showcase_dir = Path(showcase_dir_env) if showcase_dir_env else output_dir / "showcase"
+showcase_keys_dir = Path(showcase_keys_dir_env) if showcase_keys_dir_env else output_dir / "showcase_keys"
+scramble_key = os.getenv("CV_SHOWCASE_SCRAMBLE_KEY")
+cv_file_service = CVFileService(
+    output_dir=output_dir,
+    showcase_dir=showcase_dir,
+    showcase_keys_dir=showcase_keys_dir,
+    showcase_enabled=showcase_enabled,
+    scramble_key=scramble_key,
+)
 
 # Register routes
 app.include_router(health.router)

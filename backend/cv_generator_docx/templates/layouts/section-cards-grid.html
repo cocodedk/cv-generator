@@ -149,11 +149,11 @@
 <body>
   <div class="container">
     <header class="hero">
-      {% if personal_info.name %}<h1>{{ personal_info.name }}</h1>{% endif %}
-      {% if personal_info.title %}<p class="cv-title">{{ personal_info.title }}</p>{% endif %}
+      {% if personal_info.name %}<h1 data-scramble="1">{{ personal_info.name }}</h1>{% endif %}
+      {% if personal_info.title %}<p class="cv-title" data-scramble="1">{{ personal_info.title }}</p>{% endif %}
       <div class="cv-contact">
-        {% if personal_info.email %}<span><a href="mailto:{{ personal_info.email }}">{{ personal_info.email }}</a></span>{% endif %}
-        {% if personal_info.phone %}<span>{{ personal_info.phone }}</span>{% endif %}
+        {% if personal_info.email %}<span><a data-scramble="1" data-scramble-href="1" href="mailto:{{ personal_info.email }}">{{ personal_info.email }}</a></span>{% endif %}
+        {% if personal_info.phone %}<span data-scramble="1">{{ personal_info.phone }}</span>{% endif %}
         {% if personal_info.website %}<span><a href="{{ personal_info.website }}">{{ personal_info.website }}</a></span>{% endif %}
         {% if personal_info.linkedin %}<span><a href="{{ personal_info.linkedin }}">LinkedIn</a></span>{% endif %}
         {% if personal_info.github %}<span><a href="{{ personal_info.github }}">GitHub</a></span>{% endif %}
@@ -164,7 +164,9 @@
         {% if personal_info.summary %}
         <div class="card">
           <h2>Summary</h2>
-          <div class="card-content">{{ personal_info.summary | safe }}</div>
+          <div class="card-content" data-scramble="1" data-scramble-mode="html">
+            {{ personal_info.summary | safe }}
+          </div>
         </div>
         {% endif %}
         {% if skills_by_category %}
