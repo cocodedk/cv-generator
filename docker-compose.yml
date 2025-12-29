@@ -40,6 +40,10 @@ services:
       - NEO4J_PASSWORD=${NEO4J_PASSWORD:-cvpassword}
       - NEO4J_DATABASE=${NEO4J_DATABASE:-neo4j}
       - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:5173,http://localhost:8000}
+      - CV_SHOWCASE_ENABLED=${CV_SHOWCASE_ENABLED:-true}
+      - CV_SHOWCASE_OUTPUT_DIR=${CV_SHOWCASE_OUTPUT_DIR:-frontend/public/showcase}
+      - CV_SHOWCASE_KEYS_DIR=${CV_SHOWCASE_KEYS_DIR:-backend/output/showcase_keys}
+      - CV_SHOWCASE_SCRAMBLE_KEY=${CV_SHOWCASE_SCRAMBLE_KEY:-}
       - AI_ENABLED=${AI_ENABLED:-false}
       - AI_BASE_URL=${AI_BASE_URL:-}
       - AI_API_KEY=${AI_API_KEY:-}
@@ -49,6 +53,7 @@ services:
     volumes:
       - ./backend:/app/backend  # Mount backend for auto-reload on code changes
       - ./backend/output:/app/backend/output
+      - ./frontend/public:/app/frontend/public
       - ./.flake8:/app/.flake8  # Mount flake8 config for linting
     command: ["uvicorn", "backend.app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
     depends_on:
