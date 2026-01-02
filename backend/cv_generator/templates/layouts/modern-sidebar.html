@@ -19,6 +19,10 @@
       padding: 0;
       line-height: 1.6;
     }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
     .page {
       max-width: 1200px;
       margin: 0 auto;
@@ -42,6 +46,7 @@
     .cv-photo {
       width: 120px;
       height: 120px;
+      max-width: 100%;
       border-radius: 50%;
       object-fit: cover;
       margin: 0 auto 16px;
@@ -154,6 +159,15 @@
     @media print {
       .hint {
         display: none;
+      }
+      .page {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+      img {
+        max-width: 100%;
+        height: auto;
       }
       aside {
         position: static;

@@ -52,6 +52,7 @@ class PDFService:
 
                     # Inject CSS to override page break rules for single-page PDF
                     # This removes A4 page size constraints and min-height requirements
+                    # Also enforces A4 width constraints and image constraints to prevent overflow
                     await page.add_style_tag(
                         content="""
                         @page {
@@ -61,6 +62,14 @@ class PDFService:
                         html, body {
                             height: auto !important;
                             min-height: auto !important;
+                            max-width: 794px !important;
+                            margin: 0 auto !important;
+                            box-sizing: border-box !important;
+                        }
+                        .container, .page, .sheet, .page-content {
+                            max-width: 794px !important;
+                            width: 100% !important;
+                            box-sizing: border-box !important;
                         }
                         .sheet {
                             min-height: auto !important;
@@ -70,6 +79,13 @@ class PDFService:
                         .bg-text {
                             min-height: auto !important;
                             height: auto !important;
+                        }
+                        img, .cv-photo {
+                            max-width: 100% !important;
+                            height: auto !important;
+                        }
+                        * {
+                            box-sizing: border-box !important;
                         }
                         """
                     )

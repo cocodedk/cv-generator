@@ -19,6 +19,10 @@
       padding: 0;
       background: #fff;
     }
+    img {
+      max-width: 100%;
+      height: auto;
+    }
     .container {
       max-width: 800px;
       margin: 0 auto;
@@ -148,6 +152,14 @@
     @media print {
       .hint {
         display: none;
+      }
+      .container {
+        max-width: none;
+        padding: 20px;
+      }
+      img {
+        max-width: 100%;
+        height: auto;
       }
       .timeline::before {
         background: #ccc;
