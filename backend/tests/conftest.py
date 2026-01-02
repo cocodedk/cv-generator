@@ -136,3 +136,59 @@ def reset_neo4j_connection():
     Neo4jConnection.reset()
     yield
     Neo4jConnection.reset()
+
+
+@pytest.fixture(scope="module")
+def pdf_service():
+    """PDF service instance for integration tests."""
+    from backend.services.pdf_service import PDFService
+    return PDFService(timeout=30)  # Shorter timeout for tests
+
+
+@pytest.fixture
+def sample_html_content():
+    """Sample HTML content for testing."""
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+            h1 { margin: 0 0 20px 0; }
+            p { margin: 10px 0; }
+        </style>
+    </head>
+    <body>
+        <h1>Test CV</h1>
+        <p>This is a test CV content.</p>
+    </body>
+    </html>
+    """
+
+
+@pytest.fixture
+def long_html_content():
+    """Long HTML content for testing (> 5000px height)."""
+    parts = [
+        """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+            .section { margin: 50px 0; min-height: 500px; }
+        </style>
+    </head>
+    <body>
+    """
+    ]
+    # Add many sections to create long content
+    for i in range(15):
+        parts.append(f'<div class="section"><h2>Section {i+1}</h2><p>Content for section {i+1}</p></div>')
+    parts.append("""
+    </body>
+    </html>
+    """)
+    return ''.join(parts)

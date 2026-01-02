@@ -122,7 +122,8 @@ describe('CVList', () => {
     })
 
     expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /download/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^download$/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /download pdf/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument()
   })
 
@@ -147,7 +148,8 @@ describe('CVList', () => {
     })
 
     expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /download/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^download$/i })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /download pdf/i })).toBeInTheDocument()
   })
 
   it('shows empty state when no CVs returned', async () => {
@@ -229,7 +231,7 @@ describe('CVList', () => {
       expect(screen.getByText('John Doe')).toBeInTheDocument()
     })
 
-    const downloadButton = screen.getByRole('button', { name: /download/i })
+    const downloadButton = screen.getByRole('button', { name: /^download$/i })
     await act(async () => {
       await user.click(downloadButton)
     })

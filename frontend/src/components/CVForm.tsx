@@ -9,6 +9,7 @@ import { defaultCvData } from '../app_helpers/cvForm/cvFormDefaults'
 import CVFormModals from '../app_helpers/cvForm/CVFormModals'
 import CVFormContent from '../app_helpers/cvForm/CVFormContent'
 import CVFormLoading from '../app_helpers/cvForm/CVFormLoading'
+import { downloadPdf } from '../app_helpers/pdfDownload'
 
 interface CVFormProps {
   onSuccess: (message: string) => void
@@ -24,6 +25,7 @@ interface CVFormProps {
 export default function CVForm({ onSuccess, onError, setLoading, cvId }: CVFormProps) {
   const isEditMode = !!cvId
   const [showAiModal, setShowAiModal] = useState(false)
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
   const {
     register,
     handleSubmit,
@@ -69,6 +71,29 @@ export default function CVForm({ onSuccess, onError, setLoading, cvId }: CVFormP
     showProfileLoader,
   })
 
+  const handleDownloadPdf = async () => {
+    if (!cvId || isGeneratingPdf) {
+      return
+    }
+
+    setIsGeneratingPdf(true)
+    try {
+      // Optionally get current theme/layout from form values
+      const formValues = getValues()
+      const theme = formValues.theme
+      const layout = formValues.layout
+
+      await downloadPdf(cvId, {
+        theme: theme || undefined,
+        layout: layout || undefined,
+      })
+    } catch (error: any) {
+      onError(error.message || 'Failed to download PDF')
+    } finally {
+      setIsGeneratingPdf(false)
+    }
+  }
+
   return (
     <>
       <CVFormModals
@@ -109,6 +134,8 @@ export default function CVForm({ onSuccess, onError, setLoading, cvId }: CVFormP
           onLoadProfile={loadProfile}
           onSaveProfile={handleSubmit(saveToProfile)}
           onGenerateFromJd={() => setShowAiModal(true)}
+          onDownloadPdf={cvId ? handleDownloadPdf : undefined}
+          isGeneratingPdf={isGeneratingPdf}
         />
       )}
     </>

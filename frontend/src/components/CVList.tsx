@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import { CVListResponse, CVListItem } from '../types/cv'
 import { openDownload } from '../app_helpers/download'
+import { downloadPdf } from '../app_helpers/pdfDownload'
 
 interface CVListProps {
   onError: (message: string) => void
@@ -12,6 +13,7 @@ export default function CVList({ onError }: CVListProps) {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [total, setTotal] = useState(0)
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState<{ [key: string]: boolean }>({})
   const searchRef = useRef(search)
 
   // Keep search ref in sync
@@ -92,6 +94,22 @@ export default function CVList({ onError }: CVListProps) {
     }
   }
 
+  const handleDownloadPdf = async (cvId: string) => {
+    // Prevent multiple simultaneous requests for same CV
+    if (isGeneratingPdf[cvId]) {
+      return
+    }
+
+    setIsGeneratingPdf(prev => ({ ...prev, [cvId]: true }))
+    try {
+      await downloadPdf(cvId)
+    } catch (error: any) {
+      onError(error.message || 'Failed to download PDF')
+    } finally {
+      setIsGeneratingPdf(prev => ({ ...prev, [cvId]: false }))
+    }
+  }
+
   const handleEdit = (cvId: string) => {
     window.location.hash = `#edit/${cvId}`
   }
@@ -168,6 +186,13 @@ export default function CVList({ onError }: CVListProps) {
                         Generate File
                       </button>
                     )}
+                    <button
+                      onClick={() => handleDownloadPdf(cv.cv_id)}
+                      disabled={isGeneratingPdf[cv.cv_id]}
+                      className="px-3 py-1 text-sm font-medium text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isGeneratingPdf[cv.cv_id] ? 'Generating...' : 'Download PDF'}
+                    </button>
                     <button
                       onClick={() => handleDelete(cv.cv_id)}
                       className="px-3 py-1 text-sm font-medium text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"

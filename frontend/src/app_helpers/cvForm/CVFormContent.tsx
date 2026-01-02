@@ -24,6 +24,8 @@ interface CVFormContentProps {
   onLoadProfile: () => void
   onSaveProfile: () => void
   onGenerateFromJd: () => void
+  onDownloadPdf?: () => void
+  isGeneratingPdf?: boolean
 }
 
 /**
@@ -42,6 +44,8 @@ export default function CVFormContent({
   onLoadProfile,
   onSaveProfile,
   onGenerateFromJd,
+  onDownloadPdf,
+  isGeneratingPdf = false,
 }: CVFormContentProps) {
   return (
     <div className="bg-white shadow rounded-lg dark:bg-gray-900 dark:border dark:border-gray-800">
@@ -50,6 +54,8 @@ export default function CVFormContent({
         onLoadProfile={onLoadProfile}
         onSaveProfile={onSaveProfile}
         onGenerateFromJd={onGenerateFromJd}
+        onDownloadPdf={onDownloadPdf}
+        isGeneratingPdf={isGeneratingPdf}
       />
       <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
