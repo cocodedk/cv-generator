@@ -1,2 +1,2 @@
-commit all files.
+commit ALL files.
 with a descriptive message.
