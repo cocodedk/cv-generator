@@ -106,7 +106,7 @@ def _normalize_technologies(technologies: Any) -> List[str]:
 
 
 def _prepare_skills(skills: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, str]]]:
-    """Prepare skills grouped by category."""
+    """Prepare skills grouped by category, sorted alphabetically."""
     skills_by_category: Dict[str, List[Dict[str, str]]] = {}
     for skill in skills:
         category = skill.get("category") or "Other"
@@ -117,7 +117,22 @@ def _prepare_skills(skills: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, st
             if level:
                 skill_obj["level"] = level
             skills_by_category.setdefault(category, []).append(skill_obj)
-    return skills_by_category
+
+    # Sort skills within each category by name, then by level
+    for category, skill_list in skills_by_category.items():
+        skill_list.sort(key=lambda s: (
+            s.get("name", "").lower(),
+            s.get("level", "").lower()
+        ))
+
+    # Sort categories alphabetically, with "Other" last
+    sorted_categories = sorted(
+        skills_by_category.keys(),
+        key=lambda cat: (cat == "Other", cat.lower())
+    )
+
+    # Return dict with sorted order (Python 3.7+ maintains insertion order)
+    return {category: skills_by_category[category] for category in sorted_categories}
 
 
 def _format_address(address: Any) -> str:

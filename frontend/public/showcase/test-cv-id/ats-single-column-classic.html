@@ -10,13 +10,15 @@
       --muted: var(--muted, #555);
       --accent: var(--accent, #0f766e);
     }
+    /* ATS-friendly: minimal styling, no decorative elements */
     :root{--accent:#f6ad55;--accent-2:#2c5282;--ink:#1a365d;--muted:#4299e1;}
     body {
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: Arial, Calibri, "Times New Roman", sans-serif;
       color: var(--text);
       margin: 0;
       padding: 0;
       line-height: 1.6;
+      font-size: 11pt;
     }
     .container {
       max-width: 750px;
@@ -25,23 +27,26 @@
     }
     header {
       margin-bottom: 24px;
-      padding-bottom: 16px;
+      padding-bottom: 12px;
       border-bottom: 1px solid #ddd;
     }
     h1 {
       margin: 0 0 4px;
-      font-size: 28px;
+      font-size: 18pt;
       color: var(--text);
+      font-family: Arial, Calibri, "Times New Roman", sans-serif;
     }
     .cv-title {
       color: var(--muted);
       margin: 0 0 8px;
-      font-size: 16px;
+      font-size: 12pt;
+      font-family: Arial, Calibri, "Times New Roman", sans-serif;
     }
     .cv-contact {
       color: var(--muted);
-      font-size: 14px;
+      font-size: 10pt;
       margin: 0;
+      font-family: Arial, Calibri, "Times New Roman", sans-serif;
     }
     .cv-contact span {
       margin-right: 12px;
@@ -51,23 +56,25 @@
       text-decoration: none;
     }
     section {
-      margin-bottom: 24px;
+      margin-bottom: 28px;
     }
     h2 {
-      font-size: 18px;
+      font-size: 14pt;
       font-weight: bold;
       margin: 0 0 12px;
       color: var(--text);
-      border-bottom: 2px solid var(--accent);
+      border-bottom: 1px solid #ddd;
       padding-bottom: 4px;
+      font-family: Arial, Calibri, "Times New Roman", sans-serif;
     }
     h3 {
       margin: 0 0 4px;
-      font-size: 16px;
+      font-size: 12pt;
       font-weight: bold;
+      font-family: Arial, Calibri, "Times New Roman", sans-serif;
     }
     .experience-item, .education-item {
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
     .exp-header {
       display: flex;
@@ -84,16 +91,21 @@
     }
     .exp-meta {
       color: var(--muted);
-      font-size: 14px;
+      font-size: 10pt;
       margin: 4px 0;
+      font-family: Arial, Calibri, "Times New Roman", sans-serif;
     }
     .exp-description {
       margin-top: 8px;
-      font-size: 14px;
+      font-size: 11pt;
+      font-family: Arial, Calibri, "Times New Roman", sans-serif;
     }
     .exp-description ul {
-      margin: 8px 0;
-      padding-left: 20px;
+      margin: 10px 0;
+      padding-left: 24px;
+    }
+    .exp-description li {
+      margin-bottom: 4px;
     }
     .skills-list {
       display: flex;
@@ -104,11 +116,22 @@
       list-style: none;
     }
     .skill-item {
-      font-size: 14px;
+      font-size: 11pt;
+      font-family: Arial, Calibri, "Times New Roman", sans-serif;
+    }
+    .skill-category {
+      margin-bottom: 12px;
+    }
+    .skill-category-title {
+      font-size: 11pt;
+      font-weight: bold;
+      margin-bottom: 6px;
+      font-family: Arial, Calibri, "Times New Roman", sans-serif;
     }
     .summary-content {
-      font-size: 14px;
+      font-size: 11pt;
       line-height: 1.6;
+      font-family: Arial, Calibri, "Times New Roman", sans-serif;
     }
     @page{size:A4;margin:0}
     .hint {
@@ -142,7 +165,6 @@
     <span><a href="https://github.com/johndoe">GitHub</a></span>
     <span data-scramble="1">234 Pdlq Vw, Qhz Brun, QB, 21112, XVD</span>
   </div>
-  
 </header>
     <main>
       
@@ -160,19 +182,19 @@
 <div class="skills-container">
   
     <div class="skill-category">
-      <h3 class="skill-category-title">Programming</h3>
+      <h3 class="skill-category-title">Frontend</h3>
       <div class="skills-list">
         
-          <span class="skill-item">Python</span>
+          <span class="skill-item">React</span>
         
       </div>
     </div>
   
     <div class="skill-category">
-      <h3 class="skill-category-title">Frontend</h3>
+      <h3 class="skill-category-title">Programming</h3>
       <div class="skills-list">
         
-          <span class="skill-item">React</span>
+          <span class="skill-item">Python</span>
         
       </div>
     </div>
