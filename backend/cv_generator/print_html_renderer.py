@@ -8,9 +8,9 @@ from typing import Any, Dict
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from backend.cv_generator_docx.html_renderer import _prepare_template_data
-from backend.cv_generator_docx.layouts import validate_layout
-from backend.cv_generator_docx.scramble import scramble_personal_info
+from backend.cv_generator.html_renderer import _prepare_template_data
+from backend.cv_generator.layouts import validate_layout
+from backend.cv_generator.scramble import scramble_personal_info
 from backend.themes import get_theme
 
 logger = logging.getLogger(__name__)

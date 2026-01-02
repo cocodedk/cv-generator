@@ -7,7 +7,7 @@ from docx.enum.style import WD_STYLE_TYPE
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 
-from backend.cv_generator_docx.style_utils import apply_character_style, apply_paragraph_style
+from backend.cv_generator.style_utils import apply_character_style, apply_paragraph_style
 
 
 def _add_no_border_table_style(doc: DocxDocument, name: str) -> None:

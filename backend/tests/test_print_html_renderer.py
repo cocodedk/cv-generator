@@ -1,6 +1,6 @@
 """Tests for A4 print HTML rendering."""
 
-from backend.cv_generator_docx.print_html_renderer import render_print_html
+from backend.cv_generator.print_html_renderer import render_print_html
 
 
 def test_render_print_html_contains_a4_css(sample_cv_data):

@@ -1,8 +1,8 @@
 """Experience preparation for HTML rendering."""
 from typing import Dict, Any, List
 from datetime import datetime
-from backend.cv_generator_docx.html_renderer.utils import split_description
-from backend.cv_generator_docx.html_renderer.projects import prepare_projects
+from backend.cv_generator.html_renderer.utils import split_description
+from backend.cv_generator.html_renderer.projects import prepare_projects
 
 
 def _parse_date(date_str: str) -> datetime:

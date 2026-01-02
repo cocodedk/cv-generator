@@ -10,8 +10,8 @@ The CV generator outputs DOCX files using a Markdown -> Pandoc pipeline:
 
 The DOCX pipeline is implemented in:
 
-- `backend/cv_generator_docx/` (Markdown renderer + Pandoc conversion)
-- `backend/cv_generator_docx/templates/` (theme templates)
+- `backend/cv_generator/` (Markdown renderer + Pandoc conversion)
+- `backend/cv_generator/templates/` (theme templates)
 
 Markdown is written alongside the generated DOCX (same filename, `.md` extension).
 
@@ -65,7 +65,7 @@ Cons
 Templates are generated via:
 
 ```
-python backend/cv_generator_docx/template_builder.py
+python backend/cv_generator/template_builder.py
 ```
 
 Run this inside the backend Docker container if dependencies were updated.

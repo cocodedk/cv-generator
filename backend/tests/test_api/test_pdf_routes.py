@@ -107,7 +107,7 @@ class TestExportPDFLongForCV:
 
         with patch("backend.database.queries.get_cv_by_id", return_value=cv_data):
             with patch("backend.services.cv_file_service.CVFileService.prepare_cv_dict", return_value=cv_data):
-                with patch("backend.cv_generator_docx.print_html_renderer.render_print_html", return_value="<html>CV HTML</html>"):
+                with patch("backend.cv_generator.print_html_renderer.render_print_html", return_value="<html>CV HTML</html>"):
                     with patch("backend.app.pdf_service.generate_long_pdf") as mock_generate:
                         mock_generate.return_value = b"PDF bytes"
 
@@ -143,7 +143,7 @@ class TestExportPDFLongForCV:
 
         with patch("backend.database.queries.get_cv_by_id", return_value=cv_data):
             with patch("backend.services.cv_file_service.CVFileService.prepare_cv_dict", return_value=cv_data) as mock_prepare:
-                with patch("backend.cv_generator_docx.print_html_renderer.render_print_html", return_value="<html>CV HTML</html>"):
+                with patch("backend.cv_generator.print_html_renderer.render_print_html", return_value="<html>CV HTML</html>"):
                     with patch("backend.app.pdf_service.generate_long_pdf") as mock_generate:
                         mock_generate.return_value = b"PDF bytes"
 

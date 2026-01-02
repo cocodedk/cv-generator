@@ -3,7 +3,7 @@
 import pytest
 from unittest.mock import patch
 from backend.services.pdf_service import PDFService
-from backend.cv_generator_docx.print_html_renderer import render_print_html
+from backend.cv_generator.print_html_renderer import render_print_html
 
 
 @pytest.mark.asyncio

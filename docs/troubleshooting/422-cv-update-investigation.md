@@ -22,8 +22,8 @@ When a PUT request is made to `/api/cv/{cv_id}`, FastAPI validates the request b
    - FastAPI validation fails with 422 when unknown fields are present
 
 3. **Inconsistency across codebase:**
-   - Backend templates expect `personal_info.title` (```20:21:backend/cv_generator_docx/templates/html/base.html```)
-   - Backend markdown renderer uses `personal_info.title` (```22:22:backend/cv_generator_docx/markdown_renderer.py```)
+   - Backend templates expect `personal_info.title` (```20:21:backend/cv_generator/templates/html/base.html```)
+   - Backend markdown renderer uses `personal_info.title` (```22:22:backend/cv_generator/markdown_renderer.py```)
    - Database queries do NOT store/retrieve `title` for Person nodes (```33:69:backend/database/queries/update.py```, ```164:173:backend/database/queries/read.py```)
 
 ### Request Flow
@@ -56,9 +56,9 @@ PersonalInfo model validation FAILS (title field not defined)
 - Database read: `backend/database/queries/read.py:164-173` (no title in response)
 
 **Backend (expects `title`):**
-- HTML template: `backend/cv_generator_docx/templates/html/base.html:20-21`
-- Print HTML template: `backend/cv_generator_docx/templates/print_html/base.html:32`
-- Markdown renderer: `backend/cv_generator_docx/markdown_renderer.py:22`
+- HTML template: `backend/cv_generator/templates/html/base.html:20-21`
+- Print HTML template: `backend/cv_generator/templates/print_html/base.html:32`
+- Markdown renderer: `backend/cv_generator/markdown_renderer.py:22`
 
 ### Validation Error Details
 

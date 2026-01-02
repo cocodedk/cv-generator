@@ -1,6 +1,6 @@
 """Experience section rendering."""
 from typing import Dict, Any, List
-from backend.cv_generator_docx.markdown_renderer.utils import split_description
+from backend.cv_generator.markdown_renderer.utils import split_description
 
 
 def render_experience(exp: Dict[str, Any]) -> List[str]:

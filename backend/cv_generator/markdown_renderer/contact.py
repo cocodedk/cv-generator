@@ -1,6 +1,6 @@
 """Contact information rendering."""
 from typing import Dict, Any, List
-from backend.cv_generator_docx.markdown_renderer.utils import escape_html, format_address
+from backend.cv_generator.markdown_renderer.utils import escape_html, format_address
 
 
 def render_contact_table(personal_info: Dict[str, Any]) -> List[str]:

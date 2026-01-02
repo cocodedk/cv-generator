@@ -1,5 +1,5 @@
 """Tests for HTML rendering and template selection."""
-from backend.cv_generator_docx.html_renderer.render import render_html
+from backend.cv_generator.html_renderer.render import render_html
 
 
 def test_render_html_uses_base_template_for_classic_theme(sample_cv_data):
@@ -78,7 +78,7 @@ def test_render_html_all_new_themes(sample_cv_data):
 def test_render_html_template_files_exist():
     """Test that theme-specific template files exist."""
     # Use the same path resolution as render.py
-    from backend.cv_generator_docx.html_renderer.render import TEMPLATES_DIR
+    from backend.cv_generator.html_renderer.render import TEMPLATES_DIR
 
     # Check that new theme templates exist
     new_theme_templates = ["professional.html", "creative.html", "tech.html", "executive.html", "colorful.html"]

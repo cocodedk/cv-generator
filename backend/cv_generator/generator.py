@@ -2,9 +2,9 @@
 from pathlib import Path
 from typing import Dict, Any
 from backend.themes import validate_theme
-from backend.cv_generator_docx.html_renderer import render_html
-from backend.cv_generator_docx.pandoc import convert_html_to_docx
-from backend.cv_generator_docx.template_builder import ensure_template
+from backend.cv_generator.html_renderer import render_html
+from backend.cv_generator.pandoc import convert_html_to_docx
+from backend.cv_generator.template_builder import ensure_template
 
 
 class DocxCVGenerator:

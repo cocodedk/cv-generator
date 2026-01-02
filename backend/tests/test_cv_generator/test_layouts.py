@@ -1,7 +1,7 @@
 """Tests for CV layout rendering."""
 import pytest
-from backend.cv_generator_docx.print_html_renderer import render_print_html
-from backend.cv_generator_docx.layouts import validate_layout, LAYOUTS
+from backend.cv_generator.print_html_renderer import render_print_html
+from backend.cv_generator.layouts import validate_layout, LAYOUTS
 
 
 @pytest.fixture

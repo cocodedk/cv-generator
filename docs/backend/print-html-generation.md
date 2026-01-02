@@ -67,15 +67,15 @@ Themes and layouts work independently - you can combine any theme with any layou
 ## Implementation
 
 The print HTML renderer is located in:
-- `backend/cv_generator_docx/print_html_renderer.py`: Main rendering logic
-- `backend/cv_generator_docx/templates/print_html/`: HTML templates
+- `backend/cv_generator/print_html_renderer.py`: Main rendering logic
+- `backend/cv_generator/templates/print_html/`: HTML templates
 
 ## Template Structure
 
 Templates use Jinja2 for rendering:
 
 **Layout Templates:**
-- Located in `backend/cv_generator_docx/templates/layouts/`
+- Located in `backend/cv_generator/templates/layouts/`
 - Each layout has its own template file (e.g., `01-classic-two-column.html`)
 - Layouts use shared components from `layouts/components/`
 

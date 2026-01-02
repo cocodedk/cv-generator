@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from slowapi import Limiter
 
-from backend.cv_generator_docx.print_html_renderer import render_print_html
+from backend.cv_generator.print_html_renderer import render_print_html
 from backend.database import queries
 from backend.models import CVData
 from backend.services.cv_file_service import CVFileService

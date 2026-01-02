@@ -75,9 +75,9 @@ backend/output/
 ## Implementation
 
 The generation logic is in:
-- `backend/cv_generator_docx/generator.py`: Main DOCX generation class
-- `backend/cv_generator_docx/markdown_renderer.py`: Markdown rendering
-- `backend/cv_generator_docx/template_builder.py`: Template generation
+- `backend/cv_generator/generator.py`: Main DOCX generation class
+- `backend/cv_generator/markdown_renderer.py`: Markdown rendering
+- `backend/cv_generator/template_builder.py`: Template generation
 
 ## Output Formats
 
@@ -88,6 +88,6 @@ The CV Generator supports two output formats:
 ## Customization
 
 To customize CV generation:
-1. Update templates in `backend/cv_generator_docx/templates/`
-2. Adjust Markdown structure in `backend/cv_generator_docx/markdown_renderer.py`
+1. Update templates in `backend/cv_generator/templates/`
+2. Adjust Markdown structure in `backend/cv_generator/markdown_renderer.py`
 3. Add new themes by extending `backend/themes/`

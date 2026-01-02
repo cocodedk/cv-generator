@@ -1,6 +1,6 @@
 """Tests for personal info scrambling utilities."""
 import hashlib
-from backend.cv_generator_docx.scramble import (
+from backend.cv_generator.scramble import (
     scramble_text,
     scramble_html_text,
     scramble_personal_info,
@@ -131,7 +131,7 @@ class TestScrambleText:
         text = "John Doe"
         scrambled = scramble_text(text, key)
         # Reverse by applying negative offset
-        from backend.cv_generator_docx.scramble import _transform_text
+        from backend.cv_generator.scramble import _transform_text
 
         reversed_text = _transform_text(scrambled, key, reverse=True)
         assert reversed_text == text
@@ -205,7 +205,7 @@ class TestScrambleHtmlText:
         text = "Hello <strong>John</strong> Doe"
         scrambled = scramble_html_text(text, key)
         # Reverse by applying negative offset
-        from backend.cv_generator_docx.scramble import _transform_text
+        from backend.cv_generator.scramble import _transform_text
         import re
 
         parts = re.split(r"(<[^>]+>)", scrambled)

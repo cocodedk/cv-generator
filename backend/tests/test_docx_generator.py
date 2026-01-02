@@ -1,8 +1,8 @@
 """Tests for DOCX CV generation."""
 import shutil
 import pytest
-from backend.cv_generator_docx.generator import DocxCVGenerator
-from backend.cv_generator_docx.template_builder import ensure_template
+from backend.cv_generator.generator import DocxCVGenerator
+from backend.cv_generator.template_builder import ensure_template
 
 
 @pytest.mark.integration

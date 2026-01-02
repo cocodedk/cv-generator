@@ -2,8 +2,8 @@
 from pathlib import Path
 from docx import Document
 from backend.themes import THEMES, validate_theme
-from backend.cv_generator_docx.custom_styles import add_custom_styles
-from backend.cv_generator_docx.style_utils import apply_paragraph_style
+from backend.cv_generator.custom_styles import add_custom_styles
+from backend.cv_generator.style_utils import apply_paragraph_style
 
 
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"

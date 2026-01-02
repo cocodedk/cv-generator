@@ -2,7 +2,7 @@
 from pathlib import Path
 from typing import Dict, Any
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-from backend.cv_generator_docx.html_renderer.prepare import prepare_template_data
+from backend.cv_generator.html_renderer.prepare import prepare_template_data
 
 
 TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates" / "html"

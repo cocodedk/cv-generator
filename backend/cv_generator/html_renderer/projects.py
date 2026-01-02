@@ -1,6 +1,6 @@
 """Project preparation for HTML rendering."""
 from typing import Any, List, Dict
-from backend.cv_generator_docx.html_renderer.utils import clean_list_item
+from backend.cv_generator.html_renderer.utils import clean_list_item
 
 
 def prepare_projects(projects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:

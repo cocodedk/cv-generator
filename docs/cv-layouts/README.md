@@ -28,8 +28,8 @@ This folder proposes 10 viable HTML layout patterns for alternative CV looks. Ea
 
 All 10 layouts have been implemented and are available in the CV Generator:
 
-- ✅ Layout templates are located in `backend/cv_generator_docx/templates/layouts/`
-- ✅ Shared components are in `backend/cv_generator_docx/templates/layouts/components/`
+- ✅ Layout templates are located in `backend/cv_generator/templates/layouts/`
+- ✅ Shared components are in `backend/cv_generator/templates/layouts/components/`
 - ✅ Layout selection is available in the frontend CV form
 - ✅ Layouts work independently from themes (you can combine any theme with any layout)
 - ✅ All layouts support responsive design and print styles where applicable

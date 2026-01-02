@@ -1,8 +1,8 @@
 """Template data preparation for HTML rendering."""
 from typing import Dict, Any, List
-from backend.cv_generator_docx.html_renderer.utils import format_address
-from backend.cv_generator_docx.html_renderer.experience import prepare_experience
-from backend.cv_generator_docx.html_renderer.skills import prepare_skills
+from backend.cv_generator.html_renderer.utils import format_address
+from backend.cv_generator.html_renderer.experience import prepare_experience
+from backend.cv_generator.html_renderer.skills import prepare_skills
 
 
 def _parse_year(year_str: Any) -> int:

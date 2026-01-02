@@ -1,10 +1,10 @@
 """Main markdown rendering function."""
 from typing import Dict, Any, List
-from backend.cv_generator_docx.markdown_renderer.utils import yaml_escape
-from backend.cv_generator_docx.markdown_renderer.contact import render_contact_table
-from backend.cv_generator_docx.markdown_renderer.experience import render_experience
-from backend.cv_generator_docx.markdown_renderer.education import render_education
-from backend.cv_generator_docx.markdown_renderer.skills import render_skills
+from backend.cv_generator.markdown_renderer.utils import yaml_escape
+from backend.cv_generator.markdown_renderer.contact import render_contact_table
+from backend.cv_generator.markdown_renderer.experience import render_experience
+from backend.cv_generator.markdown_renderer.education import render_education
+from backend.cv_generator.markdown_renderer.skills import render_skills
 
 
 def render_markdown(cv_data: Dict[str, Any]) -> str:

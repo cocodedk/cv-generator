@@ -8,7 +8,7 @@ Review and update all tests to ensure they reflect recent code changes. This inc
   - Database queries (`backend/database/queries/`)
   - Services (`backend/services/`)
   - Models (`backend/models.py`, `backend/database/models.py`)
-  - CV generation logic (`backend/cv_generator/`, `backend/cv_generator_docx/`)
+  - CV generation logic (`backend/cv_generator/`)
 
 ## Frontend Tests
 - Update tests in `frontend/src/__tests__/` to match any changes in:

@@ -7,9 +7,9 @@ import os
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Any, Optional
-from backend.cv_generator_docx.generator import DocxCVGenerator
-from backend.cv_generator_docx.layouts import LAYOUTS
-from backend.cv_generator_docx.print_html_renderer import render_print_html
+from backend.cv_generator.generator import DocxCVGenerator
+from backend.cv_generator.layouts import LAYOUTS
+from backend.cv_generator.print_html_renderer import render_print_html
 from backend.database import queries
 
 logger = logging.getLogger(__name__)

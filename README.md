@@ -442,7 +442,7 @@ cv/
 │   │   ├── exception_handlers/ # Error handling
 │   │   ├── lifespan.py       # Application lifecycle
 │   │   └── middleware.py     # CORS, rate limiting
-│   ├── cv_generator_docx/    # DOCX document generation
+│   ├── cv_generator/          # CV generation (DOCX, HTML, print HTML)
 │   │   ├── generator.py      # Main generator
 │   │   ├── markdown_renderer/ # Markdown rendering
 │   │   ├── html_renderer/    # HTML rendering

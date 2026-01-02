@@ -1,7 +1,7 @@
 """Tests for CVFileService."""
 import json
 from backend.services.cv_file_service import CVFileService
-from backend.cv_generator_docx.layouts import LAYOUTS
+from backend.cv_generator.layouts import LAYOUTS
 
 
 def build_service(temp_output_dir, showcase_enabled=False):
