@@ -42,11 +42,15 @@ def _transform_text(text: str, key: str, reverse: bool = False) -> str:
 
 def scramble_text(text: str, key: str) -> str:
     """Scramble plain text with deterministic rotation."""
+    if not isinstance(key, str) or not key or not key.strip():
+        raise ValueError("key must be a non-empty string")
     return _transform_text(text, key, reverse=False)
 
 
 def scramble_html_text(text: str, key: str) -> str:
     """Scramble text while preserving HTML tags."""
+    if not isinstance(key, str) or not key or not key.strip():
+        raise ValueError("key must be a non-empty string")
     parts = re.split(r"(<[^>]+>)", text)
     scrambled = []
     for part in parts:
@@ -85,6 +89,8 @@ def _scramble_field_value(field: str, value: Any, key: str) -> Any:
 
 def scramble_personal_info(personal_info: Dict[str, Any], key: str) -> Dict[str, Any]:
     """Scramble personal info fields except public links."""
+    if not isinstance(key, str) or not key or not key.strip():
+        raise ValueError("key must be a non-empty string")
     if not personal_info:
         return {}
 

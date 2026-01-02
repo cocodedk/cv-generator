@@ -145,7 +145,6 @@
     <ul>
       <li><a href="#home">Home</a></li>
       <li><a href="#experience">Experience</a></li>
-      <li><a href="#projects">Projects</a></li>
       <li><a href="#education">Education</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
@@ -168,23 +167,6 @@
       <h2>Experience</h2>
       {% for exp in experience %}
         {% include "components/experience_item.html" %}
-      {% endfor %}
-    </section>
-    {% endif %}
-    {% if experience %}
-    <section id="projects">
-      <h2>Projects</h2>
-      {% for exp in experience %}
-        {% if exp.projects %}
-          {% for project in exp.projects %}
-            <div class="experience-item">
-              <h3 class="exp-title">{{ project.name }}</h3>
-              {% if project.url %}<div class="exp-meta"><a href="{{ project.url }}">{{ project.url }}</a></div>{% endif %}
-              {% if project.description %}<div class="exp-description">{{ project.description | safe }}</div>{% endif %}
-              {% if project.technologies %}<div class="exp-meta">Technologies: {{ project.technologies | join(', ') }}</div>{% endif %}
-            </div>
-          {% endfor %}
-        {% endif %}
       {% endfor %}
     </section>
     {% endif %}

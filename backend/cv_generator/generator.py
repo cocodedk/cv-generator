@@ -1,4 +1,5 @@
 """DOCX generation pipeline."""
+import tempfile
 from pathlib import Path
 from typing import Dict, Any
 from backend.themes import validate_theme
@@ -17,9 +18,19 @@ class DocxCVGenerator:
             output = output.with_suffix(".docx")
         output.parent.mkdir(parents=True, exist_ok=True)
 
-        html_path = output.with_suffix(".html")
-        html_path.write_text(render_html(cv_data), encoding="utf-8")
+        # Create temporary HTML file for intermediate conversion
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".html", delete=False, encoding="utf-8"
+        ) as temp_file:
+            html_path = Path(temp_file.name)
+            temp_file.write(render_html(cv_data))
 
-        reference_docx = ensure_template(theme)
-        convert_html_to_docx(html_path, output, reference_docx)
+        try:
+            reference_docx = ensure_template(theme)
+            convert_html_to_docx(html_path, output, reference_docx)
+        finally:
+            # Clean up temporary HTML file
+            if html_path.exists():
+                html_path.unlink()
+
         return str(output)

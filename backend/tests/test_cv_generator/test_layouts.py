@@ -208,6 +208,57 @@ def test_academic_cv_has_research_section(sample_cv_data):
     assert "Research Interests" in html
 
 
+def test_academic_cv_skills_in_correct_categories(sample_cv_data):
+    """Test that skills appear under their correct category headings in academic-cv layout."""
+    # Use skills with specific categories that should be clearly separated
+    sample_cv_data["skills"] = [
+        {"name": "React", "category": "Frontend"},
+        {"name": "Python", "category": "Programming"},
+    ]
+    sample_cv_data["layout"] = "academic-cv"
+    html = render_print_html(sample_cv_data)
+
+    # Find the skills section specifically (between <section id="skills"> and </section>)
+    skills_section_start = html.find('<section id="skills">')
+    assert skills_section_start != -1, "Skills section should be present"
+
+    # Find the end of the skills section (next </section> after skills section start)
+    skills_section_end = html.find("</section>", skills_section_start)
+    assert skills_section_end != -1, "Skills section should have closing tag"
+
+    # Extract only the skills section HTML
+    skills_section = html[skills_section_start:skills_section_end]
+
+    # Find positions within the skills section only
+    frontend_idx = skills_section.find("Frontend")
+    programming_idx = skills_section.find("Programming")
+    react_idx = skills_section.find("React")
+    python_idx = skills_section.find("Python")
+
+    # Both categories and skills should be present in the skills section
+    assert frontend_idx != -1, "Frontend category should be present in skills section"
+    assert programming_idx != -1, "Programming category should be present in skills section"
+    assert react_idx != -1, "React skill should be present in skills section"
+    assert python_idx != -1, "Python skill should be present in skills section"
+
+    # React should appear after Frontend heading and before Programming heading
+    assert react_idx > frontend_idx, "React should appear after Frontend category"
+    assert react_idx < programming_idx, "React should appear before Programming category"
+
+    # Python should appear after Programming heading
+    assert python_idx > programming_idx, "Python should appear after Programming category"
+
+    # Verify React is in the Frontend section (between Frontend and Programming headings)
+    section_between = skills_section[frontend_idx:programming_idx]
+    assert "React" in section_between, "React should be in the Frontend section"
+    assert "Python" not in section_between, "Python should not be in the Frontend section"
+
+    # Verify Python is in the Programming section (after Programming heading)
+    section_after_programming = skills_section[programming_idx:]
+    assert "Python" in section_after_programming, "Python should be in the Programming section"
+    assert "React" not in section_after_programming, "React should not be in the Programming section"
+
+
 def test_portfolio_spa_has_navigation(sample_cv_data):
     """Test that portfolio-spa layout has navigation links."""
     sample_cv_data["layout"] = "portfolio-spa"
