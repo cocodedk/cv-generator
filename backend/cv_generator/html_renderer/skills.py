@@ -17,15 +17,13 @@ def prepare_skills(skills: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, str
 
     # Sort skills within each category by name, then by level
     for category, skill_list in skills_by_category.items():
-        skill_list.sort(key=lambda s: (
-            s.get("name", "").lower(),
-            s.get("level", "").lower()
-        ))
+        skill_list.sort(
+            key=lambda s: (s.get("name", "").lower(), s.get("level", "").lower())
+        )
 
     # Sort categories alphabetically, with "Other" last
     sorted_categories = sorted(
-        skills_by_category.keys(),
-        key=lambda cat: (cat == "Other", cat.lower())
+        skills_by_category.keys(), key=lambda cat: (cat == "Other", cat.lower())
     )
 
     # Return dict with sorted order (Python 3.7+ maintains insertion order)

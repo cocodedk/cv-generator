@@ -3,6 +3,7 @@ interface CvFormHeaderProps {
   onLoadProfile: () => void
   onSaveProfile: () => void
   onGenerateFromJd: () => void
+  onGenerateCoverLetter?: () => void
   onDownloadPdf?: () => void
   isGeneratingPdf?: boolean
 }
@@ -12,6 +13,7 @@ export default function CvFormHeader({
   onLoadProfile,
   onSaveProfile,
   onGenerateFromJd,
+  onGenerateCoverLetter,
   onDownloadPdf,
   isGeneratingPdf = false,
 }: CvFormHeaderProps) {
@@ -41,6 +43,15 @@ export default function CvFormHeader({
           >
             Generate from JD
           </button>
+          {onGenerateCoverLetter && (
+            <button
+              type="button"
+              onClick={onGenerateCoverLetter}
+              className="px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
+            >
+              Cover Letter
+            </button>
+          )}
           {onDownloadPdf && (
             <button
               type="button"

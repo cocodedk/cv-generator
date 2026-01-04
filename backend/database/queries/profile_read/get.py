@@ -10,10 +10,13 @@ def get_profile() -> Optional[Dict[str, Any]]:
     driver = Neo4jConnection.get_driver()
     database = Neo4jConnection.get_database()
     match_clause = "MATCH (profile:Profile)"
-    query = build_full_profile_query(match_clause) + """
+    query = (
+        build_full_profile_query(match_clause)
+        + """
     ORDER BY profile.updated_at DESC
     LIMIT 1
     """
+    )
 
     with driver.session(database=database) as session:
 

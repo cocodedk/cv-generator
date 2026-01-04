@@ -11,9 +11,7 @@ class TestHtmlRoutes:
 
     async def test_generate_cv_html(self, client, sample_cv_data):
         """Ensure HTML generation endpoint returns filename."""
-        with patch(
-            "backend.database.queries.create_cv", return_value="html-cv-id"
-        ):
+        with patch("backend.database.queries.create_cv", return_value="html-cv-id"):
             with patch(
                 "backend.services.cv_file_service.CVFileService.generate_file_for_cv",
                 return_value="cv_html.html",
@@ -50,9 +48,7 @@ class TestHtmlRoutes:
                     "backend.services.cv_file_service.CVFileService.generate_file_for_cv",
                     return_value="test_cv.html",
                 ):
-                    response = await client.get(
-                        "/api/download-html/test_cv.html"
-                    )
+                    response = await client.get("/api/download-html/test_cv.html")
                     assert response.status_code == 200
                     assert response.headers["content-type"].startswith("text/html")
         finally:

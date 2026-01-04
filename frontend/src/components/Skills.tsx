@@ -35,7 +35,7 @@ export default function Skills({ control, register }: SkillsProps) {
 
       {fields.length === 0 && (
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          No skills added. Click "Add Skill" to add one.
+          No skills added. Click &quot;Add Skill&quot; to add one.
         </p>
       )}
 

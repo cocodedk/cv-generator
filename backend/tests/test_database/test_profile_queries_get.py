@@ -83,15 +83,19 @@ class TestGetProfile:
         mock_tx = Mock()
         mock_result = Mock()
         mock_record1 = Mock()
-        mock_record1.get = Mock(side_effect=lambda key, default=None: {
-            "name": "John Doe",
-            "updated_at": "2024-01-01T00:00:00",
-        }.get(key, default))
+        mock_record1.get = Mock(
+            side_effect=lambda key, default=None: {
+                "name": "John Doe",
+                "updated_at": "2024-01-01T00:00:00",
+            }.get(key, default)
+        )
         mock_record2 = Mock()
-        mock_record2.get = Mock(side_effect=lambda key, default=None: {
-            "name": "Jane Smith",
-            "updated_at": "2024-01-02T00:00:00",
-        }.get(key, default))
+        mock_record2.get = Mock(
+            side_effect=lambda key, default=None: {
+                "name": "Jane Smith",
+                "updated_at": "2024-01-02T00:00:00",
+            }.get(key, default)
+        )
         mock_result.__iter__ = Mock(return_value=iter([mock_record1, mock_record2]))
         mock_tx.run.return_value = mock_result
 

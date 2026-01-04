@@ -8,7 +8,17 @@ from fastapi.exceptions import RequestValidationError
 from backend.app_helpers.lifespan import lifespan
 from backend.app_helpers.middleware import setup_rate_limiting, setup_cors
 from backend.app_helpers.exception_handlers import validation_exception_handler
-from backend.app_helpers.routes import health, cv, profile, docx, html, print_html, ai, pdf
+from backend.app_helpers.routes import (
+    health,
+    cv,
+    profile,
+    docx,
+    html,
+    print_html,
+    ai,
+    pdf,
+    cover_letter,
+)
 from backend.services.cv_file_service import CVFileService
 from backend.services.pdf_service import PDFService
 
@@ -35,9 +45,17 @@ app.state.output_dir = output_dir
 # Initialize CV file service
 showcase_dir_env = os.getenv("CV_SHOWCASE_OUTPUT_DIR")
 showcase_keys_dir_env = os.getenv("CV_SHOWCASE_KEYS_DIR")
-showcase_enabled = os.getenv("CV_SHOWCASE_ENABLED", "true").lower() in {"1", "true", "yes"}
+showcase_enabled = os.getenv("CV_SHOWCASE_ENABLED", "true").lower() in {
+    "1",
+    "true",
+    "yes",
+}
 showcase_dir = Path(showcase_dir_env) if showcase_dir_env else output_dir / "showcase"
-showcase_keys_dir = Path(showcase_keys_dir_env) if showcase_keys_dir_env else output_dir / "showcase_keys"
+showcase_keys_dir = (
+    Path(showcase_keys_dir_env)
+    if showcase_keys_dir_env
+    else output_dir / "showcase_keys"
+)
 scramble_key = os.getenv("CV_SHOWCASE_SCRAMBLE_KEY")
 cv_file_service = CVFileService(
     output_dir=output_dir,
@@ -66,6 +84,8 @@ profile_router = profile.create_profile_router(limiter)
 app.include_router(profile_router)
 ai_router = ai.create_ai_router(limiter)
 app.include_router(ai_router)
+cover_letter_router = cover_letter.create_cover_letter_router(limiter, pdf_service)
+app.include_router(cover_letter_router)
 
 # Mount static files for frontend (only in production/Docker)
 # This must be after all API routes to ensure routes are checked first

@@ -26,7 +26,9 @@ def apply_paragraph_style(
     paragraph.line_spacing = float(line_height)
 
 
-def apply_character_style(style, theme: Dict[str, Any], text_def: Dict[str, Any]) -> None:
+def apply_character_style(
+    style, theme: Dict[str, Any], text_def: Dict[str, Any]
+) -> None:
     font = style.font
     font.name = theme["fontfamily"]
     font.size = Pt(_parse_pt(text_def.get("fontsize", "11pt")))

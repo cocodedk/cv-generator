@@ -14,14 +14,14 @@ import { BRANDING } from './app_helpers/branding'
 import './index.css'
 
 function App() {
-  const { viewMode, cvId, profileUpdatedAt } = useHashRouting()
+  const { viewMode, cvId } = useHashRouting()
   const { isDark, setIsDark } = useTheme()
   const { message, showMessage, clearMessage } = useMessage()
-  const [_loading, setLoading] = useState(false)
+  const [, setLoading] = useState(false)
 
   useEffect(() => {
     document.title = `${BRANDING.appName} — ${BRANDING.ownerName} (${BRANDING.companyName})`
-  }, [BRANDING.appName, BRANDING.ownerName, BRANDING.companyName])
+  }, [])
 
   const handleSuccess = useCallback(
     (message: string) => showMessage('success', message),

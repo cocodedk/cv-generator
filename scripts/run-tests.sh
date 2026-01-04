@@ -1,11 +1,13 @@
 #!/bin/bash
 
-# CV Generator - Run All Tests
-# This script runs backend and frontend tests
+# CV Generator - Run All Tests and Linting
+# This script runs linting, formatting checks, and tests for backend and frontend
 #
 # Usage:
-#   ./scripts/run-tests.sh                    # Run all tests (excludes integration tests)
+#   ./scripts/run-tests.sh                    # Run all (lint + tests, excludes integration tests)
 #   ./scripts/run-tests.sh --integration      # Run ONLY integration tests
+#   ./scripts/run-tests.sh --lint-only        # Run ONLY linting (no tests)
+#   ./scripts/run-tests.sh --test-only        # Run ONLY tests (no linting)
 #   ./scripts/run-tests.sh --help             # Show help
 
 set -e
@@ -25,6 +27,8 @@ cd "$PROJECT_ROOT"
 # Parse command-line arguments
 SHOW_HELP=0
 RUN_INTEGRATION=0
+LINT_ONLY=0
+TEST_ONLY=0
 
 for arg in "$@"; do
     case $arg in
@@ -34,6 +38,14 @@ for arg in "$@"; do
             ;;
         --integration|-i)
             RUN_INTEGRATION=1
+            shift
+            ;;
+        --lint-only|-l)
+            LINT_ONLY=1
+            shift
+            ;;
+        --test-only|-t)
+            TEST_ONLY=1
             shift
             ;;
         *)
@@ -46,26 +58,108 @@ done
 
 # Show help if requested
 if [ $SHOW_HELP -eq 1 ]; then
-    echo "CV Generator Test Runner"
+    echo "CV Generator Test & Lint Runner"
     echo ""
     echo "Usage:"
-    echo "  ./scripts/run-tests.sh                    Run all tests (frontend, backend, excludes integration)"
-    echo "  ./scripts/run-tests.sh --integration       Run ONLY integration tests"
-    echo "  ./scripts/run-tests.sh -i                  Short form for --integration"
-    echo "  ./scripts/run-tests.sh --help              Show this help message"
+    echo "  ./scripts/run-tests.sh                    Run all (lint + tests, excludes integration)"
+    echo "  ./scripts/run-tests.sh --integration      Run ONLY integration tests"
+    echo "  ./scripts/run-tests.sh --lint-only        Run ONLY linting (no tests)"
+    echo "  ./scripts/run-tests.sh --test-only        Run ONLY tests (no linting)"
+    echo "  ./scripts/run-tests.sh -l                 Short form for --lint-only"
+    echo "  ./scripts/run-tests.sh -t                 Short form for --test-only"
+    echo "  ./scripts/run-tests.sh -i                 Short form for --integration"
+    echo "  ./scripts/run-tests.sh --help             Show this help message"
     echo ""
     echo "Options:"
     echo "  --integration, -i    Run ONLY integration tests (WARNING: These tests run against"
     echo "                       the live Neo4j database and may delete data!)"
+    echo "  --lint-only, -l      Run only linting checks (flake8, eslint, prettier)"
+    echo "  --test-only, -t      Run only tests (skip linting)"
     exit 0
 fi
 
-echo -e "${BLUE}🧪 Running CV Generator Tests...${NC}"
+echo -e "${BLUE}🧪 Running CV Generator Tests & Linting...${NC}"
 echo ""
 
-# Track test results
+# Track results
+FLAKE8_PASSED=0
+ESLINT_PASSED=0
+PRETTIER_PASSED=0
 BACKEND_PASSED=0
 FRONTEND_PASSED=0
+
+# Function to run flake8 (backend linting)
+run_flake8() {
+    echo -e "${BLUE}🐍 Running flake8 (Python linting)...${NC}"
+
+    # Check if Docker is running
+    if ! docker info > /dev/null 2>&1; then
+        echo -e "${YELLOW}⚠️  Docker is not running. Skipping flake8.${NC}"
+        return 1
+    fi
+
+    # Check if containers are running
+    if ! docker-compose ps | grep -q "cv-app.*Up"; then
+        echo -e "${YELLOW}⚠️  Backend container is not running. Starting it...${NC}"
+        docker-compose up -d app
+        sleep 5
+    fi
+
+    if docker-compose exec -T app flake8 backend --config=.flake8 || docker-compose run --rm app flake8 backend --config=.flake8; then
+        echo -e "${GREEN}✅ flake8 passed!${NC}"
+        FLAKE8_PASSED=1
+        return 0
+    else
+        echo -e "${RED}❌ flake8 failed!${NC}"
+        return 1
+    fi
+}
+
+# Function to run ESLint (frontend linting)
+run_eslint() {
+    echo -e "${BLUE}📝 Running ESLint (TypeScript linting)...${NC}"
+
+    # Check if node_modules exists
+    if [ ! -d "node_modules" ]; then
+        echo -e "${YELLOW}⚠️  node_modules not found. Installing dependencies...${NC}"
+        npm install
+    fi
+
+    cd frontend
+    if ../node_modules/.bin/eslint src --ext .ts,.tsx; then
+        echo -e "${GREEN}✅ ESLint passed!${NC}"
+        ESLINT_PASSED=1
+        cd "$PROJECT_ROOT"
+        return 0
+    else
+        echo -e "${RED}❌ ESLint failed!${NC}"
+        cd "$PROJECT_ROOT"
+        return 1
+    fi
+}
+
+# Function to run Prettier (frontend formatting check)
+run_prettier() {
+    echo -e "${BLUE}✨ Running Prettier (formatting check)...${NC}"
+
+    # Check if node_modules exists
+    if [ ! -d "node_modules" ]; then
+        echo -e "${YELLOW}⚠️  node_modules not found. Installing dependencies...${NC}"
+        npm install
+    fi
+
+    cd frontend
+    if ../node_modules/.bin/prettier --check "src/**/*.{ts,tsx,css}"; then
+        echo -e "${GREEN}✅ Prettier passed!${NC}"
+        PRETTIER_PASSED=1
+        cd "$PROJECT_ROOT"
+        return 0
+    else
+        echo -e "${RED}❌ Prettier failed! Run 'npm run format:frontend' to fix.${NC}"
+        cd "$PROJECT_ROOT"
+        return 1
+    fi
+}
 
 # Function to run backend tests
 run_backend_tests() {
@@ -141,52 +235,111 @@ run_frontend_tests() {
     fi
 }
 
-# Run tests
+# Run linting and tests based on flags
 # Temporarily disable set -e to allow capturing exit codes
 set +e
 
-echo -e "${BLUE}════════════════════════════════════════${NC}"
-run_frontend_tests
-FRONTEND_EXIT=$?
+# Run linting (unless --test-only or --integration)
+if [ $TEST_ONLY -eq 0 ] && [ $RUN_INTEGRATION -eq 0 ]; then
+    echo -e "${BLUE}════════════════════════════════════════${NC}"
+    echo -e "${BLUE}🔍 LINTING${NC}"
+    echo -e "${BLUE}════════════════════════════════════════${NC}"
+    echo ""
 
-echo ""
-echo -e "${BLUE}════════════════════════════════════════${NC}"
-run_backend_tests
-BACKEND_EXIT=$?
+    run_flake8
+    FLAKE8_EXIT=$?
+    echo ""
+
+    run_eslint
+    ESLINT_EXIT=$?
+    echo ""
+
+    run_prettier
+    PRETTIER_EXIT=$?
+    echo ""
+fi
+
+# Run tests (unless --lint-only)
+if [ $LINT_ONLY -eq 0 ]; then
+    echo -e "${BLUE}════════════════════════════════════════${NC}"
+    echo -e "${BLUE}🧪 TESTS${NC}"
+    echo -e "${BLUE}════════════════════════════════════════${NC}"
+    echo ""
+
+    run_frontend_tests
+    FRONTEND_EXIT=$?
+    echo ""
+
+    run_backend_tests
+    BACKEND_EXIT=$?
+    echo ""
+fi
 
 # Re-enable set -e for the rest of the script
 set -e
 
 # Summary
-echo ""
 echo -e "${BLUE}════════════════════════════════════════${NC}"
-echo -e "${BLUE}📊 Test Summary${NC}"
+echo -e "${BLUE}📊 Summary${NC}"
 echo -e "${BLUE}════════════════════════════════════════${NC}"
 
-if [ $BACKEND_PASSED -eq 1 ]; then
-    echo -e "Backend:  ${GREEN}✅ PASSED${NC}"
-else
-    echo -e "Backend:  ${RED}❌ FAILED${NC}"
+# Show linting results (if run)
+if [ $TEST_ONLY -eq 0 ] && [ $RUN_INTEGRATION -eq 0 ]; then
+    echo -e "${BLUE}Linting:${NC}"
+    if [ $FLAKE8_PASSED -eq 1 ]; then
+        echo -e "  flake8:   ${GREEN}✅ PASSED${NC}"
+    else
+        echo -e "  flake8:   ${RED}❌ FAILED${NC}"
+    fi
+    if [ $ESLINT_PASSED -eq 1 ]; then
+        echo -e "  ESLint:   ${GREEN}✅ PASSED${NC}"
+    else
+        echo -e "  ESLint:   ${RED}❌ FAILED${NC}"
+    fi
+    if [ $PRETTIER_PASSED -eq 1 ]; then
+        echo -e "  Prettier: ${GREEN}✅ PASSED${NC}"
+    else
+        echo -e "  Prettier: ${RED}❌ FAILED${NC}"
+    fi
+    echo ""
 fi
 
-if [ $FRONTEND_PASSED -eq 1 ]; then
-    echo -e "Frontend: ${GREEN}✅ PASSED${NC}"
-else
-    echo -e "Frontend: ${RED}❌ FAILED${NC}"
+# Show test results (if run)
+if [ $LINT_ONLY -eq 0 ]; then
+    echo -e "${BLUE}Tests:${NC}"
+    if [ $BACKEND_PASSED -eq 1 ]; then
+        echo -e "  Backend:  ${GREEN}✅ PASSED${NC}"
+    else
+        echo -e "  Backend:  ${RED}❌ FAILED${NC}"
+    fi
+    if [ $FRONTEND_PASSED -eq 1 ]; then
+        echo -e "  Frontend: ${GREEN}✅ PASSED${NC}"
+    else
+        echo -e "  Frontend: ${RED}❌ FAILED${NC}"
+    fi
 fi
 
 echo ""
 
-# Exit with appropriate code
+# Determine overall result
 ALL_PASSED=1
-if [ $BACKEND_PASSED -ne 1 ] || [ $FRONTEND_PASSED -ne 1 ]; then
-    ALL_PASSED=0
+
+if [ $TEST_ONLY -eq 0 ] && [ $RUN_INTEGRATION -eq 0 ]; then
+    if [ $FLAKE8_PASSED -ne 1 ] || [ $ESLINT_PASSED -ne 1 ] || [ $PRETTIER_PASSED -ne 1 ]; then
+        ALL_PASSED=0
+    fi
+fi
+
+if [ $LINT_ONLY -eq 0 ]; then
+    if [ $BACKEND_PASSED -ne 1 ] || [ $FRONTEND_PASSED -ne 1 ]; then
+        ALL_PASSED=0
+    fi
 fi
 
 if [ $ALL_PASSED -eq 1 ]; then
-    echo -e "${GREEN}🎉 All tests passed!${NC}"
+    echo -e "${GREEN}🎉 All checks passed!${NC}"
     exit 0
 else
-    echo -e "${RED}❌ Some tests failed!${NC}"
+    echo -e "${RED}❌ Some checks failed!${NC}"
     exit 1
 fi

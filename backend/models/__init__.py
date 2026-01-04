@@ -4,7 +4,12 @@ from backend.models.personal import Address, PersonalInfo
 from backend.models.experience import Project, Experience
 from backend.models.education import Education, Skill
 from backend.models.cv import CVData, CVResponse, CVListItem, CVListResponse
-from backend.models.profile import ProfileData, ProfileResponse, ProfileListItem, ProfileListResponse
+from backend.models.profile import (
+    ProfileData,
+    ProfileResponse,
+    ProfileListItem,
+    ProfileListResponse,
+)
 
 __all__ = [
     "Address",

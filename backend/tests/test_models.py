@@ -91,7 +91,10 @@ class TestExperience:
         """Test that description can contain HTML formatting."""
         html_desc = "<p>Built <strong>web services</strong> using <em>FastAPI</em>.</p>"
         exp = Experience(
-            title="Developer", company="Tech Corp", start_date="2020-01", description=html_desc
+            title="Developer",
+            company="Tech Corp",
+            start_date="2020-01",
+            description=html_desc,
         )
         assert exp.description == html_desc
 
@@ -100,7 +103,10 @@ class TestExperience:
         # HTML with 50 chars of plain text should pass
         html_short = "<p>" + "x" * 50 + "</p>"
         exp = Experience(
-            title="Developer", company="Tech Corp", start_date="2020-01", description=html_short
+            title="Developer",
+            company="Tech Corp",
+            start_date="2020-01",
+            description=html_short,
         )
         assert exp.description == html_short
 
@@ -108,7 +114,10 @@ class TestExperience:
         long_text = "x" * 301
         with pytest.raises(ValidationError) as exc_info:
             Experience(
-                title="Developer", company="Tech Corp", start_date="2020-01", description=long_text
+                title="Developer",
+                company="Tech Corp",
+                start_date="2020-01",
+                description=long_text,
             )
         assert "300" in str(exc_info.value)
 
@@ -129,7 +138,10 @@ class TestExperience:
         html_long = f"<p>{long_plain}</p>"
         with pytest.raises(ValidationError):
             Experience(
-                title="Developer", company="Tech Corp", start_date="2020-01", description=html_long
+                title="Developer",
+                company="Tech Corp",
+                start_date="2020-01",
+                description=html_long,
             )
 
     def test_description_handles_html_entities(self):

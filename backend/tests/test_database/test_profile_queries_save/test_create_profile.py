@@ -23,14 +23,16 @@ class TestCreateProfile:
         # 2. create_person_node - returns person record
         # 3. create_experience_nodes, create_education_nodes, create_skill_nodes - no return
         # 4. verify profile - returns profile
-        mock_tx, _ = create_mock_tx_with_multiple_results([
-            None,  # create_profile_node
-            {"profile": {}, "newPerson": {}},  # create_person_node
-            None,  # create_experience_nodes
-            None,  # create_education_nodes
-            None,  # create_skill_nodes
-            {"profile": {}},  # final verify
-        ])
+        mock_tx, _ = create_mock_tx_with_multiple_results(
+            [
+                None,  # create_profile_node
+                {"profile": {}, "newPerson": {}},  # create_person_node
+                None,  # create_experience_nodes
+                None,  # create_education_nodes
+                None,  # create_skill_nodes
+                {"profile": {}},  # final verify
+            ]
+        )
 
         setup_mock_session_for_write(mock_session, mock_tx)
 

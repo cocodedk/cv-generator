@@ -23,14 +23,20 @@ def _check_profile_exists(tx) -> bool:
 def create_profile(profile_data: Dict[str, Any]) -> bool:
     """Create a new master profile in Neo4j."""
     # Use the fixed create_profile from profile_create module
-    from backend.database.queries.profile_create.create import create_profile as create_profile_fixed
+    from backend.database.queries.profile_create.create import (
+        create_profile as create_profile_fixed,
+    )
+
     return create_profile_fixed(profile_data)
 
 
 def update_profile(profile_data: Dict[str, Any]) -> bool:
     """Update existing master profile in Neo4j."""
     # Use the fixed update_profile from profile_update module
-    from backend.database.queries.profile_update.update import update_profile as update_profile_fixed
+    from backend.database.queries.profile_update.update import (
+        update_profile as update_profile_fixed,
+    )
+
     return update_profile_fixed(profile_data)
 
 
@@ -81,10 +87,12 @@ def list_profiles() -> list[Dict[str, Any]]:
             result = tx.run(LIST_PROFILES_QUERY)
             profiles = []
             for record in result:
-                profiles.append({
-                    "name": record.get("name", "Unknown"),
-                    "updated_at": record.get("updated_at"),
-                })
+                profiles.append(
+                    {
+                        "name": record.get("name", "Unknown"),
+                        "updated_at": record.get("updated_at"),
+                    }
+                )
             return profiles
 
         return session.execute_read(work)

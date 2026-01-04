@@ -1,7 +1,9 @@
 """Education node creation for profile update."""
 
 
-def create_education_nodes(tx, updated_at: str, person_element_id: str, educations: list):
+def create_education_nodes(
+    tx, updated_at: str, person_element_id: str, educations: list
+):
     """Create Education nodes and link to Profile and Person."""
     if not educations:
         return
@@ -19,4 +21,9 @@ def create_education_nodes(tx, updated_at: str, person_element_id: str, educatio
     CREATE (person)-[:HAS_EDUCATION]->(education)
     CREATE (education)-[:BELONGS_TO_PROFILE]->(profile)
     """
-    tx.run(query, updated_at=updated_at, person_element_id=person_element_id, educations=educations)
+    tx.run(
+        query,
+        updated_at=updated_at,
+        person_element_id=person_element_id,
+        educations=educations,
+    )

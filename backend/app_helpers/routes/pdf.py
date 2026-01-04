@@ -19,8 +19,12 @@ class PDFExportRequest(BaseModel):
     """Request model for PDF export from HTML."""
 
     html: str = Field(..., min_length=1, description="HTML content to render")
-    format: Optional[str] = Field(default="A4_WIDTH_LONG", description="Format identifier")
-    margin_mm: Optional[int] = Field(default=0, ge=0, description="Margin in millimeters")
+    format: Optional[str] = Field(
+        default="A4_WIDTH_LONG", description="Format identifier"
+    )
+    margin_mm: Optional[int] = Field(
+        default=0, ge=0, description="Margin in millimeters"
+    )
 
 
 def create_pdf_router(  # noqa: C901
@@ -44,9 +48,7 @@ def create_pdf_router(  # noqa: C901
             return Response(
                 content=pdf_bytes,
                 media_type="application/pdf",
-                headers={
-                    "Content-Disposition": 'attachment; filename="cv_long.pdf"'
-                },
+                headers={"Content-Disposition": 'attachment; filename="cv_long.pdf"'},
             )
         except ValueError as e:
             logger.error("PDF export validation error: %s", e)
@@ -54,8 +56,7 @@ def create_pdf_router(  # noqa: C901
         except Exception as exc:
             logger.error("Failed to generate PDF", exc_info=exc)
             raise HTTPException(
-                status_code=500,
-                detail=f"PDF generation failed: {str(exc)}"
+                status_code=500, detail=f"PDF generation failed: {str(exc)}"
             ) from exc
 
     @router.post("/api/cv/{cv_id}/export-pdf/long")
@@ -106,8 +107,7 @@ def create_pdf_router(  # noqa: C901
         except Exception as exc:
             logger.error("Failed to generate PDF for CV %s", cv_id, exc_info=exc)
             raise HTTPException(
-                status_code=500,
-                detail=f"PDF generation failed: {str(exc)}"
+                status_code=500, detail=f"PDF generation failed: {str(exc)}"
             ) from exc
 
     return router

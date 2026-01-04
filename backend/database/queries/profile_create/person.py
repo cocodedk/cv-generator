@@ -26,6 +26,6 @@ def create_person_node(tx, updated_at: str, params: Dict[str, Any]):
     RETURN profile, newPerson
     """
     # Remove updated_at from params since we're passing it explicitly
-    params_without_updated_at = {k: v for k, v in params.items() if k != 'updated_at'}
+    params_without_updated_at = {k: v for k, v in params.items() if k != "updated_at"}
     result = tx.run(query, updated_at=updated_at, **params_without_updated_at)
     return result.single()

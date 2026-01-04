@@ -7,10 +7,10 @@ from backend.scripts.create_profile_from_me.education import get_education_data
 from backend.scripts.create_profile_from_me.skills import get_skills_data
 
 __all__ = [
-    'get_profile_data',
-    'create_profile',
-    'get_personal_info',
-    'get_experience_data',
-    'get_education_data',
-    'get_skills_data',
+    "get_profile_data",
+    "create_profile",
+    "get_personal_info",
+    "get_experience_data",
+    "get_education_data",
+    "get_skills_data",
 ]

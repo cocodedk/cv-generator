@@ -40,6 +40,8 @@ def process_cv_record(record: Any) -> Optional[Dict[str, Any]]:
         "filename": record["cv"].get("filename"),
         "theme": record["cv"].get("theme", "classic"),
         "layout": record["cv"].get("layout", "classic-two-column"),
+        "target_company": record["cv"].get("target_company"),
+        "target_role": record["cv"].get("target_role"),
         "personal_info": {
             "name": person.get("name"),
             "title": person.get("title"),

@@ -32,7 +32,6 @@ export function useEditorExtensions(placeholder?: string) {
  */
 export function getEditorProps({
   id,
-  placeholder,
   error,
   minHeight,
 }: EditorConfigOptions): EditorOptions['editorProps'] {

@@ -42,7 +42,7 @@ export default function Experience({ control, register, errors, showAiAssist }: 
 
       {fields.length === 0 && (
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          No experience added. Click "Add Experience" to add one.
+          No experience added. Click &quot;Add Experience&quot; to add one.
         </p>
       )}
 

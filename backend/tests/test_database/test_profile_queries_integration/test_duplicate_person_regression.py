@@ -25,11 +25,14 @@ class TestDuplicatePersonRegression:
                 "email": "test" + sample_cv_data["personal_info"]["email"],
                 "phone": "test" + sample_cv_data["personal_info"]["phone"],
                 "address": {
-                    "street": "test" + sample_cv_data["personal_info"]["address"]["street"],
+                    "street": "test"
+                    + sample_cv_data["personal_info"]["address"]["street"],
                     "city": "test" + sample_cv_data["personal_info"]["address"]["city"],
-                    "state": "test" + sample_cv_data["personal_info"]["address"]["state"],
+                    "state": "test"
+                    + sample_cv_data["personal_info"]["address"]["state"],
                     "zip": "test" + sample_cv_data["personal_info"]["address"]["zip"],
-                    "country": "test" + sample_cv_data["personal_info"]["address"]["country"],
+                    "country": "test"
+                    + sample_cv_data["personal_info"]["address"]["country"],
                 },
                 "linkedin": "test" + sample_cv_data["personal_info"]["linkedin"],
                 "github": "test" + sample_cv_data["personal_info"]["github"],
@@ -136,17 +139,19 @@ class TestDuplicatePersonRegression:
                     updated_at=new_profile_updated_at,
                 )
                 after = result.single()
-                assert after["person_count"] == 1, "Should have exactly 1 Person node after update"
+                assert (
+                    after["person_count"] == 1
+                ), "Should have exactly 1 Person node after update"
                 # Verify child nodes match input (not multiplied)
-                assert after["exp_count"] == len(new_profile_data["experience"]), (
-                    f"Experience count should match input: {after['exp_count']} != {len(new_profile_data['experience'])}"
-                )
-                assert after["edu_count"] == len(new_profile_data["education"]), (
-                    f"Education count should match input: {after['edu_count']} != {len(new_profile_data['education'])}"
-                )
-                assert after["skill_count"] == len(new_profile_data["skills"]), (
-                    f"Skill count should match input: {after['skill_count']} != {len(new_profile_data['skills'])}"
-                )
+                assert after["exp_count"] == len(
+                    new_profile_data["experience"]
+                ), f"Experience count should match input: {after['exp_count']} != {len(new_profile_data['experience'])}"
+                assert after["edu_count"] == len(
+                    new_profile_data["education"]
+                ), f"Education count should match input: {after['edu_count']} != {len(new_profile_data['education'])}"
+                assert after["skill_count"] == len(
+                    new_profile_data["skills"]
+                ), f"Skill count should match input: {after['skill_count']} != {len(new_profile_data['skills'])}"
         finally:
             # Always cleanup: Delete the test profile (even if test fails)
             # Safety: Only delete profiles that are verified to be test profiles
@@ -161,7 +166,9 @@ class TestDuplicatePersonRegression:
                 if profiles_after:
                     new_profile_updated_at = profiles_after[0]["updated_at"]
                     if new_profile_updated_at != profile_updated_at:
-                        new_profile = queries.get_profile_by_updated_at(new_profile_updated_at)
+                        new_profile = queries.get_profile_by_updated_at(
+                            new_profile_updated_at
+                        )
                         if new_profile and is_test_profile(new_profile):
                             queries.delete_profile_by_updated_at(new_profile_updated_at)
             except Exception:

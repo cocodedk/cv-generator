@@ -12,7 +12,6 @@ interface CVFormModalsProps {
   getValues: UseFormGetValues<CVData>
   reset: UseFormReset<CVData>
   onCloseAiModal: () => void
-  onApplyDraft: (draft: CVData) => void
   onError: (message: string | string[]) => void
   setLoading: (loading: boolean) => void
   onExperienceToggle: (index: number, checked: boolean) => void
@@ -35,7 +34,6 @@ export default function CVFormModals({
   getValues,
   reset,
   onCloseAiModal,
-  onApplyDraft,
   onError,
   setLoading,
   onExperienceToggle,
@@ -49,7 +47,7 @@ export default function CVFormModals({
       {showAiModal && (
         <AiGenerateModal
           onClose={onCloseAiModal}
-          onApply={draft => {
+          onApply={(draft: CVData) => {
             const currentTheme = getValues('theme')
             reset({ ...draft, theme: currentTheme || draft.theme })
             onSuccess('Draft applied. Review and save when ready.')

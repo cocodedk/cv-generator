@@ -68,7 +68,10 @@ async def _handle_download_html(
 
     # Accept both HTML and DOCX files (for backward compatibility with old filenames)
     if not filename.endswith((".html", ".docx")):
-        raise HTTPException(status_code=400, detail="Invalid file type - only .html and .docx files allowed")
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid file type - only .html and .docx files allowed",
+        )
 
     _validate_filename(filename)
 
@@ -82,7 +85,9 @@ async def _handle_download_html(
 
     # Always generate HTML file, regardless of requested filename extension
     # If filename ends with .docx (old data), generate HTML with .html extension
-    html_filename = filename.replace(".docx", ".html") if filename.endswith(".docx") else filename
+    html_filename = (
+        filename.replace(".docx", ".html") if filename.endswith(".docx") else filename
+    )
     cv_file_service.generate_file_for_cv(cv_id, cv_dict)
     file_path = _resolve_file_path(current_output_dir, html_filename)
     return _build_html_response(file_path, html_filename)
@@ -103,9 +108,7 @@ async def _handle_generate_cv_html_file(
         raise
     except Exception as exc:
         logger.error("Failed to generate HTML CV file for %s", cv_id, exc_info=exc)
-        raise HTTPException(
-            status_code=500, detail="Failed to generate HTML CV file"
-        )
+        raise HTTPException(status_code=500, detail="Failed to generate HTML CV file")
 
 
 def _ensure_theme(cv_dict: dict) -> None:
@@ -120,9 +123,7 @@ def _resolve_output_dir(request: Request, output_dir: Optional[Path]) -> Path:
     else:
         current_output_dir = app_state_output_dir
     if current_output_dir is None:
-        raise HTTPException(
-            status_code=500, detail="Output directory not configured"
-        )
+        raise HTTPException(status_code=500, detail="Output directory not configured")
     return current_output_dir
 
 

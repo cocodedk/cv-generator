@@ -1,6 +1,6 @@
 import { CVData } from './cv'
 
-export type AIGenerateStyle = 'select_and_reorder' | 'rewrite_bullets'
+export type AIGenerateStyle = 'select_and_reorder' | 'rewrite_bullets' | 'llm_tailor'
 
 export interface AIGenerateCVRequest {
   job_description: string
@@ -8,6 +8,7 @@ export interface AIGenerateCVRequest {
   seniority?: string
   style?: AIGenerateStyle
   max_experiences?: number
+  additional_context?: string
 }
 
 export interface EvidenceItem {

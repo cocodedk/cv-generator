@@ -62,29 +62,32 @@ class Experience(BaseModel):
     location: Optional[str] = None
     projects: List[Project] = Field(default_factory=list)
 
-    @field_validator('description')
+    @field_validator("description")
     @classmethod
-    def validate_description_length(cls, v: str | None, info: ValidationInfo) -> str | None:
+    def validate_description_length(
+        cls, v: str | None, info: ValidationInfo
+    ) -> str | None:
         """Validate description length by counting plain text (HTML stripped)."""
         if v is None:
             return v
         # Strip HTML tags to count only plain text
-        plain_text = re.sub(r'<[^>]+>', '', v)
+        plain_text = re.sub(r"<[^>]+>", "", v)
         # Replace HTML entities with single characters
-        plain_text = plain_text.replace('&nbsp;', ' ')
-        plain_text = plain_text.replace('&amp;', '&')
-        plain_text = plain_text.replace('&lt;', '<')
-        plain_text = plain_text.replace('&gt;', '>')
-        plain_text = plain_text.replace('&quot;', '"')
-        plain_text = plain_text.replace('&#39;', "'")
+        plain_text = plain_text.replace("&nbsp;", " ")
+        plain_text = plain_text.replace("&amp;", "&")
+        plain_text = plain_text.replace("&lt;", "<")
+        plain_text = plain_text.replace("&gt;", ">")
+        plain_text = plain_text.replace("&quot;", '"')
+        plain_text = plain_text.replace("&#39;", "'")
         # Decode numeric entities
-        plain_text = re.sub(r'&#(\d+);', lambda m: chr(int(m.group(1))), plain_text)
+        plain_text = re.sub(r"&#(\d+);", lambda m: chr(int(m.group(1))), plain_text)
         if len(plain_text) > 300:
             from pydantic_core import PydanticCustomError
+
             raise PydanticCustomError(
-                'string_too_long',
-                'String should have at most 300 characters',
-                {'max_length': 300}
+                "string_too_long",
+                "String should have at most 300 characters",
+                {"max_length": 300},
             )
         return v
 
@@ -122,6 +125,16 @@ class CVData(BaseModel):
         default="classic-two-column",
         description="CV layout: classic-two-column, ats-single-column, modern-sidebar, section-cards-grid, career-timeline, project-case-studies, portfolio-spa, interactive-skills-matrix, academic-cv, dark-mode-tech",
     )
+    target_company: Optional[str] = Field(
+        default=None,
+        max_length=200,
+        description="Target company this CV was tailored for",
+    )
+    target_role: Optional[str] = Field(
+        default=None,
+        max_length=200,
+        description="Target role this CV was tailored for",
+    )
 
 
 class CVResponse(BaseModel):
@@ -140,6 +153,8 @@ class CVListItem(BaseModel):
     updated_at: str
     person_name: Optional[str] = None
     filename: Optional[str] = None
+    target_company: Optional[str] = None
+    target_role: Optional[str] = None
 
 
 class CVListResponse(BaseModel):

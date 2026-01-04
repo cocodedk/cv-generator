@@ -1,7 +1,9 @@
 """Experience node creation for profile update."""
 
 
-def create_experience_nodes(tx, updated_at: str, person_element_id: str, experiences: list):
+def create_experience_nodes(
+    tx, updated_at: str, person_element_id: str, experiences: list
+):
     """Create Experience nodes with Projects and link to Profile and Person."""
     if not experiences:
         return
@@ -31,4 +33,9 @@ def create_experience_nodes(tx, updated_at: str, person_element_id: str, experie
     CREATE (experience)-[:HAS_PROJECT]->(project)
     CREATE (project)-[:BELONGS_TO_PROFILE]->(profile)
     """
-    tx.run(query, updated_at=updated_at, person_element_id=person_element_id, experiences=experiences)
+    tx.run(
+        query,
+        updated_at=updated_at,
+        person_element_id=person_element_id,
+        experiences=experiences,
+    )

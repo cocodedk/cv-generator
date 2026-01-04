@@ -13,9 +13,7 @@ class TestGenerateCV:
     ):
         """Test successful DOCX CV generation."""
         with patch("backend.database.queries.create_cv", return_value="test-cv-id"):
-            with patch(
-                "backend.database.queries.set_cv_filename", return_value=True
-            ):
+            with patch("backend.database.queries.set_cv_filename", return_value=True):
                 with patch(
                     "backend.services.cv_file_service.CVFileService.generate_docx_for_cv",
                     return_value="cv_test.docx",
@@ -32,9 +30,7 @@ class TestGenerateCV:
     async def test_generate_cv_validation_error(self, client):
         """Test CV generation with invalid data."""
         invalid_data = {"personal_info": {"name": ""}}  # Invalid: empty name
-        response = await client.post(
-            "/api/generate-cv-docx", json=invalid_data
-        )
+        response = await client.post("/api/generate-cv-docx", json=invalid_data)
         assert response.status_code == 422
 
     async def test_generate_cv_server_error(
@@ -45,9 +41,7 @@ class TestGenerateCV:
             "backend.database.queries.create_cv",
             side_effect=Exception("Database error"),
         ):
-            response = await client.post(
-                "/api/generate-cv-docx", json=sample_cv_data
-            )
+            response = await client.post("/api/generate-cv-docx", json=sample_cv_data)
             assert response.status_code == 500
 
     async def test_generate_cv_saves_theme(
@@ -57,9 +51,7 @@ class TestGenerateCV:
         sample_cv_data["theme"] = "elegant"
         with patch("backend.database.queries.create_cv") as mock_create:
             mock_create.return_value = "test-cv-id"
-            with patch(
-                "backend.database.queries.set_cv_filename", return_value=True
-            ):
+            with patch("backend.database.queries.set_cv_filename", return_value=True):
                 with patch(
                     "backend.services.cv_file_service.CVFileService.generate_docx_for_cv",
                     return_value="cv_test.docx",

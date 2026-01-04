@@ -2,7 +2,7 @@
 import sys
 
 # Add app directory to path (Docker container has /app as working directory)
-sys.path.insert(0, '/app')
+sys.path.insert(0, "/app")
 
 from backend.database.connection import Neo4jConnection
 

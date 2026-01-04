@@ -69,6 +69,26 @@ export default function AiGenerateModal({
     onClose()
   }
 
+  const onRegenerateWithAnswers = async (answers: string) => {
+    if (!canGenerate || isGenerating) return
+    setIsGenerating(true)
+    setLoading(true)
+    setResult(null)
+    try {
+      const existingContext = payload.additional_context?.trim()
+      const newContext = existingContext ? `${existingContext}\n\n${answers}` : answers
+      const updatedPayload = { ...payload, additional_context: newContext }
+      setPayload(updatedPayload)
+      const response = await generateCvDraft(updatedPayload)
+      setResult(response)
+    } catch (error: unknown) {
+      onError(getErrorDetail(error) || 'Failed to regenerate CV draft')
+    } finally {
+      setIsGenerating(false)
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
       <div className="w-full max-w-3xl rounded-lg bg-white shadow-lg dark:border dark:border-gray-800 dark:bg-gray-900">
@@ -92,7 +112,13 @@ export default function AiGenerateModal({
             canGenerate={canGenerate}
             onChange={updateField}
           />
-          {result ? <AiGeneratePanels result={result} /> : null}
+          {result ? (
+            <AiGeneratePanels
+              result={result}
+              isGenerating={isGenerating}
+              onRegenerateWithAnswers={onRegenerateWithAnswers}
+            />
+          ) : null}
         </div>
 
         <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-800">

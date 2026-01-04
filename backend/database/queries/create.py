@@ -17,7 +17,9 @@ def create_cv(cv_data: Dict[str, Any]) -> str:
         id: $cv_id,
         created_at: $created_at,
         updated_at: $created_at,
-        theme: $theme
+        theme: $theme,
+        target_company: $target_company,
+        target_role: $target_role
     })
 
     // Create Person node
@@ -95,6 +97,8 @@ def create_cv(cv_data: Dict[str, Any]) -> str:
     personal_info = cv_data.get("personal_info", {})
     address = personal_info.get("address") or {}
     theme = cv_data.get("theme", "classic")
+    target_company = cv_data.get("target_company")
+    target_role = cv_data.get("target_role")
 
     with driver.session(database=database) as session:
 
@@ -104,6 +108,8 @@ def create_cv(cv_data: Dict[str, Any]) -> str:
                 cv_id=cv_id,
                 created_at=created_at,
                 theme=theme,
+                target_company=target_company,
+                target_role=target_role,
                 name=personal_info.get("name", ""),
                 title=personal_info.get("title"),
                 email=personal_info.get("email"),

@@ -4,12 +4,7 @@ from typing import Any
 
 def escape_html(value: str) -> str:
     """Escape HTML special characters."""
-    return (
-        str(value)
-        .replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-    )
+    return str(value).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
 def format_address(address: Any) -> str:

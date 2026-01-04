@@ -2,7 +2,7 @@
 import sys
 
 # Add app directory to path (Docker container has /app as working directory)
-sys.path.insert(0, '/app')
+sys.path.insert(0, "/app")
 
 from backend.database.connection import Neo4jConnection
 
@@ -38,7 +38,9 @@ def clear_database():
             return
 
         # Confirm deletion
-        print(f"\n⚠️  WARNING: This will delete ALL {before_count} nodes and relationships!")
+        print(
+            f"\n⚠️  WARNING: This will delete ALL {before_count} nodes and relationships!"
+        )
         print("Proceeding with deletion...")
 
         # Delete all nodes
@@ -63,6 +65,7 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"❌ Error: {e}")
         import traceback
+
         traceback.print_exc()
     finally:
         Neo4jConnection.close()

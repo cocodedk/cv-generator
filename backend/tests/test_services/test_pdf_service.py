@@ -215,4 +215,10 @@ class TestGenerateLongPDF:
             pdf_call = mock_page.pdf.call_args
             assert pdf_call is not None
             assert pdf_call.kwargs["width"] == "210mm"
-            assert abs(float(pdf_call.kwargs["height"].replace("mm", "")) - expected_height_mm) < 0.1
+            assert (
+                abs(
+                    float(pdf_call.kwargs["height"].replace("mm", ""))
+                    - expected_height_mm
+                )
+                < 0.1
+            )

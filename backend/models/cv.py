@@ -21,6 +21,16 @@ class CVData(BaseModel):
         default="classic-two-column",
         description="CV layout: classic-two-column, ats-single-column, modern-sidebar, section-cards-grid, career-timeline, project-case-studies, portfolio-spa, interactive-skills-matrix, academic-cv, dark-mode-tech",
     )
+    target_company: Optional[str] = Field(
+        default=None,
+        max_length=200,
+        description="Target company this CV was tailored for",
+    )
+    target_role: Optional[str] = Field(
+        default=None,
+        max_length=200,
+        description="Target role this CV was tailored for",
+    )
 
 
 class CVResponse(BaseModel):
@@ -39,6 +49,8 @@ class CVListItem(BaseModel):
     updated_at: str
     person_name: Optional[str] = None
     filename: Optional[str] = None
+    target_company: Optional[str] = None
+    target_role: Optional[str] = None
 
 
 class CVListResponse(BaseModel):

@@ -6,7 +6,7 @@ from typing import List, Tuple
 
 from backend.models import Education, Experience, Project, Skill
 from backend.services.ai.scoring import score_item, top_n_scored
-from backend.services.ai.text import extract_words, normalize_text
+from backend.services.ai.text import extract_words, word_set, tech_terms_match
 
 
 def select_experiences(
@@ -20,18 +20,28 @@ def select_experiences(
     scored: List[Tuple[float, Experience]] = []
     for experience in experiences:
         exp_score = score_item(
-            text_parts=[experience.title, experience.company, experience.description or ""],
-            technologies=[tech for project in experience.projects for tech in project.technologies],
+            text_parts=[
+                experience.title,
+                experience.company,
+                experience.description or "",
+            ],
+            technologies=[
+                tech for project in experience.projects for tech in project.technologies
+            ],
             start_date=experience.start_date,
             spec=spec,
         ).value
         scored.append((exp_score, experience))
 
-    top_experiences = [experience for _, experience in top_n_scored(scored, max_experiences)]
+    top_experiences = [
+        experience for _, experience in top_n_scored(scored, max_experiences)
+    ]
     trimmed: List[Experience] = []
     for experience in top_experiences:
         projects = _select_projects(experience, spec, max_projects=2)
-        trimmed.append(Experience(**experience.model_dump(exclude={"projects"}), projects=projects))
+        trimmed.append(
+            Experience(**experience.model_dump(exclude={"projects"}), projects=projects)
+        )
 
     return trimmed, []
 
@@ -54,7 +64,9 @@ def _select_projects(experience: Experience, spec, max_projects: int) -> List[Pr
     trimmed: List[Project] = []
     for project in top_projects:
         highlights = _select_highlights(project, spec, max_highlights=3)
-        trimmed.append(Project(**project.model_dump(exclude={"highlights"}), highlights=highlights))
+        trimmed.append(
+            Project(**project.model_dump(exclude={"highlights"}), highlights=highlights)
+        )
     return trimmed
 
 
@@ -73,7 +85,9 @@ def _select_highlights(project: Project, spec, max_highlights: int) -> List[str]
     return [highlight for _, highlight in top_n_scored(scored, max_highlights)]
 
 
-def select_education(education: List[Education], spec, max_education: int) -> List[Education]:
+def select_education(
+    education: List[Education], spec, max_education: int
+) -> List[Education]:
     if not education:
         return []
     scored: List[Tuple[float, Education]] = []
@@ -88,33 +102,55 @@ def select_education(education: List[Education], spec, max_education: int) -> Li
     return [edu for _, edu in top_n_scored(scored, max_education)]
 
 
-def select_skills(skills: List[Skill], spec, selected_experiences: List[Experience]) -> List[Skill]:
+def select_skills(
+    skills: List[Skill], spec, selected_experiences: List[Experience]
+) -> List[Skill]:
     if not skills:
         return []
 
+    # Build set of words from selected experiences for bonus scoring
     selected_text = " ".join(
         [
             exp.title
             + " "
             + " ".join(
-                [
-                    proj.name + " " + " ".join(proj.technologies) + " " + " ".join(proj.highlights)
-                    for proj in exp.projects
-                ]
+                [proj.name + " " + " ".join(proj.technologies) for proj in exp.projects]
             )
             for exp in selected_experiences
         ]
     )
     selected_words = set(extract_words(selected_text))
-    target_words = set(spec.required_keywords).union(spec.preferred_keywords)
+
+    required_keywords = list(spec.required_keywords)
+    preferred_keywords = list(spec.preferred_keywords)
 
     scored: List[Tuple[float, Skill]] = []
     for skill in skills:
-        name = normalize_text(skill.name)
-        appears_in_selected = 1.0 if name in selected_words else 0.0
-        matches_target = 1.0 if name in target_words else 0.0
-        score = 0.7 * appears_in_selected + 0.3 * matches_target
+        # Use smart matching for JD keywords (handles TailwindCSS vs Tailwind CSS)
+        matches_required = any(
+            tech_terms_match(skill.name, kw) for kw in required_keywords
+        )
+        matches_preferred = any(
+            tech_terms_match(skill.name, kw) for kw in preferred_keywords
+        )
+
+        # Check if skill appears in selected experiences (exact word match is fine here)
+        skill_words = word_set([skill.name, skill.category or ""])
+        appears_in_selected = bool(skill_words & selected_words)
+
+        # Weighted scoring: JD match is primary (70%), experience bonus (30%)
+        score = (
+            0.5 * float(matches_required)
+            + 0.2 * float(matches_preferred)
+            + 0.3 * float(appears_in_selected)
+        )
         scored.append((score, skill))
 
+    # Select top 18 skills with score > 0, fallback to top by original order if none match
     selected = [skill for score, skill in top_n_scored(scored, 18) if score > 0.0]
+
+    # Fallback: if no skills matched, return first 10 skills from profile
+    if not selected and skills:
+        selected = skills[:10]
+
     return selected

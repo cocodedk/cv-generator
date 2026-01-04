@@ -36,9 +36,7 @@ class TestDownloadHtml:
                     "backend.services.cv_file_service.CVFileService.generate_file_for_cv",
                     return_value="test_cv.html",
                 ):
-                    response = await client.get(
-                        "/api/download-html/test_cv.html"
-                    )
+                    response = await client.get("/api/download-html/test_cv.html")
                     assert response.status_code == 200
                     assert response.headers["content-type"].startswith("text/html")
         finally:
@@ -54,9 +52,7 @@ class TestDownloadHtml:
             with patch(
                 "backend.database.queries.get_cv_by_filename", return_value=None
             ):
-                response = await client.get(
-                    "/api/download-html/non_existent.html"
-                )
+                response = await client.get("/api/download-html/non_existent.html")
                 assert response.status_code == 404
         finally:
             app.state.output_dir = original_output_dir
@@ -104,9 +100,7 @@ class TestDownloadDocx:
                     "backend.services.cv_file_service.CVFileService.generate_docx_for_cv",
                     return_value="test_cv.docx",
                 ):
-                    response = await client.get(
-                        "/api/download-docx/test_cv.docx"
-                    )
+                    response = await client.get("/api/download-docx/test_cv.docx")
                     assert response.status_code == 200
                     assert (
                         response.headers["content-type"]
@@ -125,9 +119,7 @@ class TestDownloadDocx:
             with patch(
                 "backend.database.queries.get_cv_by_filename", return_value=None
             ):
-                response = await client.get(
-                    "/api/download-docx/non_existent.docx"
-                )
+                response = await client.get("/api/download-docx/non_existent.docx")
                 assert response.status_code == 404
         finally:
             app.state.output_dir = original_output_dir

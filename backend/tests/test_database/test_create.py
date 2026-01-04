@@ -202,3 +202,69 @@ class TestCreateCV:
             first_call = call_args_list[0]
             assert first_call is not None
             assert first_call[1]["theme"] == theme
+
+    def test_create_cv_with_target_company_and_role(self, mock_neo4j_connection):
+        """Test CV creation with target_company and target_role provided."""
+        data = {
+            "personal_info": {"name": "John Doe"},
+            "experience": [],
+            "education": [],
+            "skills": [],
+            "target_company": "Google",
+            "target_role": "Senior Developer",
+        }
+        mock_session = mock_neo4j_connection.session.return_value
+        mock_result = Mock()
+        mock_result.single.return_value = {"cv_id": "test-id"}
+        mock_tx = Mock()
+        mock_tx.run.return_value = mock_result
+
+        def write_transaction_side_effect(work):
+            return work(mock_tx)
+
+        mock_session.write_transaction.side_effect = write_transaction_side_effect
+
+        cv_id = queries.create_cv(data)
+        assert isinstance(cv_id, str)
+        # Verify target_company and target_role were passed to the first query (CV node creation)
+        call_args_list = mock_tx.run.call_args_list
+        assert len(call_args_list) > 0
+        first_call = call_args_list[0]
+        assert first_call is not None
+        # Use .get() to safely access kwargs
+        kwargs = first_call[1] if len(first_call) > 1 else {}
+        assert kwargs.get("target_company") == "Google"
+        assert kwargs.get("target_role") == "Senior Developer"
+
+    def test_create_cv_with_none_target_fields(self, mock_neo4j_connection):
+        """Test CV creation with None target_company and target_role."""
+        data = {
+            "personal_info": {"name": "John Doe"},
+            "experience": [],
+            "education": [],
+            "skills": [],
+            "target_company": None,
+            "target_role": None,
+        }
+        mock_session = mock_neo4j_connection.session.return_value
+        mock_result = Mock()
+        mock_result.single.return_value = {"cv_id": "test-id"}
+        mock_tx = Mock()
+        mock_tx.run.return_value = mock_result
+
+        def write_transaction_side_effect(work):
+            return work(mock_tx)
+
+        mock_session.write_transaction.side_effect = write_transaction_side_effect
+
+        cv_id = queries.create_cv(data)
+        assert isinstance(cv_id, str)
+        # Verify None values are passed correctly
+        call_args_list = mock_tx.run.call_args_list
+        assert len(call_args_list) > 0
+        first_call = call_args_list[0]
+        assert first_call is not None
+        # Use .get() to safely access kwargs
+        kwargs = first_call[1] if len(first_call) > 1 else {}
+        assert kwargs.get("target_company") is None
+        assert kwargs.get("target_role") is None

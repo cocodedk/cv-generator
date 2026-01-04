@@ -73,4 +73,446 @@ describe('CVForm - AI Draft', () => {
     expect(nameInput.value).toBe('AI Draft Name')
     expect(mockOnSuccess).toHaveBeenCalledWith('Draft applied. Review and save when ready.')
   })
+
+  it('includes additional_context in the API request when provided with llm_tailor style', async () => {
+    const user = userEvent.setup()
+    mockedAxios.post.mockResolvedValue({
+      data: {
+        draft_cv: {
+          personal_info: { name: 'AI Draft Name' },
+          experience: [],
+          education: [],
+          skills: [],
+          theme: 'classic',
+        },
+        warnings: [],
+        questions: [],
+        summary: ['Selected 0 experience(s) and 0 skill(s) for JD match.'],
+        evidence_map: null,
+      },
+    })
+
+    renderCVForm({
+      onSuccess: mockOnSuccess,
+      onError: mockOnError,
+      setLoading: mockSetLoading,
+    })
+
+    await clickGenerateFromJdButton()
+
+    // Select llm_tailor style to enable additional_context field
+    const styleSelect = await screen.findByLabelText(/style/i)
+    await act(async () => {
+      await user.selectOptions(styleSelect, 'llm_tailor')
+    })
+
+    const jdTextarea = await screen.findByLabelText(/job description/i)
+    await act(async () => {
+      await user.type(
+        jdTextarea,
+        'We require React and FastAPI. You will build web features and improve reliability.'
+      )
+    })
+
+    const additionalContextTextarea = await screen.findByLabelText(/additional context/i)
+    await act(async () => {
+      await user.type(additionalContextTextarea, 'Rated among top 2% of AI coders in 2025')
+    })
+
+    const generateButton = screen.getByRole('button', { name: /^generate$/i })
+    await act(async () => {
+      await user.click(generateButton)
+    })
+
+    await waitFor(() => {
+      expect(mockedAxios.post).toHaveBeenCalledWith(
+        '/api/ai/generate-cv',
+        expect.objectContaining({
+          job_description: expect.stringContaining('We require React and FastAPI'),
+          style: 'llm_tailor',
+          additional_context: 'Rated among top 2% of AI coders in 2025',
+        })
+      )
+    })
+  })
+
+  it('does not include additional_context in API request when empty', async () => {
+    const user = userEvent.setup()
+    mockedAxios.post.mockResolvedValue({
+      data: {
+        draft_cv: {
+          personal_info: { name: 'AI Draft Name' },
+          experience: [],
+          education: [],
+          skills: [],
+          theme: 'classic',
+        },
+        warnings: [],
+        questions: [],
+        summary: ['Selected 0 experience(s) and 0 skill(s) for JD match.'],
+        evidence_map: null,
+      },
+    })
+
+    renderCVForm({
+      onSuccess: mockOnSuccess,
+      onError: mockOnError,
+      setLoading: mockSetLoading,
+    })
+
+    await clickGenerateFromJdButton()
+
+    const jdTextarea = await screen.findByLabelText(/job description/i)
+    await act(async () => {
+      await user.type(
+        jdTextarea,
+        'We require React and FastAPI. You will build web features and improve reliability.'
+      )
+    })
+
+    const generateButton = screen.getByRole('button', { name: /^generate$/i })
+    await act(async () => {
+      await user.click(generateButton)
+    })
+
+    await waitFor(() => {
+      const callArgs = mockedAxios.post.mock.calls[0]
+      const requestPayload = callArgs[1]
+      // additional_context should be undefined or not present when empty
+      expect(requestPayload.job_description).toBeDefined()
+      expect(requestPayload.additional_context).toBeUndefined()
+    })
+  })
+
+  it('renders additional_context textarea field when llm_tailor style is selected', async () => {
+    const user = userEvent.setup()
+    renderCVForm({
+      onSuccess: mockOnSuccess,
+      onError: mockOnError,
+      setLoading: mockSetLoading,
+    })
+
+    await clickGenerateFromJdButton()
+
+    // additional_context field should not be visible by default
+    expect(screen.queryByLabelText(/additional context/i)).not.toBeInTheDocument()
+
+    // Select llm_tailor style
+    const styleSelect = await screen.findByLabelText(/style/i)
+    await act(async () => {
+      await user.selectOptions(styleSelect, 'llm_tailor')
+    })
+
+    // Now additional_context field should be visible
+    const additionalContextField = await screen.findByLabelText(/additional context/i)
+    expect(additionalContextField).toBeInTheDocument()
+    expect(additionalContextField).toHaveAttribute('placeholder', expect.stringContaining('top 2%'))
+  })
+
+  it('shows questions panel with textarea when questions are returned after generation', async () => {
+    const user = userEvent.setup()
+    mockedAxios.post.mockResolvedValue({
+      data: {
+        draft_cv: {
+          personal_info: { name: 'AI Draft Name' },
+          experience: [],
+          education: [],
+          skills: [],
+          theme: 'classic',
+        },
+        warnings: [],
+        questions: [
+          'Any measurable outcomes (performance, reliability, cost, adoption) you can add to 1–2 top highlights?',
+        ],
+        summary: ['Selected 0 experience(s) and 0 skill(s) for JD match.'],
+        evidence_map: null,
+      },
+    })
+
+    renderCVForm({
+      onSuccess: mockOnSuccess,
+      onError: mockOnError,
+      setLoading: mockSetLoading,
+    })
+
+    await clickGenerateFromJdButton()
+
+    const jdTextarea = await screen.findByLabelText(/job description/i)
+    await act(async () => {
+      await user.type(
+        jdTextarea,
+        'We require React and FastAPI. You will build web features and improve reliability.'
+      )
+    })
+
+    const generateButton = screen.getByRole('button', { name: /^generate$/i })
+    await act(async () => {
+      await user.click(generateButton)
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('Questions')).toBeInTheDocument()
+    })
+
+    // Check that the questions panel shows the textarea for answers
+    const answerTextarea = screen.getByPlaceholderText(/provide your answers here/i)
+    expect(answerTextarea).toBeInTheDocument()
+
+    const regenerateButton = screen.getByRole('button', {
+      name: /regenerate with this context/i,
+    })
+    expect(regenerateButton).toBeInTheDocument()
+  })
+
+  it('regenerates CV with answers when user provides answers to questions', async () => {
+    const user = userEvent.setup()
+    const firstResponse = {
+      data: {
+        draft_cv: {
+          personal_info: { name: 'AI Draft Name' },
+          experience: [],
+          education: [],
+          skills: [],
+          theme: 'classic',
+        },
+        warnings: [],
+        questions: [
+          'Any measurable outcomes (performance, reliability, cost, adoption) you can add to 1–2 top highlights?',
+        ],
+        summary: ['Selected 0 experience(s) and 0 skill(s) for JD match.'],
+        evidence_map: null,
+      },
+    }
+
+    const secondResponse = {
+      data: {
+        draft_cv: {
+          personal_info: { name: 'Regenerated Draft Name' },
+          experience: [],
+          education: [],
+          skills: [],
+          theme: 'classic',
+        },
+        warnings: [],
+        questions: [],
+        summary: ['Selected 0 experience(s) and 0 skill(s) for JD match.'],
+        evidence_map: null,
+      },
+    }
+
+    mockedAxios.post.mockResolvedValueOnce(firstResponse).mockResolvedValueOnce(secondResponse)
+
+    renderCVForm({
+      onSuccess: mockOnSuccess,
+      onError: mockOnError,
+      setLoading: mockSetLoading,
+    })
+
+    await clickGenerateFromJdButton()
+
+    const jdTextarea = await screen.findByLabelText(/job description/i)
+    await act(async () => {
+      await user.type(
+        jdTextarea,
+        'We require React and FastAPI. You will build web features and improve reliability.'
+      )
+    })
+
+    const generateButton = screen.getByRole('button', { name: /^generate$/i })
+    await act(async () => {
+      await user.click(generateButton)
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('Questions')).toBeInTheDocument()
+    })
+
+    // User provides answers
+    const answerTextarea = screen.getByPlaceholderText(/provide your answers here/i)
+    await act(async () => {
+      await user.type(
+        answerTextarea,
+        'Reduced API latency by 40%, increased test coverage from 50% to 85%'
+      )
+    })
+
+    // Click regenerate button
+    const regenerateButton = screen.getByRole('button', {
+      name: /regenerate with this context/i,
+    })
+    await act(async () => {
+      await user.click(regenerateButton)
+    })
+
+    // Verify second API call includes the answers in additional_context
+    await waitFor(() => {
+      expect(mockedAxios.post).toHaveBeenCalledTimes(2)
+      const secondCall = mockedAxios.post.mock.calls[1]
+      expect(secondCall[1]).toMatchObject({
+        job_description: expect.stringContaining('We require React and FastAPI'),
+        additional_context: 'Reduced API latency by 40%, increased test coverage from 50% to 85%',
+      })
+    })
+
+    // Verify the regenerated draft is shown (questions should be gone)
+    await waitFor(() => {
+      expect(screen.queryByText('Questions')).not.toBeInTheDocument()
+    })
+  })
+
+  it('merges answers with existing additional_context when regenerating', async () => {
+    const user = userEvent.setup()
+    const firstResponse = {
+      data: {
+        draft_cv: {
+          personal_info: { name: 'AI Draft Name' },
+          experience: [],
+          education: [],
+          skills: [],
+          theme: 'classic',
+        },
+        warnings: [],
+        questions: [
+          'Any measurable outcomes (performance, reliability, cost, adoption) you can add to 1–2 top highlights?',
+        ],
+        summary: ['Selected 0 experience(s) and 0 skill(s) for JD match.'],
+        evidence_map: null,
+      },
+    }
+
+    const secondResponse = {
+      data: {
+        draft_cv: {
+          personal_info: { name: 'Regenerated Draft Name' },
+          experience: [],
+          education: [],
+          skills: [],
+          theme: 'classic',
+        },
+        warnings: [],
+        questions: [],
+        summary: ['Selected 0 experience(s) and 0 skill(s) for JD match.'],
+        evidence_map: null,
+      },
+    }
+
+    mockedAxios.post.mockResolvedValueOnce(firstResponse).mockResolvedValueOnce(secondResponse)
+
+    renderCVForm({
+      onSuccess: mockOnSuccess,
+      onError: mockOnError,
+      setLoading: mockSetLoading,
+    })
+
+    await clickGenerateFromJdButton()
+
+    // Select llm_tailor style and add initial context
+    const styleSelect = await screen.findByLabelText(/style/i)
+    await act(async () => {
+      await user.selectOptions(styleSelect, 'llm_tailor')
+    })
+
+    const jdTextarea = await screen.findByLabelText(/job description/i)
+    await act(async () => {
+      await user.type(
+        jdTextarea,
+        'We require React and FastAPI. You will build web features and improve reliability.'
+      )
+    })
+
+    const additionalContextTextarea = await screen.findByLabelText(/additional context/i)
+    await act(async () => {
+      await user.type(additionalContextTextarea, 'Rated among top 2% of AI coders in 2025')
+    })
+
+    const generateButton = screen.getByRole('button', { name: /^generate$/i })
+    await act(async () => {
+      await user.click(generateButton)
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('Questions')).toBeInTheDocument()
+    })
+
+    // User provides answers to questions
+    const answerTextarea = screen.getByPlaceholderText(/provide your answers here/i)
+    await act(async () => {
+      await user.type(
+        answerTextarea,
+        'Reduced API latency by 40%, increased test coverage from 50% to 85%'
+      )
+    })
+
+    // Click regenerate button
+    const regenerateButton = screen.getByRole('button', {
+      name: /regenerate with this context/i,
+    })
+    await act(async () => {
+      await user.click(regenerateButton)
+    })
+
+    // Verify second API call merges existing context with answers
+    await waitFor(() => {
+      expect(mockedAxios.post).toHaveBeenCalledTimes(2)
+      const secondCall = mockedAxios.post.mock.calls[1]
+      expect(secondCall[1]).toMatchObject({
+        job_description: expect.stringContaining('We require React and FastAPI'),
+        style: 'llm_tailor',
+        additional_context: expect.stringContaining('Rated among top 2% of AI coders in 2025'),
+      })
+      // Should contain both the original context and the new answers
+      expect(secondCall[1].additional_context).toContain('Reduced API latency by 40%')
+    })
+  })
+
+  it('disables regenerate button when answer textarea is empty', async () => {
+    const user = userEvent.setup()
+    mockedAxios.post.mockResolvedValue({
+      data: {
+        draft_cv: {
+          personal_info: { name: 'AI Draft Name' },
+          experience: [],
+          education: [],
+          skills: [],
+          theme: 'classic',
+        },
+        warnings: [],
+        questions: [
+          'Any measurable outcomes (performance, reliability, cost, adoption) you can add to 1–2 top highlights?',
+        ],
+        summary: ['Selected 0 experience(s) and 0 skill(s) for JD match.'],
+        evidence_map: null,
+      },
+    })
+
+    renderCVForm({
+      onSuccess: mockOnSuccess,
+      onError: mockOnError,
+      setLoading: mockSetLoading,
+    })
+
+    await clickGenerateFromJdButton()
+
+    const jdTextarea = await screen.findByLabelText(/job description/i)
+    await act(async () => {
+      await user.type(
+        jdTextarea,
+        'We require React and FastAPI. You will build web features and improve reliability.'
+      )
+    })
+
+    const generateButton = screen.getByRole('button', { name: /^generate$/i })
+    await act(async () => {
+      await user.click(generateButton)
+    })
+
+    await waitFor(() => {
+      expect(screen.getByText('Questions')).toBeInTheDocument()
+    })
+
+    const regenerateButton = screen.getByRole('button', {
+      name: /regenerate with this context/i,
+    })
+    expect(regenerateButton).toBeDisabled()
+  })
 })

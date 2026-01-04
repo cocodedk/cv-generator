@@ -17,4 +17,6 @@ def create_skill_nodes(tx, updated_at: str, person_element_id: str, skills: list
     CREATE (person)-[:HAS_SKILL]->(s)
     CREATE (s)-[:BELONGS_TO_PROFILE]->(profile)
     """
-    tx.run(query, updated_at=updated_at, person_element_id=person_element_id, skills=skills)
+    tx.run(
+        query, updated_at=updated_at, person_element_id=person_element_id, skills=skills
+    )

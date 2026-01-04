@@ -23,8 +23,7 @@ class TestExportPDFLong:
             mock_generate.return_value = b"PDF bytes content"
 
             response = await client.post(
-                "/export/pdf/long",
-                json={"html": html_content}
+                "/export/pdf/long", json={"html": html_content}
             )
 
             assert response.status_code == 200
@@ -36,19 +35,13 @@ class TestExportPDFLong:
 
     async def test_export_pdf_long_empty_html(self, client):
         """Test PDF export with empty HTML returns 422."""
-        response = await client.post(
-            "/export/pdf/long",
-            json={"html": ""}
-        )
+        response = await client.post("/export/pdf/long", json={"html": ""})
 
         assert response.status_code == 422
 
     async def test_export_pdf_long_missing_html(self, client):
         """Test PDF export with missing HTML field returns 422."""
-        response = await client.post(
-            "/export/pdf/long",
-            json={}
-        )
+        response = await client.post("/export/pdf/long", json={})
 
         assert response.status_code == 422
 
@@ -61,11 +54,7 @@ class TestExportPDFLong:
 
             response = await client.post(
                 "/export/pdf/long",
-                json={
-                    "html": html_content,
-                    "format": "A4_WIDTH_LONG",
-                    "margin_mm": 10
-                }
+                json={"html": html_content, "format": "A4_WIDTH_LONG", "margin_mm": 10},
             )
 
             assert response.status_code == 200
@@ -79,13 +68,14 @@ class TestExportPDFLong:
             mock_generate.side_effect = RuntimeError("PDF generation failed")
 
             response = await client.post(
-                "/export/pdf/long",
-                json={"html": html_content}
+                "/export/pdf/long", json={"html": html_content}
             )
 
             assert response.status_code == 500
             data = response.json()
-            assert "error" in data["detail"] or "PDF generation failed" in data["detail"]
+            assert (
+                "error" in data["detail"] or "PDF generation failed" in data["detail"]
+            )
 
 
 @pytest.mark.asyncio
@@ -106,9 +96,17 @@ class TestExportPDFLongForCV:
         }
 
         with patch("backend.database.queries.get_cv_by_id", return_value=cv_data):
-            with patch("backend.services.cv_file_service.CVFileService.prepare_cv_dict", return_value=cv_data):
-                with patch("backend.cv_generator.print_html_renderer.render_print_html", return_value="<html>CV HTML</html>"):
-                    with patch("backend.app.pdf_service.generate_long_pdf") as mock_generate:
+            with patch(
+                "backend.services.cv_file_service.CVFileService.prepare_cv_dict",
+                return_value=cv_data,
+            ):
+                with patch(
+                    "backend.cv_generator.print_html_renderer.render_print_html",
+                    return_value="<html>CV HTML</html>",
+                ):
+                    with patch(
+                        "backend.app.pdf_service.generate_long_pdf"
+                    ) as mock_generate:
                         mock_generate.return_value = b"PDF bytes"
 
                         response = await client.post(f"/api/cv/{cv_id}/export-pdf/long")
@@ -142,20 +140,31 @@ class TestExportPDFLongForCV:
         }
 
         with patch("backend.database.queries.get_cv_by_id", return_value=cv_data):
-            with patch("backend.services.cv_file_service.CVFileService.prepare_cv_dict", return_value=cv_data) as mock_prepare:
-                with patch("backend.cv_generator.print_html_renderer.render_print_html", return_value="<html>CV HTML</html>"):
-                    with patch("backend.app.pdf_service.generate_long_pdf") as mock_generate:
+            with patch(
+                "backend.services.cv_file_service.CVFileService.prepare_cv_dict",
+                return_value=cv_data,
+            ) as mock_prepare:
+                with patch(
+                    "backend.cv_generator.print_html_renderer.render_print_html",
+                    return_value="<html>CV HTML</html>",
+                ):
+                    with patch(
+                        "backend.app.pdf_service.generate_long_pdf"
+                    ) as mock_generate:
                         mock_generate.return_value = b"PDF bytes"
 
                         response = await client.post(
                             f"/api/cv/{cv_id}/export-pdf/long",
-                            params={"theme": "modern", "layout": "ats-single-column"}
+                            params={"theme": "modern", "layout": "ats-single-column"},
                         )
 
                         assert response.status_code == 200
                         # Verify theme and layout were applied
                         prepared_dict = mock_prepare.return_value
-                        assert prepared_dict.get("theme") == "modern" or cv_data.get("theme") == "modern"
+                        assert (
+                            prepared_dict.get("theme") == "modern"
+                            or cv_data.get("theme") == "modern"
+                        )
                         mock_generate.assert_called_once()
 
     async def test_export_pdf_long_rate_limit(self, client):
@@ -169,8 +178,7 @@ class TestExportPDFLongForCV:
             responses = []
             for _ in range(35):  # More than the 30/minute limit
                 response = await client.post(
-                    "/export/pdf/long",
-                    json={"html": html_content}
+                    "/export/pdf/long", json={"html": html_content}
                 )
                 responses.append(response.status_code)
 
@@ -186,6 +194,7 @@ class TestExportPDFLongForCV:
         # Temporarily disable rate limiting for this test to ensure we get 422, not 429
         # This is the most robust way to test validation errors without rate limit interference
         from backend.app import app
+
         limiter = app.state.limiter
 
         # Save original enabled state and disable rate limiting
@@ -197,8 +206,7 @@ class TestExportPDFLongForCV:
                 mock_generate.side_effect = ValueError("HTML content cannot be empty")
 
                 response = await client.post(
-                    "/export/pdf/long",
-                    json={"html": html_content}
+                    "/export/pdf/long", json={"html": html_content}
                 )
 
                 assert response.status_code == 422

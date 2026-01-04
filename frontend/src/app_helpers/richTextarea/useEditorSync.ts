@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { Editor } from '@tiptap/react'
 import { hasListHtml, normalizeHtmlForComparison, stripHtml } from './htmlUtils'
 

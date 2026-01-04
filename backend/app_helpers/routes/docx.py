@@ -68,7 +68,9 @@ async def _handle_download_docx(
 
     # Only accept DOCX files
     if not filename.endswith(".docx"):
-        raise HTTPException(status_code=400, detail="Invalid file type - only .docx files allowed")
+        raise HTTPException(
+            status_code=400, detail="Invalid file type - only .docx files allowed"
+        )
 
     _validate_filename(filename)
 
@@ -101,9 +103,7 @@ async def _handle_generate_cv_docx_file(
         raise
     except Exception as exc:
         logger.error("Failed to generate DOCX CV file for %s", cv_id, exc_info=exc)
-        raise HTTPException(
-            status_code=500, detail="Failed to generate DOCX CV file"
-        )
+        raise HTTPException(status_code=500, detail="Failed to generate DOCX CV file")
 
 
 def _ensure_theme(cv_dict: dict) -> None:
@@ -118,9 +118,7 @@ def _resolve_output_dir(request: Request, output_dir: Optional[Path]) -> Path:
     else:
         current_output_dir = app_state_output_dir
     if current_output_dir is None:
-        raise HTTPException(
-            status_code=500, detail="Output directory not configured"
-        )
+        raise HTTPException(status_code=500, detail="Output directory not configured")
     return current_output_dir
 
 
@@ -146,8 +144,7 @@ def _build_docx_response(file_path: Path, filename: str) -> FileResponse:
         path=str(file_path),
         filename=filename,
         media_type=(
-            "application/vnd.openxmlformats-officedocument"
-            ".wordprocessingml.document"
+            "application/vnd.openxmlformats-officedocument" ".wordprocessingml.document"
         ),
     )
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"

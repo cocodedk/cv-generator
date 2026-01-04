@@ -73,8 +73,14 @@ def build_friendly_field_name(loc: tuple) -> str:  # noqa: C901
                 continue
             else:
                 # This is a field name
-                section = parts[i - 2] if i >= 2 and isinstance(parts[i - 2], str) else None
-                if section and section in field_labels and part in field_labels[section]:
+                section = (
+                    parts[i - 2] if i >= 2 and isinstance(parts[i - 2], str) else None
+                )
+                if (
+                    section
+                    and section in field_labels
+                    and part in field_labels[section]
+                ):
                     field_label = field_labels[section][part]
                     if result_parts:
                         result_parts.append(f" - {field_label}")

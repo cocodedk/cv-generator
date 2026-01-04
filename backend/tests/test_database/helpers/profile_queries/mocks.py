@@ -4,6 +4,7 @@ from unittest.mock import Mock
 
 def setup_mock_session_for_read_write(mock_session, mock_tx_read, mock_tx_write):
     """Setup mock session to handle both read and write transactions."""
+
     def execute_read(work_func):
         return work_func(mock_tx_read)
 
@@ -18,6 +19,7 @@ def setup_mock_session_for_read_write(mock_session, mock_tx_read, mock_tx_write)
 
 def setup_mock_session_for_write(mock_session, mock_tx):
     """Setup mock session for write-only transactions."""
+
     def execute_work(work_func):
         return work_func(mock_tx)
 
@@ -27,6 +29,7 @@ def setup_mock_session_for_write(mock_session, mock_tx):
 
 def setup_mock_session_for_read(mock_session, mock_tx):
     """Setup mock session for read-only transactions."""
+
     def execute_work(work_func):
         return work_func(mock_tx)
 

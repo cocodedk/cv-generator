@@ -24,6 +24,7 @@ interface CVFormContentProps {
   onLoadProfile: () => void
   onSaveProfile: () => void
   onGenerateFromJd: () => void
+  onGenerateCoverLetter?: () => void
   onDownloadPdf?: () => void
   isGeneratingPdf?: boolean
 }
@@ -44,6 +45,7 @@ export default function CVFormContent({
   onLoadProfile,
   onSaveProfile,
   onGenerateFromJd,
+  onGenerateCoverLetter,
   onDownloadPdf,
   isGeneratingPdf = false,
 }: CVFormContentProps) {
@@ -54,6 +56,7 @@ export default function CVFormContent({
         onLoadProfile={onLoadProfile}
         onSaveProfile={onSaveProfile}
         onGenerateFromJd={onGenerateFromJd}
+        onGenerateCoverLetter={onGenerateCoverLetter}
         onDownloadPdf={onDownloadPdf}
         isGeneratingPdf={isGeneratingPdf}
       />

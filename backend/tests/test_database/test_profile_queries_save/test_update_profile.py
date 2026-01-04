@@ -26,21 +26,23 @@ class TestUpdateProfile:
         # 5. verify_single_person - returns count 1
         # 6. create_experience_nodes, create_education_nodes, create_skill_nodes - no return
         # 7. verify profile - returns profile
-        mock_tx, _ = create_mock_tx_with_multiple_results([
-            {"profile": {}},  # update_profile_timestamp
-            {"deleted": 0},   # delete projects
-            {"deleted": 0},   # delete experiences
-            {"deleted": 0},   # delete education
-            {"deleted": 0},   # delete skills
-            {"deleted": 0},   # delete person
-            {"remaining_persons": 0},  # verify_person_deletion
-            {"person_element_id": "test-element-id"},  # create_person_node
-            {"person_count": 1},  # verify_single_person
-            None,  # create_experience_nodes (no return)
-            None,  # create_education_nodes (no return)
-            None,  # create_skill_nodes (no return)
-            {"profile": {}},  # final verify
-        ])
+        mock_tx, _ = create_mock_tx_with_multiple_results(
+            [
+                {"profile": {}},  # update_profile_timestamp
+                {"deleted": 0},  # delete projects
+                {"deleted": 0},  # delete experiences
+                {"deleted": 0},  # delete education
+                {"deleted": 0},  # delete skills
+                {"deleted": 0},  # delete person
+                {"remaining_persons": 0},  # verify_person_deletion
+                {"person_element_id": "test-element-id"},  # create_person_node
+                {"person_count": 1},  # verify_single_person
+                None,  # create_experience_nodes (no return)
+                None,  # create_education_nodes (no return)
+                None,  # create_skill_nodes (no return)
+                {"profile": {}},  # final verify
+            ]
+        )
 
         setup_mock_session_for_write(mock_session, mock_tx)
 

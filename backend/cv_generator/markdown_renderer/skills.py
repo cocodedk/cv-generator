@@ -18,15 +18,13 @@ def render_skills(skills: List[Dict[str, Any]]) -> List[str]:
 
     # Sort skills within each category by name, then by level
     for category, skill_list in skills_by_category.items():
-        skill_list.sort(key=lambda s: (
-            s.get("name", "").lower(),
-            s.get("level", "").lower()
-        ))
+        skill_list.sort(
+            key=lambda s: (s.get("name", "").lower(), s.get("level", "").lower())
+        )
 
     # Sort categories alphabetically, with "Other" last
     sorted_categories = sorted(
-        skills_by_category.keys(),
-        key=lambda cat: (cat == "Other", cat.lower())
+        skills_by_category.keys(), key=lambda cat: (cat == "Other", cat.lower())
     )
 
     # Render in sorted order

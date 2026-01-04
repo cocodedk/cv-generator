@@ -5,15 +5,25 @@ from backend.database.connection import Neo4jConnection
 
 
 def _update_cv_timestamp(
-    tx, cv_id: str, updated_at: str, theme: str = "classic"
+    tx, cv_id: str, updated_at: str, theme: str = "classic",
+    target_company: str | None = None, target_role: str | None = None
 ) -> None:
     """Update CV timestamp and theme."""
     query = """
     MATCH (cv:CV {id: $cv_id})
     SET cv.updated_at = $updated_at,
-        cv.theme = $theme
+        cv.theme = $theme,
+        cv.target_company = $target_company,
+        cv.target_role = $target_role
     """
-    tx.run(query, cv_id=cv_id, updated_at=updated_at, theme=theme)
+    tx.run(
+        query,
+        cv_id=cv_id,
+        updated_at=updated_at,
+        theme=theme,
+        target_company=target_company,
+        target_role=target_role,
+    )
 
 
 def _delete_cv_relationships(tx, cv_id: str) -> None:
@@ -153,11 +163,13 @@ def update_cv(cv_id: str, cv_data: Dict[str, Any]) -> bool:
     updated_at = datetime.utcnow().isoformat()
     personal_info = cv_data.get("personal_info", {})
     theme = cv_data.get("theme", "classic")
+    target_company = cv_data.get("target_company")
+    target_role = cv_data.get("target_role")
 
     with driver.session(database=database) as session:
 
         def work(tx):
-            _update_cv_timestamp(tx, cv_id, updated_at, theme)
+            _update_cv_timestamp(tx, cv_id, updated_at, theme, target_company, target_role)
             _delete_cv_relationships(tx, cv_id)
             _create_person_node(tx, cv_id, personal_info)
             _create_experience_nodes(tx, cv_id, cv_data.get("experience", []))

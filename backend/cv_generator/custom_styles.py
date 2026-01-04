@@ -7,7 +7,10 @@ from docx.enum.style import WD_STYLE_TYPE
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 
-from backend.cv_generator.style_utils import apply_character_style, apply_paragraph_style
+from backend.cv_generator.style_utils import (
+    apply_character_style,
+    apply_paragraph_style,
+)
 
 
 def _add_no_border_table_style(doc: DocxDocument, name: str) -> None:
@@ -64,7 +67,9 @@ def add_custom_styles(doc: DocxDocument, theme: Dict[str, Any]) -> None:
         "1.2",
     )
 
-    skill_highlight_style = doc.styles.add_style("Skill Highlight", 2)  # 2 = character style
+    skill_highlight_style = doc.styles.add_style(
+        "Skill Highlight", 2
+    )  # 2 = character style
     apply_character_style(
         skill_highlight_style,
         theme,
@@ -86,7 +91,11 @@ def add_custom_styles(doc: DocxDocument, theme: Dict[str, Any]) -> None:
     apply_paragraph_style(
         exp_role_style,
         theme,
-        {"fontsize": "11pt", "fontweight": "bold", "color": theme["normal"].get("color")},
+        {
+            "fontsize": "11pt",
+            "fontweight": "bold",
+            "color": theme["normal"].get("color"),
+        },
         ("0cm", "0cm"),
         "1.15",
     )
@@ -126,5 +135,9 @@ def add_custom_styles(doc: DocxDocument, theme: Dict[str, Any]) -> None:
     apply_character_style(
         exp_highlight_style,
         theme,
-        {"fontsize": "10pt", "fontweight": "bold", "color": theme["normal"].get("color")},
+        {
+            "fontsize": "10pt",
+            "fontweight": "bold",
+            "color": theme["normal"].get("color"),
+        },
     )

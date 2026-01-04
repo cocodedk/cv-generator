@@ -23,7 +23,7 @@ def get_personal_info() -> Dict[str, Any]:
             "street": "Magistervej 54 3. th",
             "city": "Copenhagen NV",
             "zip": "2400",
-            "country": "Denmark"
+            "country": "Denmark",
         },
         "linkedin": "https://www.linkedin.com/in/babakbandpey/",
         "github": "https://github.com/cocodedk",
@@ -35,5 +35,5 @@ def get_personal_info() -> Dict[str, Any]:
             "Expert in Python, Django, PostgreSQL, Neo4j, React, and AI/LLM integration. "
             "Hands-on experience with ISO 27001, CIS Controls, ISMS implementation, "
             "and large-scale compliance automation."
-        )
+        ),
     }

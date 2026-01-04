@@ -41,16 +41,24 @@ def update_profile(profile_data: Dict[str, Any]) -> bool:
             verify_single_person(tx, updated_at)
 
             # Create Experience nodes bound to the new Person
-            create_experience_nodes(tx, updated_at, person_element_id, params.get("experiences", []))
+            create_experience_nodes(
+                tx, updated_at, person_element_id, params.get("experiences", [])
+            )
 
             # Create Education nodes bound to the new Person
-            create_education_nodes(tx, updated_at, person_element_id, params.get("educations", []))
+            create_education_nodes(
+                tx, updated_at, person_element_id, params.get("educations", [])
+            )
 
             # Create Skill nodes bound to the new Person
-            create_skill_nodes(tx, updated_at, person_element_id, params.get("skills", []))
+            create_skill_nodes(
+                tx, updated_at, person_element_id, params.get("skills", [])
+            )
 
             # Verify profile was updated
-            verify_query = "MATCH (profile:Profile { updated_at: $updated_at }) RETURN profile"
+            verify_query = (
+                "MATCH (profile:Profile { updated_at: $updated_at }) RETURN profile"
+            )
             result = tx.run(verify_query, updated_at=updated_at)
             profile_exists = result.single() is not None
             return profile_exists

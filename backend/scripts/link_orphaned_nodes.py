@@ -2,7 +2,7 @@
 import sys
 
 # Add app directory to path (Docker container has /app as working directory)
-sys.path.insert(0, '/app')
+sys.path.insert(0, "/app")
 
 from backend.database.connection import Neo4jConnection
 
@@ -82,7 +82,11 @@ def link_orphaned_nodes():
         print(f"  Educations: {record['orphaned_edu']}")
         print(f"  Skills: {record['orphaned_skill']}")
 
-        if record['orphaned_exp'] == 0 and record['orphaned_edu'] == 0 and record['orphaned_skill'] == 0:
+        if (
+            record["orphaned_exp"] == 0
+            and record["orphaned_edu"] == 0
+            and record["orphaned_skill"] == 0
+        ):
             print("\n✅ No orphaned nodes found. Everything is already linked!")
         else:
             # Link orphaned nodes
@@ -132,6 +136,7 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"❌ Error: {e}")
         import traceback
+
         traceback.print_exc()
     finally:
         Neo4jConnection.close()

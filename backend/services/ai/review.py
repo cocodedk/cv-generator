@@ -9,33 +9,50 @@ from backend.models_ai import EvidenceItem, EvidenceMapping, AIGenerateCVRequest
 from backend.services.ai.text import normalize_text
 
 
-def build_summary(request: AIGenerateCVRequest, experiences: List[Experience], skills: List[Skill]) -> List[str]:
+def build_summary(
+    request: AIGenerateCVRequest, experiences: List[Experience], skills: List[Skill]
+) -> List[str]:
     items: List[str] = []
     if request.target_role:
         items.append(f"Target role: {request.target_role}")
     if request.seniority:
         items.append(f"Seniority: {request.seniority}")
-    items.append(f"Selected {len(experiences)} experience(s) and {len(skills)} skill(s) for JD match.")
+    if request.additional_context:
+        items.append(
+            f"Additional context provided: {request.additional_context[:100]}..."
+        )
+    items.append(
+        f"Selected {len(experiences)} experience(s) and {len(skills)} skill(s) for JD match."
+    )
     return items
 
 
 def build_questions(experiences: List[Experience]) -> List[str]:
     if not experiences:
-        return ["Add at least one experience with projects/highlights to tailor against the job description."]
+        return [
+            "Add at least one experience with projects/highlights to tailor against the job description."
+        ]
 
     has_numbers = any(
         any(
-            any(any(char.isdigit() for char in highlight) for highlight in project.highlights)
+            any(
+                any(char.isdigit() for char in highlight)
+                for highlight in project.highlights
+            )
             for project in exp.projects
         )
         for exp in experiences
     )
     if has_numbers:
         return []
-    return ["Any measurable outcomes (performance, reliability, cost, adoption) you can add to 1–2 top highlights?"]
+    return [
+        "Any measurable outcomes (performance, reliability, cost, adoption) you can add to 1–2 top highlights?"
+    ]
 
 
-def build_evidence_map(spec, experiences: List[Experience]) -> Optional[List[EvidenceMapping]]:
+def build_evidence_map(
+    spec, experiences: List[Experience]
+) -> Optional[List[EvidenceMapping]]:
     requirements = list(sorted(spec.required_keywords))[:8]
     if not requirements or not experiences:
         return None
@@ -54,6 +71,8 @@ def build_evidence_map(spec, experiences: List[Experience]) -> Optional[List[Evi
                             )
                         )
         if evidence:
-            mappings.append(EvidenceMapping(requirement=requirement, evidence=evidence[:3]))
+            mappings.append(
+                EvidenceMapping(requirement=requirement, evidence=evidence[:3])
+            )
 
     return mappings or None
