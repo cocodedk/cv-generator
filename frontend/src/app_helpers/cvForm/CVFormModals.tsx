@@ -47,7 +47,7 @@ export default function CVFormModals({
       {showAiModal && (
         <AiGenerateModal
           onClose={onCloseAiModal}
-          onApply={draft => {
+          onApply={(draft: CVData) => {
             const currentTheme = getValues('theme')
             reset({ ...draft, theme: currentTheme || draft.theme })
             onSuccess('Draft applied. Review and save when ready.')

@@ -10,6 +10,7 @@ import CVFormModals from '../app_helpers/cvForm/CVFormModals'
 import CVFormContent from '../app_helpers/cvForm/CVFormContent'
 import CVFormLoading from '../app_helpers/cvForm/CVFormLoading'
 import { downloadPdf } from '../app_helpers/pdfDownload'
+import CoverLetterModal from './cover-letter/CoverLetterModal'
 
 interface CVFormProps {
   onSuccess: (message: string) => void
@@ -25,6 +26,7 @@ interface CVFormProps {
 export default function CVForm({ onSuccess, onError, setLoading, cvId }: CVFormProps) {
   const isEditMode = !!cvId
   const [showAiModal, setShowAiModal] = useState(false)
+  const [showCoverLetterModal, setShowCoverLetterModal] = useState(false)
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
   const {
     register,
@@ -105,11 +107,6 @@ export default function CVForm({ onSuccess, onError, setLoading, cvId }: CVFormP
         getValues={getValues}
         reset={reset}
         onCloseAiModal={() => setShowAiModal(false)}
-        onApplyDraft={draft => {
-          const currentTheme = getValues('theme')
-          reset({ ...draft, theme: currentTheme || draft.theme })
-          onSuccess('Draft applied. Review and save when ready.')
-        }}
         onError={onError}
         setLoading={setLoading}
         onExperienceToggle={handleExperienceToggle}
@@ -118,6 +115,13 @@ export default function CVForm({ onSuccess, onError, setLoading, cvId }: CVFormP
         onCancelProfileLoader={closeProfileLoader}
         onSuccess={onSuccess}
       />
+      {showCoverLetterModal && (
+        <CoverLetterModal
+          onClose={() => setShowCoverLetterModal(false)}
+          onError={onError}
+          setLoading={setLoading}
+        />
+      )}
 
       {isLoadingCv ? (
         <CVFormLoading />
@@ -134,6 +138,7 @@ export default function CVForm({ onSuccess, onError, setLoading, cvId }: CVFormP
           onLoadProfile={loadProfile}
           onSaveProfile={handleSubmit(saveToProfile)}
           onGenerateFromJd={() => setShowAiModal(true)}
+          onGenerateCoverLetter={() => setShowCoverLetterModal(true)}
           onDownloadPdf={cvId ? handleDownloadPdf : undefined}
           isGeneratingPdf={isGeneratingPdf}
         />
