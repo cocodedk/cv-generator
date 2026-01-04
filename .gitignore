@@ -39,6 +39,10 @@ Thumbs.db
 backend/output/*
 !backend/output/.gitkeep
 
+# Generated showcase files (regenerated with timestamps on each CV save/update)
+frontend/public/showcase/**/*.json
+!frontend/public/showcase/.gitkeep
+
 # Logs
 *.log
 logs/
