@@ -75,8 +75,9 @@ class TestGenerateCvDraft:
             "backend.app_helpers.routes.ai.queries.get_profile",
             return_value=profile_data,
         ):
+            # Mock pipeline LLM calls
             with patch(
-                "backend.services.ai.llm_tailor.get_llm_client",
+                "backend.services.ai.pipeline.content_adapter.get_llm_client",
                 return_value=mock_llm_client,
             ):
                 response = await client.post(
@@ -91,7 +92,7 @@ class TestGenerateCvDraft:
                 data = response.json()
                 assert "draft_cv" in data
                 assert data["draft_cv"]["personal_info"]["name"] == "John Doe"
-                # Verify LLM was called for tailoring
+                # Verify LLM was called (through pipeline)
                 assert mock_llm_client.rewrite_text.called
 
     async def test_generate_cv_draft_llm_tailor_fallback(
@@ -115,8 +116,9 @@ class TestGenerateCvDraft:
             "backend.app_helpers.routes.ai.queries.get_profile",
             return_value=profile_data,
         ):
+            # Mock pipeline LLM calls - should fallback to heuristics
             with patch(
-                "backend.services.ai.llm_tailor.get_llm_client",
+                "backend.services.ai.pipeline.content_adapter.get_llm_client",
                 return_value=mock_llm_client,
             ):
                 response = await client.post(
@@ -129,7 +131,7 @@ class TestGenerateCvDraft:
                 # Should still succeed, just without LLM tailoring
                 assert response.status_code == 200
                 assert "draft_cv" in response.json()
-                # LLM should not have been called
+                # LLM should not have been called (falls back to heuristics)
                 mock_llm_client.rewrite_text.assert_not_called()
 
     async def test_generate_cv_draft_with_additional_context(
@@ -188,8 +190,9 @@ class TestGenerateCvDraft:
             "backend.app_helpers.routes.ai.queries.get_profile",
             return_value=profile_data,
         ):
+            # Mock pipeline LLM calls
             with patch(
-                "backend.services.ai.llm_tailor.get_llm_client",
+                "backend.services.ai.pipeline.content_adapter.get_llm_client",
                 return_value=mock_llm_client,
             ):
                 response = await client.post(
@@ -201,19 +204,21 @@ class TestGenerateCvDraft:
                     },
                 )
                 assert response.status_code == 200
-                # Verify LLM was called
+                # Verify LLM was called (through pipeline)
                 assert mock_llm_client.rewrite_text.called
                 # Check that additional_context appears in prompts
                 call_args_list = mock_llm_client.rewrite_text.call_args_list
                 found_context = False
                 for call_args in call_args_list:
-                    prompt = call_args[0][1]
-                    if (
-                        "top 2% of AI coders" in prompt
-                        or "Additional achievements" in prompt
-                    ):
-                        found_context = True
-                        break
+                    if len(call_args[0]) > 1:
+                        prompt = call_args[0][1]
+                        if (
+                            "top 2% of AI coders" in prompt
+                            or "Additional achievements" in prompt
+                            or "Additional Context" in prompt
+                        ):
+                            found_context = True
+                            break
                 assert found_context, "Additional context should appear in LLM prompts"
 
 

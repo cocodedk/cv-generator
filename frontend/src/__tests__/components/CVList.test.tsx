@@ -318,4 +318,92 @@ describe('CVList', () => {
       expect(mockOnError).toHaveBeenCalledWith('Fetch failed')
     })
   })
+
+  it('displays target company and role in CV title', async () => {
+    const mockCvs = {
+      cvs: [
+        {
+          cv_id: 'cv-1',
+          person_name: 'John Doe',
+          created_at: '2024-01-01T00:00:00Z',
+          updated_at: '2024-01-01T00:00:00Z',
+          target_company: 'Google',
+          target_role: 'Senior Developer',
+        },
+      ],
+      total: 1,
+    }
+    mockedAxios.get.mockResolvedValue({ data: mockCvs })
+
+    render(<CVList onError={mockOnError} />)
+
+    await waitFor(() => {
+      expect(screen.getByText('John Doe - Senior Developer @ Google')).toBeInTheDocument()
+    })
+  })
+
+  it('displays only target role when company is missing', async () => {
+    const mockCvs = {
+      cvs: [
+        {
+          cv_id: 'cv-1',
+          person_name: 'John Doe',
+          created_at: '2024-01-01T00:00:00Z',
+          updated_at: '2024-01-01T00:00:00Z',
+          target_role: 'Backend Engineer',
+        },
+      ],
+      total: 1,
+    }
+    mockedAxios.get.mockResolvedValue({ data: mockCvs })
+
+    render(<CVList onError={mockOnError} />)
+
+    await waitFor(() => {
+      expect(screen.getByText('John Doe - Backend Engineer')).toBeInTheDocument()
+    })
+  })
+
+  it('displays only target company when role is missing', async () => {
+    const mockCvs = {
+      cvs: [
+        {
+          cv_id: 'cv-1',
+          person_name: 'John Doe',
+          created_at: '2024-01-01T00:00:00Z',
+          updated_at: '2024-01-01T00:00:00Z',
+          target_company: 'Microsoft',
+        },
+      ],
+      total: 1,
+    }
+    mockedAxios.get.mockResolvedValue({ data: mockCvs })
+
+    render(<CVList onError={mockOnError} />)
+
+    await waitFor(() => {
+      expect(screen.getByText('John Doe - @ Microsoft')).toBeInTheDocument()
+    })
+  })
+
+  it('displays only person name when target fields are missing', async () => {
+    const mockCvs = {
+      cvs: [
+        {
+          cv_id: 'cv-1',
+          person_name: 'John Doe',
+          created_at: '2024-01-01T00:00:00Z',
+          updated_at: '2024-01-01T00:00:00Z',
+        },
+      ],
+      total: 1,
+    }
+    mockedAxios.get.mockResolvedValue({ data: mockCvs })
+
+    render(<CVList onError={mockOnError} />)
+
+    await waitFor(() => {
+      expect(screen.getByText('John Doe')).toBeInTheDocument()
+    })
+  })
 })

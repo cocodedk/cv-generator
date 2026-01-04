@@ -41,3 +41,25 @@ class TestListCVs:
         with patch("backend.database.queries.list_cvs", return_value=list_data):
             response = await client.get("/api/cvs?search=John")
             assert response.status_code == 200
+
+    async def test_list_cvs_returns_target_company_and_role(self, client, mock_neo4j_connection):
+        """Test CV listing returns target_company and target_role when present."""
+        list_data = {
+            "cvs": [
+                {
+                    "cv_id": "id1",
+                    "created_at": "2024-01-01T00:00:00",
+                    "updated_at": "2024-01-01T00:00:00",
+                    "person_name": "John Doe",
+                    "target_company": "Google",
+                    "target_role": "Senior Developer",
+                }
+            ],
+            "total": 1,
+        }
+        with patch("backend.database.queries.list_cvs", return_value=list_data):
+            response = await client.get("/api/cvs")
+            assert response.status_code == 200
+            data = response.json()
+            assert data["cvs"][0]["target_company"] == "Google"
+            assert data["cvs"][0]["target_role"] == "Senior Developer"

@@ -70,3 +70,21 @@ class TestGetCV:
             assert response.status_code == 200
             data = response.json()
             assert data["theme"] == "classic"
+
+    async def test_get_cv_returns_target_company_and_role(self, client, mock_neo4j_connection):
+        """Test that target_company and target_role are returned when present."""
+        cv_data = {
+            "cv_id": "test-id",
+            "personal_info": {"name": "John Doe"},
+            "experience": [],
+            "education": [],
+            "skills": [],
+            "target_company": "Google",
+            "target_role": "Senior Developer",
+        }
+        with patch("backend.database.queries.get_cv_by_id", return_value=cv_data):
+            response = await client.get("/api/cv/test-id")
+            assert response.status_code == 200
+            data = response.json()
+            assert data["target_company"] == "Google"
+            assert data["target_role"] == "Senior Developer"

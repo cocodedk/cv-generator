@@ -203,3 +203,51 @@ class TestGetCVByFilename:
 
         assert result is not None
         assert result["theme"] == "classic"
+
+    def test_get_cv_returns_target_company_and_role(self, mock_neo4j_connection):
+        """Test CV retrieval returns target_company and target_role when present."""
+        mock_session = mock_neo4j_connection.session.return_value
+        mock_record = Mock()
+        mock_record.single.return_value = {
+            "person": {"name": "John Doe"},
+            "cv": {
+                "id": "test-id",
+                "created_at": "2024-01-01T00:00:00",
+                "updated_at": "2024-01-01T00:00:00",
+                "target_company": "Google",
+                "target_role": "Senior Developer",
+            },
+            "experiences": [],
+            "educations": [],
+            "skills": [],
+        }
+        mock_session.run.return_value = mock_record
+
+        result = queries.get_cv_by_id("test-id")
+
+        assert result is not None
+        assert result["target_company"] == "Google"
+        assert result["target_role"] == "Senior Developer"
+
+    def test_get_cv_returns_none_for_missing_target_fields(self, mock_neo4j_connection):
+        """Test CV retrieval returns None for target_company and target_role when missing."""
+        mock_session = mock_neo4j_connection.session.return_value
+        mock_record = Mock()
+        mock_record.single.return_value = {
+            "person": {"name": "John Doe"},
+            "cv": {
+                "id": "test-id",
+                "created_at": "2024-01-01T00:00:00",
+                "updated_at": "2024-01-01T00:00:00",
+            },
+            "experiences": [],
+            "educations": [],
+            "skills": [],
+        }
+        mock_session.run.return_value = mock_record
+
+        result = queries.get_cv_by_id("test-id")
+
+        assert result is not None
+        assert result.get("target_company") is None
+        assert result.get("target_role") is None

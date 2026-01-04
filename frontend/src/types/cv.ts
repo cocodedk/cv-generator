@@ -80,6 +80,8 @@ export interface CVData {
     | 'interactive-skills-matrix'
     | 'academic-cv'
     | 'dark-mode-tech'
+  target_company?: string
+  target_role?: string
 }
 
 export interface CVResponse {
@@ -94,6 +96,8 @@ export interface CVListItem {
   updated_at: string
   person_name?: string
   filename?: string
+  target_company?: string
+  target_role?: string
 }
 
 export interface CVListResponse {

@@ -2,7 +2,13 @@
 
 
 def create_cv_node(
-    tx, cv_id: str, created_at: str, theme: str, layout: str = "classic-two-column"
+    tx,
+    cv_id: str,
+    created_at: str,
+    theme: str,
+    layout: str = "classic-two-column",
+    target_company: str | None = None,
+    target_role: str | None = None,
 ):
     """Create CV node."""
     query = """
@@ -11,12 +17,20 @@ def create_cv_node(
         created_at: $created_at,
         updated_at: $created_at,
         theme: $theme,
-        layout: $layout
+        layout: $layout,
+        target_company: $target_company,
+        target_role: $target_role
     })
     RETURN cv
     """
     result = tx.run(
-        query, cv_id=cv_id, created_at=created_at, theme=theme, layout=layout
+        query,
+        cv_id=cv_id,
+        created_at=created_at,
+        theme=theme,
+        layout=layout,
+        target_company=target_company,
+        target_role=target_role,
     )
     result.consume()
     return cv_id

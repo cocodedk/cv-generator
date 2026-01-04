@@ -73,3 +73,37 @@ class TestAIGenerateCVRequest:
         )
         # Empty string should be converted to None or remain empty
         assert request.additional_context == "" or request.additional_context is None
+
+    def test_valid_request_with_target_company(self):
+        """Test valid request with target_company field."""
+        request = AIGenerateCVRequest(
+            job_description="We require FastAPI and React.",
+            target_company="Google",
+            target_role="Senior Developer",
+        )
+        assert request.target_company == "Google"
+        assert request.target_role == "Senior Developer"
+
+    def test_target_company_max_length(self):
+        """Test that target_company respects max_length constraint."""
+        long_company = "A" * 200
+        request = AIGenerateCVRequest(
+            job_description="We require FastAPI and React.",
+            target_company=long_company,
+        )
+        assert len(request.target_company) == 200
+
+    def test_target_company_exceeds_max_length(self):
+        """Test that target_company exceeding max_length raises validation error."""
+        long_company = "A" * 201  # Exceeds max_length of 200
+        with pytest.raises(ValidationError) as exc_info:
+            AIGenerateCVRequest(
+                job_description="We require FastAPI and React.",
+                target_company=long_company,
+            )
+        errors = exc_info.value.errors()
+        assert any(
+            error["loc"] == ("target_company",)
+            and error["type"] == "string_too_long"
+            for error in errors
+        )

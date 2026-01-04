@@ -28,6 +28,7 @@ class AIGenerateCVRequest(BaseModel):
     """Request to generate a tailored CV draft from saved profile + job description."""
 
     job_description: str = Field(..., min_length=20, max_length=20000)
+    target_company: Optional[str] = Field(default=None, max_length=200)
     target_role: Optional[str] = Field(default=None, max_length=200)
     seniority: Optional[str] = Field(default=None, max_length=100)
     style: Literal[

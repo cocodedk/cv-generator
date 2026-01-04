@@ -157,7 +157,20 @@ export default function CVList({ onError }: CVListProps) {
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                      {cv.person_name || 'Unnamed CV'}
+                      {(() => {
+                        const name = cv.person_name || 'Unnamed CV'
+                        const parts: string[] = []
+                        if (cv.target_role) {
+                          parts.push(cv.target_role)
+                        }
+                        if (cv.target_company) {
+                          parts.push(`@ ${cv.target_company}`)
+                        }
+                        if (parts.length > 0) {
+                          return `${name} - ${parts.join(' ')}`
+                        }
+                        return name
+                      })()}
                     </h3>
                     <p className="text-sm text-gray-500 mt-1 dark:text-gray-400">
                       Created: {new Date(cv.created_at).toLocaleDateString()}

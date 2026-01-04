@@ -74,6 +74,8 @@ def get_cv_by_id(cv_id: str) -> Optional[Dict[str, Any]]:
             "updated_at": record["cv"]["updated_at"],
             "filename": record["cv"].get("filename"),
             "theme": record["cv"].get("theme", "classic"),
+            "target_company": record["cv"].get("target_company"),
+            "target_role": record["cv"].get("target_role"),
             "personal_info": {
                 "name": person.get("name"),
                 "title": person.get("title"),
@@ -162,6 +164,8 @@ def get_cv_by_filename(filename: str) -> Optional[Dict[str, Any]]:
             "updated_at": record["cv"]["updated_at"],
             "filename": record["cv"].get("filename"),
             "theme": record["cv"].get("theme", "classic"),
+            "target_company": record["cv"].get("target_company"),
+            "target_role": record["cv"].get("target_role"),
             "personal_info": {
                 "name": person.get("name"),
                 "title": person.get("title"),

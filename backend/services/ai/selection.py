@@ -6,7 +6,7 @@ from typing import List, Tuple
 
 from backend.models import Education, Experience, Project, Skill
 from backend.services.ai.scoring import score_item, top_n_scored
-from backend.services.ai.text import extract_words, word_set
+from backend.services.ai.text import extract_words, word_set, tech_terms_match
 
 
 def select_experiences(
@@ -121,26 +121,22 @@ def select_skills(
     )
     selected_words = set(extract_words(selected_text))
 
-    # Normalize keywords by stripping trailing punctuation for consistent matching
-    def normalize_keyword(word: str) -> str:
-        """Remove trailing punctuation from keywords."""
-        return word.rstrip(".,;:!?")
-
-    normalized_required = {normalize_keyword(kw) for kw in spec.required_keywords}
-    normalized_preferred = {normalize_keyword(kw) for kw in spec.preferred_keywords}
-    normalized_selected = {normalize_keyword(kw) for kw in selected_words}
+    required_keywords = list(spec.required_keywords)
+    preferred_keywords = list(spec.preferred_keywords)
 
     scored: List[Tuple[float, Skill]] = []
     for skill in skills:
-        # Extract words from skill name AND category
-        skill_words = word_set([skill.name, skill.category or ""])
-        # Normalize skill words too
-        normalized_skill_words = {normalize_keyword(kw) for kw in skill_words}
+        # Use smart matching for JD keywords (handles TailwindCSS vs Tailwind CSS)
+        matches_required = any(
+            tech_terms_match(skill.name, kw) for kw in required_keywords
+        )
+        matches_preferred = any(
+            tech_terms_match(skill.name, kw) for kw in preferred_keywords
+        )
 
-        # Check membership in job description keywords
-        matches_required = bool(normalized_skill_words & normalized_required)
-        matches_preferred = bool(normalized_skill_words & normalized_preferred)
-        appears_in_selected = bool(normalized_skill_words & normalized_selected)
+        # Check if skill appears in selected experiences (exact word match is fine here)
+        skill_words = word_set([skill.name, skill.category or ""])
+        appears_in_selected = bool(skill_words & selected_words)
 
         # Weighted scoring: JD match is primary (70%), experience bonus (30%)
         score = (
