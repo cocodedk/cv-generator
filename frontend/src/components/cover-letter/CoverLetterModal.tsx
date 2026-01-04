@@ -82,8 +82,8 @@ export default function CoverLetterModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-3xl rounded-lg bg-white shadow-lg dark:border dark:border-gray-800 dark:bg-gray-900">
-        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+      <div className="w-full max-w-3xl max-h-[90vh] flex flex-col rounded-lg bg-white shadow-lg dark:border dark:border-gray-800 dark:bg-gray-900">
+        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-800 flex-shrink-0">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             Generate Cover Letter
           </h3>
@@ -96,7 +96,7 @@ export default function CoverLetterModal({
           </button>
         </div>
 
-        <div className="space-y-4 p-6">
+        <div className="space-y-4 p-6 overflow-y-auto flex-1 min-h-0">
           <RecipientFields payload={payload} isGenerating={isGenerating} onChange={updateField} />
           {result ? (
             <CoverLetterPreview
@@ -108,7 +108,7 @@ export default function CoverLetterModal({
           ) : null}
         </div>
 
-        <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-800">
+        <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4 dark:border-gray-800 flex-shrink-0">
           <button
             type="button"
             onClick={onClose}

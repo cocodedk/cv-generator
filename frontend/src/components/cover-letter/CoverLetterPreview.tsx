@@ -47,10 +47,30 @@ export default function CoverLetterPreview({
             </button>
           </div>
         </div>
-        <div
-          className="max-h-[400px] overflow-y-auto rounded border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900"
-          dangerouslySetInnerHTML={{ __html: result.cover_letter_html }}
-        />
+        <div className="cover-letter-preview-container">
+          <style>{`
+            .dark .cover-letter-preview-container body,
+            .dark .cover-letter-preview-container .container,
+            .dark .cover-letter-preview-container .sender-info,
+            .dark .cover-letter-preview-container .date,
+            .dark .cover-letter-preview-container .recipient-info,
+            .dark .cover-letter-preview-container .cover-letter-body,
+            .dark .cover-letter-preview-container .cover-letter-body p,
+            .dark .cover-letter-preview-container .signature {
+              color: #e5e7eb !important;
+            }
+            .dark .cover-letter-preview-container .sender-info .name {
+              color: #10b981 !important;
+            }
+            .dark .cover-letter-preview-container body {
+              background-color: transparent !important;
+            }
+          `}</style>
+          <div
+            className="max-h-[400px] overflow-y-auto rounded border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-900"
+            dangerouslySetInnerHTML={{ __html: result.cover_letter_html }}
+          />
+        </div>
       </div>
 
       {result.highlights_used.length > 0 && (
