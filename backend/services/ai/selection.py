@@ -6,7 +6,7 @@ from typing import List, Tuple
 
 from backend.models import Education, Experience, Project, Skill
 from backend.services.ai.scoring import score_item, top_n_scored
-from backend.services.ai.text import extract_words, normalize_text
+from backend.services.ai.text import extract_words, word_set
 
 
 def select_experiences(
@@ -92,13 +92,14 @@ def select_skills(skills: List[Skill], spec, selected_experiences: List[Experien
     if not skills:
         return []
 
+    # Build set of words from selected experiences for bonus scoring
     selected_text = " ".join(
         [
             exp.title
             + " "
             + " ".join(
                 [
-                    proj.name + " " + " ".join(proj.technologies) + " " + " ".join(proj.highlights)
+                    proj.name + " " + " ".join(proj.technologies)
                     for proj in exp.projects
                 ]
             )
@@ -106,15 +107,41 @@ def select_skills(skills: List[Skill], spec, selected_experiences: List[Experien
         ]
     )
     selected_words = set(extract_words(selected_text))
-    target_words = set(spec.required_keywords).union(spec.preferred_keywords)
+
+    # Normalize keywords by stripping trailing punctuation for consistent matching
+    def normalize_keyword(word: str) -> str:
+        """Remove trailing punctuation from keywords."""
+        return word.rstrip(".,;:!?")
+
+    normalized_required = {normalize_keyword(kw) for kw in spec.required_keywords}
+    normalized_preferred = {normalize_keyword(kw) for kw in spec.preferred_keywords}
+    normalized_selected = {normalize_keyword(kw) for kw in selected_words}
 
     scored: List[Tuple[float, Skill]] = []
     for skill in skills:
-        name = normalize_text(skill.name)
-        appears_in_selected = 1.0 if name in selected_words else 0.0
-        matches_target = 1.0 if name in target_words else 0.0
-        score = 0.7 * appears_in_selected + 0.3 * matches_target
+        # Extract words from skill name AND category
+        skill_words = word_set([skill.name, skill.category or ""])
+        # Normalize skill words too
+        normalized_skill_words = {normalize_keyword(kw) for kw in skill_words}
+
+        # Check membership in job description keywords
+        matches_required = bool(normalized_skill_words & normalized_required)
+        matches_preferred = bool(normalized_skill_words & normalized_preferred)
+        appears_in_selected = bool(normalized_skill_words & normalized_selected)
+
+        # Weighted scoring: JD match is primary (70%), experience bonus (30%)
+        score = (
+            0.5 * float(matches_required)
+            + 0.2 * float(matches_preferred)
+            + 0.3 * float(appears_in_selected)
+        )
         scored.append((score, skill))
 
+    # Select top 18 skills with score > 0, fallback to top by original order if none match
     selected = [skill for score, skill in top_n_scored(scored, 18) if score > 0.0]
+
+    # Fallback: if no skills matched, return first 10 skills from profile
+    if not selected and skills:
+        selected = skills[:10]
+
     return selected
