@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import axios from 'axios'
 import { setupAxiosMock, setupWindowMocks, createMockCallbacks } from '../helpers/cvForm/mocks'
 import {
   mockProfileData,
@@ -14,7 +13,6 @@ import {
   submitForm,
   clickLoadProfileButton,
   clickSaveToProfileButton,
-  waitForFormToLoad,
 } from '../helpers/cvForm/testHelpers'
 
 const mockedAxios = setupAxiosMock()

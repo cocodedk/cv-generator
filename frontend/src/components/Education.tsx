@@ -37,7 +37,7 @@ export default function Education({ control, register }: EducationProps) {
 
       {fields.length === 0 && (
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          No education added. Click "Add Education" to add one.
+          No education added. Click &quot;Add Education&quot; to add one.
         </p>
       )}
 

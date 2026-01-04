@@ -1,0 +1,58 @@
+{
+  "cv_id": "5a5f23b3-0634-487c-ae66-0dedbc3e253d",
+  "layouts": [
+    {
+      "file": "5a5f23b3-0634-487c-ae66-0dedbc3e253d/classic-two-column-classic.html",
+      "layout": "classic-two-column",
+      "theme": "classic"
+    },
+    {
+      "file": "5a5f23b3-0634-487c-ae66-0dedbc3e253d/ats-single-column-classic.html",
+      "layout": "ats-single-column",
+      "theme": "classic"
+    },
+    {
+      "file": "5a5f23b3-0634-487c-ae66-0dedbc3e253d/modern-sidebar-classic.html",
+      "layout": "modern-sidebar",
+      "theme": "classic"
+    },
+    {
+      "file": "5a5f23b3-0634-487c-ae66-0dedbc3e253d/section-cards-grid-classic.html",
+      "layout": "section-cards-grid",
+      "theme": "classic"
+    },
+    {
+      "file": "5a5f23b3-0634-487c-ae66-0dedbc3e253d/career-timeline-classic.html",
+      "layout": "career-timeline",
+      "theme": "classic"
+    },
+    {
+      "file": "5a5f23b3-0634-487c-ae66-0dedbc3e253d/project-case-studies-classic.html",
+      "layout": "project-case-studies",
+      "theme": "classic"
+    },
+    {
+      "file": "5a5f23b3-0634-487c-ae66-0dedbc3e253d/portfolio-spa-classic.html",
+      "layout": "portfolio-spa",
+      "theme": "classic"
+    },
+    {
+      "file": "5a5f23b3-0634-487c-ae66-0dedbc3e253d/interactive-skills-matrix-classic.html",
+      "layout": "interactive-skills-matrix",
+      "theme": "classic"
+    },
+    {
+      "file": "5a5f23b3-0634-487c-ae66-0dedbc3e253d/academic-cv-classic.html",
+      "layout": "academic-cv",
+      "theme": "classic"
+    },
+    {
+      "file": "5a5f23b3-0634-487c-ae66-0dedbc3e253d/dark-mode-tech-classic.html",
+      "layout": "dark-mode-tech",
+      "theme": "classic"
+    }
+  ],
+  "name": "Babak Bandpey",
+  "theme": "classic",
+  "updated_at": "2026-01-04T17:29:01.102709+00:00"
+}

@@ -1,11 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { ViewMode } from './types'
-import {
-  hashToViewMode,
-  viewModeToHash,
-  extractCvIdFromHash,
-  extractProfileUpdatedAtFromHash,
-} from './hashRouting'
+import { hashToViewMode, extractCvIdFromHash, extractProfileUpdatedAtFromHash } from './hashRouting'
 
 export const useHashRouting = () => {
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
@@ -49,6 +44,7 @@ export const useHashRouting = () => {
       setCvId(hashCvId)
       setProfileUpdatedAt(hashProfileUpdatedAt)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {

@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { screen, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import axios from 'axios'
 import { setupAxiosMock, setupWindowMocks, createMockCallbacks } from '../helpers/cvForm/mocks'
 import { mockCvResponse } from '../helpers/cvForm/testData'
 import { renderCVForm, fillNameField } from '../helpers/cvForm/testHelpers'
@@ -43,7 +42,7 @@ describe('CVForm - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
     })
 
     // Fill in name field
-    const nameInput = await fillNameField('John Doe')
+    await fillNameField('John Doe')
 
     // Simulate Ctrl+S keypress (works even when input is focused)
     const ctrlSEvent = createKeyboardEvent('s', { ctrlKey: true })

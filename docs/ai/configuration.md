@@ -31,6 +31,33 @@ AI settings are configured via environment variables. For Docker setups, these m
 - `AI_TEMPERATURE`: `0.0`–`1.0` (default `0.7`)
 - `AI_REQUEST_TIMEOUT_S`: request timeout in seconds (default `30`)
 
+## Model Recommendations
+
+For best results with CV tailoring features (especially the `llm_tailor` style):
+
+- **gpt-4o**: Best instruction-following and factual accuracy. Recommended for production use.
+- **gpt-4-turbo**: Good balance of capability and cost. Reliable for most use cases.
+- **gpt-3.5-turbo**: Fastest and cheapest, but may occasionally add unsolicited details. Suitable for testing.
+
+To upgrade, change `AI_MODEL` in your `.env` file:
+```env
+AI_MODEL=gpt-4o
+```
+
+## CV Generation Styles
+
+The CV generation endpoint supports three styles:
+
+1. **`select_and_reorder`** (default): Uses heuristics to select and reorder experiences/skills based on keyword matching. No LLM required.
+
+2. **`rewrite_bullets`**: Applies simple text cleanup (removes weak prefixes like "responsible for"). No LLM required.
+
+3. **`llm_tailor`**: Uses LLM to intelligently reword bullets, descriptions, and reorder skills to match the job description. **Requires LLM configuration** (`AI_ENABLED=true`). This style:
+   - Rewords highlights and descriptions to emphasize JD-relevant skills
+   - Reorders skills to prioritize JD-relevant ones
+   - Strictly preserves all facts from your master profile (no fabrication)
+   - Falls back gracefully if LLM is not configured
+
 ## OpenAI-Compatible Examples
 
 - OpenAI: `AI_BASE_URL=https://api.openai.com/v1`

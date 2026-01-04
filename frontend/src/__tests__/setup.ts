@@ -10,7 +10,7 @@ declare global {
   }
 }
 
-;(globalThis as unknown as { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true
+globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
 installNoNetworkGuards()
 
@@ -88,6 +88,8 @@ vi.mock('@tiptap/react', () => {
     const attrs = (editor.__getEditorProps?.()?.attributes || {}) as Record<string, unknown>
     const className = typeof attrs.class === 'string' ? attrs.class : 'ql-editor'
     const style = parseStyle(attrs.style)
+    // Extract class and style to exclude them, then add our own className and style
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { class: _class, style: _style, ...rest } = attrs as Record<string, unknown>
     const props: Record<string, unknown> = { ...rest, className, style }
 

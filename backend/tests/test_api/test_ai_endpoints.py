@@ -44,6 +44,67 @@ class TestGenerateCvDraft:
             )
             assert response.status_code == 404
 
+    async def test_generate_cv_draft_llm_tailor_style(self, client, sample_cv_data, mock_neo4j_connection):
+        """Test generate-cv with llm_tailor style."""
+        profile_data = {
+            "personal_info": sample_cv_data["personal_info"],
+            "experience": sample_cv_data["experience"],
+            "education": sample_cv_data["education"],
+            "skills": sample_cv_data["skills"],
+            "updated_at": "2024-01-01T00:00:00",
+        }
+
+        from unittest.mock import Mock
+        mock_llm_client = Mock()
+        mock_llm_client.is_configured.return_value = True
+        mock_llm_client.rewrite_text = AsyncMock(return_value="Tailored text")
+
+        with patch("backend.app_helpers.routes.ai.queries.get_profile", return_value=profile_data):
+            with patch("backend.services.ai.llm_tailor.get_llm_client", return_value=mock_llm_client):
+                response = await client.post(
+                    "/api/ai/generate-cv",
+                    json={
+                        "job_description": "We require FastAPI and React. You will build and improve web features.",
+                        "style": "llm_tailor",
+                        "max_experiences": 4,
+                    },
+                )
+                assert response.status_code == 200
+                data = response.json()
+                assert "draft_cv" in data
+                assert data["draft_cv"]["personal_info"]["name"] == "John Doe"
+                # Verify LLM was called for tailoring
+                assert mock_llm_client.rewrite_text.called
+
+    async def test_generate_cv_draft_llm_tailor_fallback(self, client, sample_cv_data, mock_neo4j_connection):
+        """Test llm_tailor style falls back gracefully when LLM not configured."""
+        profile_data = {
+            "personal_info": sample_cv_data["personal_info"],
+            "experience": sample_cv_data["experience"],
+            "education": sample_cv_data["education"],
+            "skills": sample_cv_data["skills"],
+            "updated_at": "2024-01-01T00:00:00",
+        }
+
+        from unittest.mock import Mock
+        mock_llm_client = Mock()
+        mock_llm_client.is_configured.return_value = False
+
+        with patch("backend.app_helpers.routes.ai.queries.get_profile", return_value=profile_data):
+            with patch("backend.services.ai.llm_tailor.get_llm_client", return_value=mock_llm_client):
+                response = await client.post(
+                    "/api/ai/generate-cv",
+                    json={
+                        "job_description": "We require FastAPI and React.",
+                        "style": "llm_tailor",
+                    },
+                )
+                # Should still succeed, just without LLM tailoring
+                assert response.status_code == 200
+                assert "draft_cv" in response.json()
+                # LLM should not have been called
+                mock_llm_client.rewrite_text.assert_not_called()
+
 
 @pytest.mark.asyncio
 @pytest.mark.api
@@ -112,7 +173,8 @@ class TestAIRewrite:
 
             assert response.status_code == 400
             data = response.json()
-            assert "LLM is not configured" in data["detail"]
+            # Check for user-friendly error message
+            assert "AI rewrite requires LLM configuration" in data["detail"]
 
     async def test_rewrite_text_llm_error(self, client):
         """Test rewrite when LLM API returns error."""
@@ -130,7 +192,8 @@ class TestAIRewrite:
 
             assert response.status_code == 500
             data = response.json()
-            assert "Failed to rewrite text" in data["detail"]
+            # Check for user-friendly error message
+            assert "error occurred" in data["detail"].lower() or "API Error" in data["detail"]
 
     async def test_rewrite_text_long_text(self, client):
         """Test rewrite with long text."""

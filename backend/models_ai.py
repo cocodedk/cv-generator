@@ -27,7 +27,7 @@ class AIGenerateCVRequest(BaseModel):
     job_description: str = Field(..., min_length=20, max_length=20000)
     target_role: Optional[str] = Field(default=None, max_length=200)
     seniority: Optional[str] = Field(default=None, max_length=100)
-    style: Literal["select_and_reorder", "rewrite_bullets"] = "select_and_reorder"
+    style: Literal["select_and_reorder", "rewrite_bullets", "llm_tailor"] = "select_and_reorder"
     max_experiences: Optional[int] = Field(default=None, ge=1, le=10)
 
 

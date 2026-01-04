@@ -65,6 +65,7 @@ export default function AiGenerateFields({
           >
             <option value="select_and_reorder">Select & reorder</option>
             <option value="rewrite_bullets">Rewrite bullets (heuristic)</option>
+            <option value="llm_tailor">AI Tailor (rewrites to match JD)</option>
           </select>
         </div>
         <div className="grid gap-2">

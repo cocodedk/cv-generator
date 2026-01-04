@@ -24,6 +24,14 @@ The profile is treated as the only source of truth for claims. The generator:
 - Selects the best-matching items and orders them to fit the target role.
 - Optionally rewrites bullets, but only using facts present in the profile; otherwise it asks questions.
 
+## Generation Styles
+
+Three styles are available:
+
+1. **`select_and_reorder`** (default): Heuristic-based selection and reordering. Fast, no LLM required.
+2. **`rewrite_bullets`**: Simple text cleanup (removes weak prefixes). Fast, no LLM required.
+3. **`llm_tailor`**: LLM-powered tailoring that intelligently rewrites content to match the job description while strictly preserving facts. Requires LLM configuration (see `docs/ai/configuration.md`).
+
 ## Guardrails (Non-negotiable)
 
 - No fabricated facts or metrics (if missing, leave blank + ask).
@@ -33,8 +41,9 @@ The profile is treated as the only source of truth for claims. The generator:
 
 ## Provider Compatibility
 
-The current implementation is heuristics-first. Optional provider-backed generation can be added behind a flag.
-See `docs/ai/configuration.md`.
+The implementation supports both heuristic-based generation (no LLM required) and LLM-powered tailoring (requires configuration). The `llm_tailor` style uses an LLM to intelligently reword content while maintaining strict factual accuracy.
+
+See `docs/ai/configuration.md` for LLM setup and model recommendations.
 
 Related:
 - In-form editing helpers (per-field): `docs/ai/in-form-assist.md`

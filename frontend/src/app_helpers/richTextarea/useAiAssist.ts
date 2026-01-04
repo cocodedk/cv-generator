@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { Editor } from '@tiptap/react'
 import { buildAiRewriteHtml } from '../ai/aiTextAssist'
 import { rewriteText } from '../../services/aiService'
@@ -25,7 +25,6 @@ export function useAiAssist({
   setTextLength,
 }: UseAiAssistOptions) {
   const [showPromptModal, setShowPromptModal] = useState(false)
-  const [prompt, setPrompt] = useState('')
   const [isRewriting, setIsRewriting] = useState(false)
   const [rewriteError, setRewriteError] = useState<string | null>(null)
 
@@ -37,7 +36,6 @@ export function useAiAssist({
     if (mode === 'rewrite') {
       // Show prompt modal for LLM rewrite
       setShowPromptModal(true)
-      setPrompt('')
       setRewriteError(null)
     } else {
       // Use heuristic-based bullets
@@ -89,7 +87,6 @@ export function useAiAssist({
       onChange(rewrittenHtml)
 
       setShowPromptModal(false)
-      setPrompt('')
     } catch (error: any) {
       setRewriteError(error.response?.data?.detail || error.message || 'Failed to rewrite text')
     } finally {

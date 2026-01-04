@@ -13,7 +13,10 @@ The backend loads the saved master profile and generates a tailored `CVData` dra
 - `job_description`: string (required)
 - `target_role`: string (optional)
 - `seniority`: string (optional)
-- `style`: `"select_and_reorder" | "rewrite_bullets"` (optional; default select/reorder)
+- `style`: `"select_and_reorder" | "rewrite_bullets" | "llm_tailor"` (optional; default `select_and_reorder`)
+  - `select_and_reorder`: Heuristic-based selection and reordering (no LLM required)
+  - `rewrite_bullets`: Simple text cleanup (no LLM required)
+  - `llm_tailor`: LLM-powered tailoring that rewrites content to match JD (requires LLM configuration)
 - `max_experiences`: number (optional)
 
 ### Response (JSON)
