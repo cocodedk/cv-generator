@@ -56,7 +56,9 @@ def _format_exception_error(exc: Exception) -> str:
         return _format_http_error(exc.response.status_code)
 
     if isinstance(exc, httpx.TimeoutException):
-        return "AI service request timed out. The service may be slow. Please try again."
+        return (
+            "AI service request timed out. The service may be slow. Please try again."
+        )
 
     if isinstance(exc, httpx.ConnectError):
         return "Could not connect to AI service. Please check your internet connection."
@@ -119,7 +121,9 @@ def _handle_generic_error(exc: Exception) -> HTTPException:
     return HTTPException(status_code=500, detail=friendly_msg)
 
 
-async def _handle_generate_cv_request(payload: AIGenerateCVRequest) -> AIGenerateCVResponse:
+async def _handle_generate_cv_request(
+    payload: AIGenerateCVRequest,
+) -> AIGenerateCVResponse:
     """Handle CV generation request."""
     profile_dict = queries.get_profile()
     if not profile_dict:
@@ -142,7 +146,9 @@ def create_ai_router(limiter: Limiter) -> APIRouter:  # noqa: C901
 
     @router.post("/api/ai/generate-cv", response_model=AIGenerateCVResponse)
     @limiter.limit("10/minute")
-    async def generate_cv_from_profile_and_jd(request: Request, payload: AIGenerateCVRequest):
+    async def generate_cv_from_profile_and_jd(
+        request: Request, payload: AIGenerateCVRequest
+    ):
         try:
             return await _handle_generate_cv_request(payload)
         except HTTPException:

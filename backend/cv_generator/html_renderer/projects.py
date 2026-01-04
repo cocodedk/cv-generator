@@ -8,8 +8,12 @@ def prepare_projects(projects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     prepared_projects = []
     for project in projects:
         proj_copy = project.copy()
-        proj_copy["highlights"] = normalize_highlights(proj_copy.get("highlights") or [])
-        proj_copy["technologies"] = normalize_technologies(proj_copy.get("technologies") or [])
+        proj_copy["highlights"] = normalize_highlights(
+            proj_copy.get("highlights") or []
+        )
+        proj_copy["technologies"] = normalize_technologies(
+            proj_copy.get("technologies") or []
+        )
         prepared_projects.append(proj_copy)
     return prepared_projects
 
@@ -28,9 +32,5 @@ def normalize_highlights(highlights: Any) -> List[str]:
 def normalize_technologies(technologies: Any) -> List[str]:
     """Normalize technologies to a list of strings."""
     if isinstance(technologies, str):
-        return [
-            tech.strip()
-            for tech in technologies.split(",")
-            if tech.strip()
-        ]
+        return [tech.strip() for tech in technologies.split(",") if tech.strip()]
     return technologies

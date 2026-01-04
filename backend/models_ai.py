@@ -10,7 +10,10 @@ from backend.models import CVData
 class EvidenceItem(BaseModel):
     """A single piece of evidence backing a requirement."""
 
-    path: str = Field(..., description="JSON path into the profile/CV, e.g. experience[0].projects[1].highlights[2]")
+    path: str = Field(
+        ...,
+        description="JSON path into the profile/CV, e.g. experience[0].projects[1].highlights[2]",
+    )
     quote: str = Field(..., min_length=1, max_length=400)
 
 
@@ -27,8 +30,15 @@ class AIGenerateCVRequest(BaseModel):
     job_description: str = Field(..., min_length=20, max_length=20000)
     target_role: Optional[str] = Field(default=None, max_length=200)
     seniority: Optional[str] = Field(default=None, max_length=100)
-    style: Literal["select_and_reorder", "rewrite_bullets", "llm_tailor"] = "select_and_reorder"
+    style: Literal[
+        "select_and_reorder", "rewrite_bullets", "llm_tailor"
+    ] = "select_and_reorder"
     max_experiences: Optional[int] = Field(default=None, ge=1, le=10)
+    additional_context: Optional[str] = Field(
+        default=None,
+        max_length=2000,
+        description="Additional achievements or context to incorporate",
+    )
 
 
 class AIGenerateCVResponse(BaseModel):
@@ -44,8 +54,15 @@ class AIGenerateCVResponse(BaseModel):
 class AIRewriteRequest(BaseModel):
     """Request to rewrite text using LLM."""
 
-    text: str = Field(..., min_length=1, max_length=10000, description="Text to rewrite")
-    prompt: str = Field(..., min_length=1, max_length=1000, description="User's prompt/instruction for rewriting")
+    text: str = Field(
+        ..., min_length=1, max_length=10000, description="Text to rewrite"
+    )
+    prompt: str = Field(
+        ...,
+        min_length=1,
+        max_length=1000,
+        description="User's prompt/instruction for rewriting",
+    )
 
 
 class AIRewriteResponse(BaseModel):

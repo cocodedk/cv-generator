@@ -9,7 +9,9 @@ from unittest.mock import patch, AsyncMock
 class TestGenerateCoverLetter:
     """Test POST /api/ai/generate-cover-letter endpoint."""
 
-    async def test_generate_cover_letter_success(self, client, sample_cv_data, mock_neo4j_connection):
+    async def test_generate_cover_letter_success(
+        self, client, sample_cv_data, mock_neo4j_connection
+    ):
         """Test successful cover letter generation."""
         profile_data = {
             "personal_info": sample_cv_data["personal_info"],
@@ -39,7 +41,10 @@ class TestGenerateCoverLetter:
             relevance_reasoning="Test",
         )
 
-        with patch("backend.app_helpers.routes.cover_letter.queries.get_profile", return_value=profile_data):
+        with patch(
+            "backend.app_helpers.routes.cover_letter.queries.get_profile",
+            return_value=profile_data,
+        ):
             with patch(
                 "backend.services.ai.cover_letter.get_llm_client",
                 return_value=mock_llm_client,
@@ -69,9 +74,14 @@ class TestGenerateCoverLetter:
                     assert "John Doe" in data["cover_letter_html"]
                     assert "Tech Corp" in data["cover_letter_html"]
 
-    async def test_generate_cover_letter_profile_missing(self, client, mock_neo4j_connection):
+    async def test_generate_cover_letter_profile_missing(
+        self, client, mock_neo4j_connection
+    ):
         """Test cover letter generation when profile is missing."""
-        with patch("backend.app_helpers.routes.cover_letter.queries.get_profile", return_value=None):
+        with patch(
+            "backend.app_helpers.routes.cover_letter.queries.get_profile",
+            return_value=None,
+        ):
             response = await client.post(
                 "/api/ai/generate-cover-letter",
                 json={
@@ -110,6 +120,7 @@ class TestGenerateCoverLetter:
     ):
         """Test cover letter generation when LLM is not configured."""
         from unittest.mock import Mock
+
         profile_data = {
             "personal_info": sample_cv_data["personal_info"],
             "experience": sample_cv_data["experience"],
@@ -121,7 +132,10 @@ class TestGenerateCoverLetter:
         mock_llm_client = Mock()
         mock_llm_client.is_configured.return_value = False
 
-        with patch("backend.app_helpers.routes.cover_letter.queries.get_profile", return_value=profile_data):
+        with patch(
+            "backend.app_helpers.routes.cover_letter.queries.get_profile",
+            return_value=profile_data,
+        ):
             with patch(
                 "backend.services.ai.cover_letter.get_llm_client",
                 return_value=mock_llm_client,
@@ -139,7 +153,9 @@ class TestGenerateCoverLetter:
                 data = response.json()
                 assert "LLM" in data["detail"] and "configure" in data["detail"].lower()
 
-    async def test_generate_cover_letter_optional_fields(self, client, sample_cv_data, mock_neo4j_connection):
+    async def test_generate_cover_letter_optional_fields(
+        self, client, sample_cv_data, mock_neo4j_connection
+    ):
         """Test cover letter generation with optional fields omitted."""
         profile_data = {
             "personal_info": sample_cv_data["personal_info"],
@@ -169,7 +185,10 @@ class TestGenerateCoverLetter:
             relevance_reasoning="Test",
         )
 
-        with patch("backend.app_helpers.routes.cover_letter.queries.get_profile", return_value=profile_data):
+        with patch(
+            "backend.app_helpers.routes.cover_letter.queries.get_profile",
+            return_value=profile_data,
+        ):
             with patch(
                 "backend.services.ai.cover_letter.get_llm_client",
                 return_value=mock_llm_client,

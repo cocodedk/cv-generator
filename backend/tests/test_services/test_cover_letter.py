@@ -134,7 +134,9 @@ class TestFormatAsHTML:
     def test_format_as_html_normalizes_address_breaks(self, sample_profile):
         """Test that HTML breaks in address are normalized."""
         # Address with HTML breaks
-        address_with_breaks = "Dirch Passers Alle 36, Postboks 250<br><br>2000 Frederiksberg København"
+        address_with_breaks = (
+            "Dirch Passers Alle 36, Postboks 250<br><br>2000 Frederiksberg København"
+        )
         html = _format_as_html(
             profile=sample_profile,
             cover_letter_body="Test letter.",
@@ -148,7 +150,9 @@ class TestFormatAsHTML:
         assert "Postboks 250" in html
         assert "2000 Frederiksberg" in html
         # Should not have double breaks
-        assert "<br><br>" not in html or html.count("<br>") <= 2  # At most 2 breaks for 2 lines
+        assert (
+            "<br><br>" not in html or html.count("<br>") <= 2
+        )  # At most 2 breaks for 2 lines
 
 
 class TestFormatAsText:
@@ -175,7 +179,9 @@ class TestNormalizeAddress:
 
     def test_normalize_address_strips_html_breaks(self):
         """Test that HTML breaks are normalized to single breaks."""
-        address = "Dirch Passers Alle 36, Postboks 250<br><br>2000 Frederiksberg København"
+        address = (
+            "Dirch Passers Alle 36, Postboks 250<br><br>2000 Frederiksberg København"
+        )
         normalized = _normalize_address(address)
         # Should have single breaks, not double
         assert "<br><br>" not in normalized
@@ -295,6 +301,7 @@ class TestGenerateCoverLetter:
     ):
         """Test cover letter generation when LLM is not configured."""
         from unittest.mock import Mock
+
         mock_llm_client = Mock()
         mock_llm_client.is_configured.return_value = False
 
@@ -375,8 +382,13 @@ class TestGenerateCoverLetter:
                     "backend.services.ai.cover_letter.select_relevant_content",
                     return_value=selected_content,
                 ):
-                    response = await generate_cover_letter(sample_profile, sample_request)
+                    response = await generate_cover_letter(
+                        sample_profile, sample_request
+                    )
                     assert response.cover_letter_html
                     # Verify prompt includes tone instruction
                     call_args = mock_llm_client.rewrite_text.call_args
-                    assert tone in call_args[0][1].lower() or "tone" in call_args[0][1].lower()
+                    assert (
+                        tone in call_args[0][1].lower()
+                        or "tone" in call_args[0][1].lower()
+                    )

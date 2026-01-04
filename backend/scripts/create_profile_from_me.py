@@ -18,7 +18,7 @@ If a profile already exists, it will be updated with the new data.
 import sys
 
 # Add app directory to path (Docker container has /app as working directory)
-sys.path.insert(0, '/app')
+sys.path.insert(0, "/app")
 
 from backend.scripts.create_profile_from_me import get_profile_data, create_profile
 
@@ -35,4 +35,5 @@ if __name__ == "__main__":
         sys.exit(0 if success else 1)
     finally:
         from backend.database.connection import Neo4jConnection
+
         Neo4jConnection.close()

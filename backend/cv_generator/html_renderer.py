@@ -77,8 +77,12 @@ def _prepare_projects(projects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     prepared_projects = []
     for project in projects:
         proj_copy = project.copy()
-        proj_copy["highlights"] = _normalize_highlights(proj_copy.get("highlights") or [])
-        proj_copy["technologies"] = _normalize_technologies(proj_copy.get("technologies") or [])
+        proj_copy["highlights"] = _normalize_highlights(
+            proj_copy.get("highlights") or []
+        )
+        proj_copy["technologies"] = _normalize_technologies(
+            proj_copy.get("technologies") or []
+        )
         prepared_projects.append(proj_copy)
     return prepared_projects
 
@@ -97,11 +101,7 @@ def _normalize_highlights(highlights: Any) -> List[str]:
 def _normalize_technologies(technologies: Any) -> List[str]:
     """Normalize technologies to a list of strings."""
     if isinstance(technologies, str):
-        return [
-            tech.strip()
-            for tech in technologies.split(",")
-            if tech.strip()
-        ]
+        return [tech.strip() for tech in technologies.split(",") if tech.strip()]
     return technologies
 
 
@@ -120,15 +120,13 @@ def _prepare_skills(skills: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, st
 
     # Sort skills within each category by name, then by level
     for category, skill_list in skills_by_category.items():
-        skill_list.sort(key=lambda s: (
-            s.get("name", "").lower(),
-            s.get("level", "").lower()
-        ))
+        skill_list.sort(
+            key=lambda s: (s.get("name", "").lower(), s.get("level", "").lower())
+        )
 
     # Sort categories alphabetically, with "Other" last
     sorted_categories = sorted(
-        skills_by_category.keys(),
-        key=lambda cat: (cat == "Other", cat.lower())
+        skills_by_category.keys(), key=lambda cat: (cat == "Other", cat.lower())
     )
 
     # Return dict with sorted order (Python 3.7+ maintains insertion order)

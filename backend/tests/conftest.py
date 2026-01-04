@@ -31,9 +31,7 @@ def mock_neo4j_driver():
     mock_session.execute_write = Mock(
         return_value=Mock(single=Mock(return_value={"cv_id": "test-cv-id"}))
     )
-    mock_session.execute_read = Mock(
-        return_value=Mock(single=Mock(return_value=None))
-    )
+    mock_session.execute_read = Mock(return_value=Mock(single=Mock(return_value=None)))
     # Keep write_transaction and read_transaction for backwards compatibility in tests
     mock_session.write_transaction = mock_session.execute_write
     mock_session.read_transaction = mock_session.execute_read
@@ -142,6 +140,7 @@ def reset_neo4j_connection():
 def pdf_service():
     """PDF service instance for integration tests."""
     from backend.services.pdf_service import PDFService
+
     return PDFService(timeout=30)  # Shorter timeout for tests
 
 
@@ -186,9 +185,13 @@ def long_html_content():
     ]
     # Add many sections to create long content
     for i in range(15):
-        parts.append(f'<div class="section"><h2>Section {i+1}</h2><p>Content for section {i+1}</p></div>')
-    parts.append("""
+        parts.append(
+            f'<div class="section"><h2>Section {i+1}</h2><p>Content for section {i+1}</p></div>'
+        )
+    parts.append(
+        """
     </body>
     </html>
-    """)
-    return ''.join(parts)
+    """
+    )
+    return "".join(parts)

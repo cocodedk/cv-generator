@@ -37,7 +37,9 @@ class TestUpdateCVTheme:
         with patch("backend.database.queries.update_cv", return_value=True):
             response = await client.put("/api/cv/test-id", json=sample_cv_data)
             assert response.status_code == 200
-            with patch("backend.database.queries.get_cv_by_id", return_value=updated_cv):
+            with patch(
+                "backend.database.queries.get_cv_by_id", return_value=updated_cv
+            ):
                 get_response = await client.get("/api/cv/test-id")
             assert get_response.status_code == 200
             data = get_response.json()
@@ -59,7 +61,9 @@ class TestUpdateCVTheme:
                 "skills": [],
                 "theme": "modern",
             }
-            with patch("backend.database.queries.get_cv_by_id", return_value=updated_cv_modern):
+            with patch(
+                "backend.database.queries.get_cv_by_id", return_value=updated_cv_modern
+            ):
                 get_response = await client.get("/api/cv/test-id")
             assert get_response.status_code == 200
             data = get_response.json()

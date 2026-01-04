@@ -32,7 +32,9 @@ _SENIORITY_SIGNAL_WORDS = (
 )
 
 
-def _overlap_score(item_words: Set[str], required: Set[str], preferred: Set[str]) -> float:
+def _overlap_score(
+    item_words: Set[str], required: Set[str], preferred: Set[str]
+) -> float:
     if not item_words:
         return 0.0
     required_hits = len(item_words.intersection(required))
@@ -75,10 +77,18 @@ def score_item(
     spec: TargetSpec,
 ) -> Score:
     item_words = word_set([*text_parts, *technologies])
-    keyword_match = _overlap_score(item_words, spec.required_keywords, spec.preferred_keywords)
-    responsibility_match = _responsibility_overlap(" ".join(text_parts), spec.responsibilities)
-    seniority_match = 1.0 if contains_any(" ".join(text_parts), _SENIORITY_SIGNAL_WORDS) else 0.0
-    recency = 1.0 if start_date >= "2022-01" else 0.85 if start_date >= "2019-01" else 0.7
+    keyword_match = _overlap_score(
+        item_words, spec.required_keywords, spec.preferred_keywords
+    )
+    responsibility_match = _responsibility_overlap(
+        " ".join(text_parts), spec.responsibilities
+    )
+    seniority_match = (
+        1.0 if contains_any(" ".join(text_parts), _SENIORITY_SIGNAL_WORDS) else 0.0
+    )
+    recency = (
+        1.0 if start_date >= "2022-01" else 0.85 if start_date >= "2019-01" else 0.7
+    )
     quality_penalty = _quality_penalty(text_parts)
 
     value = (
@@ -98,5 +108,7 @@ def score_item(
     )
 
 
-def top_n_scored(items: Sequence[Tuple[float, object]], n: int) -> List[Tuple[float, object]]:
+def top_n_scored(
+    items: Sequence[Tuple[float, object]], n: int
+) -> List[Tuple[float, object]]:
     return sorted(items, key=lambda pair: pair[0], reverse=True)[:n]

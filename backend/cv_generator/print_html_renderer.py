@@ -19,7 +19,9 @@ TEMPLATES_DIR = Path(__file__).resolve().parent / "templates" / "print_html"
 LAYOUTS_DIR = Path(__file__).resolve().parent / "templates" / "layouts"
 
 
-def render_print_html(cv_data: Dict[str, Any], scramble_config: Dict[str, Any] | None = None) -> str:
+def render_print_html(
+    cv_data: Dict[str, Any], scramble_config: Dict[str, Any] | None = None
+) -> str:
     """Render CV data into HTML designed for browser print (A4)."""
     # Prepare template data first to get theme and layout
     template_data = _prepare_template_data(cv_data)
@@ -112,7 +114,9 @@ def render_print_html(cv_data: Dict[str, Any], scramble_config: Dict[str, Any] |
 def _build_theme_css(accent: str, accent_2: str, ink: str, muted: str) -> str:
     """Build CSS override for theme colors."""
     # Return CSS that will override the :root variables
-    return f":root{{--accent:{accent};--accent-2:{accent_2};--ink:{ink};--muted:{muted};}}"
+    return (
+        f":root{{--accent:{accent};--accent-2:{accent_2};--ink:{ink};--muted:{muted};}}"
+    )
 
 
 def _maybe_inline_image(value: str) -> str:

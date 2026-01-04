@@ -16,7 +16,12 @@ from backend.services.ai.cover_letter_selection import select_relevant_content
 
 logger = logging.getLogger(__name__)
 
-TEMPLATES_DIR = Path(__file__).resolve().parent.parent.parent / "cv_generator" / "templates" / "cover_letter"
+TEMPLATES_DIR = (
+    Path(__file__).resolve().parent.parent.parent
+    / "cv_generator"
+    / "templates"
+    / "cover_letter"
+)
 
 
 def _format_profile_summary(profile: ProfileData) -> str:  # noqa: C901
@@ -218,8 +223,7 @@ async def generate_cover_letter(
 
     # Get selected experience names for response
     selected_experience_names = [
-        profile.experience[idx].title
-        for idx in selected_content.experience_indices
+        profile.experience[idx].title for idx in selected_content.experience_indices
     ]
 
     return CoverLetterResponse(
@@ -260,16 +264,16 @@ def _normalize_address(address: str) -> str:
 
     # Replace HTML breaks (case-insensitive, with optional closing tag)
     # Replace <br>, <br/>, <br />, <BR>, etc. with newline
-    address = re.sub(r'<br\s*/?>', '\n', address, flags=re.IGNORECASE)
+    address = re.sub(r"<br\s*/?>", "\n", address, flags=re.IGNORECASE)
 
     # Normalize multiple newlines to single newline
-    address = re.sub(r'\n+', '\n', address)
+    address = re.sub(r"\n+", "\n", address)
 
     # Strip leading/trailing whitespace
     address = address.strip()
 
     # Convert single newlines to <br> tags
-    address = address.replace('\n', '<br>')
+    address = address.replace("\n", "<br>")
 
     return address
 
@@ -304,7 +308,9 @@ def _format_as_html(
         body_html = f"<p>{body_html}</p>"
 
     # Normalize company address (strip HTML breaks and normalize)
-    normalized_address = _normalize_address(company_address) if company_address else None
+    normalized_address = (
+        _normalize_address(company_address) if company_address else None
+    )
 
     # Load template
     env = Environment(
@@ -335,9 +341,9 @@ def _strip_html_breaks(text: str) -> str:
     if not text:
         return ""
     # Replace HTML breaks with newlines
-    text = re.sub(r'<br\s*/?>', '\n', text, flags=re.IGNORECASE)
+    text = re.sub(r"<br\s*/?>", "\n", text, flags=re.IGNORECASE)
     # Normalize multiple newlines
-    text = re.sub(r'\n+', '\n', text)
+    text = re.sub(r"\n+", "\n", text)
     return text.strip()
 
 

@@ -8,6 +8,7 @@ export interface AIGenerateCVRequest {
   seniority?: string
   style?: AIGenerateStyle
   max_experiences?: number
+  additional_context?: string
 }
 
 export interface EvidenceItem {

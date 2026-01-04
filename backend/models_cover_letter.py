@@ -18,12 +18,15 @@ class CoverLetterResponse(BaseModel):
     """Response containing generated cover letter."""
 
     cover_letter_html: str = Field(..., description="HTML formatted cover letter")
-    cover_letter_text: str = Field(..., description="Plain text version of cover letter")
+    cover_letter_text: str = Field(
+        ..., description="Plain text version of cover letter"
+    )
     highlights_used: List[str] = Field(
         default_factory=list, description="Profile items referenced in the cover letter"
     )
     selected_experiences: List[str] = Field(
-        default_factory=list, description="Names of experiences selected as most relevant"
+        default_factory=list,
+        description="Names of experiences selected as most relevant",
     )
     selected_skills: List[str] = Field(
         default_factory=list, description="Skills selected as most relevant to the job"

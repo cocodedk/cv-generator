@@ -37,11 +37,14 @@ class TestProfileCRUD:
                 "email": "test" + sample_cv_data["personal_info"]["email"],
                 "phone": "test" + sample_cv_data["personal_info"]["phone"],
                 "address": {
-                    "street": "test" + sample_cv_data["personal_info"]["address"]["street"],
+                    "street": "test"
+                    + sample_cv_data["personal_info"]["address"]["street"],
                     "city": "test" + sample_cv_data["personal_info"]["address"]["city"],
-                    "state": "test" + sample_cv_data["personal_info"]["address"]["state"],
+                    "state": "test"
+                    + sample_cv_data["personal_info"]["address"]["state"],
                     "zip": "test" + sample_cv_data["personal_info"]["address"]["zip"],
-                    "country": "test" + sample_cv_data["personal_info"]["address"]["country"],
+                    "country": "test"
+                    + sample_cv_data["personal_info"]["address"]["country"],
                 },
                 "linkedin": "test" + sample_cv_data["personal_info"]["linkedin"],
                 "github": "test" + sample_cv_data["personal_info"]["github"],
@@ -59,8 +62,12 @@ class TestProfileCRUD:
                         {
                             "name": "test" + proj["name"],
                             "description": "test" + proj["description"],
-                            "technologies": ["test" + tech for tech in proj["technologies"]],
-                            "highlights": ["test" + highlight for highlight in proj["highlights"]],
+                            "technologies": [
+                                "test" + tech for tech in proj["technologies"]
+                            ],
+                            "highlights": [
+                                "test" + highlight for highlight in proj["highlights"]
+                            ],
                             "url": "test" + proj["url"],
                         }
                         for proj in exp.get("projects", [])

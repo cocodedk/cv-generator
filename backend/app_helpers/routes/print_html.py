@@ -13,7 +13,9 @@ from backend.services.cv_file_service import CVFileService
 logger = logging.getLogger(__name__)
 
 
-def create_print_html_router(limiter: Limiter, cv_file_service: CVFileService) -> APIRouter:
+def create_print_html_router(
+    limiter: Limiter, cv_file_service: CVFileService
+) -> APIRouter:
     router = APIRouter()
 
     @router.post("/api/render-print-html")

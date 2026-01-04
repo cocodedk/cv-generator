@@ -71,9 +71,7 @@ class TestPrepareCVDict:
         assert result["skills"] == []
         assert result["theme"] == "classic"
 
-    def test_generate_file_for_cv_includes_theme(
-        self, temp_output_dir, sample_cv_data
-    ):
+    def test_generate_file_for_cv_includes_theme(self, temp_output_dir, sample_cv_data):
         """Test that generate_file_for_cv passes theme to generator."""
         service = build_service(temp_output_dir, showcase_enabled=False)
         cv_id = "test-cv-123"
@@ -136,14 +134,18 @@ class TestPrepareCVDict:
 class TestGenerateShowcaseForCV:
     """Test generate_showcase_for_cv method."""
 
-    def test_generate_showcase_disabled_returns_none(self, temp_output_dir, sample_cv_data):
+    def test_generate_showcase_disabled_returns_none(
+        self, temp_output_dir, sample_cv_data
+    ):
         """Test that generate_showcase_for_cv returns None when disabled."""
         service = build_service(temp_output_dir, showcase_enabled=False)
         cv_id = "test-cv-123"
         result = service.generate_showcase_for_cv(cv_id, sample_cv_data)
         assert result is None
 
-    def test_generate_showcase_enabled_generates_files(self, temp_output_dir, sample_cv_data):
+    def test_generate_showcase_enabled_generates_files(
+        self, temp_output_dir, sample_cv_data
+    ):
         """Test that generate_showcase_for_cv generates files when enabled."""
         service = build_service(temp_output_dir, showcase_enabled=True)
         cv_id = "test-cv-123"
@@ -153,7 +155,9 @@ class TestGenerateShowcaseForCV:
         assert "layouts" in result
         assert "theme" in result
 
-    def test_generate_showcase_all_layouts_generated(self, temp_output_dir, sample_cv_data):
+    def test_generate_showcase_all_layouts_generated(
+        self, temp_output_dir, sample_cv_data
+    ):
         """Test that all layouts are generated."""
         service = build_service(temp_output_dir, showcase_enabled=True)
         cv_id = "test-cv-123"
@@ -176,7 +180,9 @@ class TestGenerateShowcaseForCV:
         assert "layouts" in manifest_content
         assert "updated_at" in manifest_content
 
-    def test_generate_showcase_index_json_updated(self, temp_output_dir, sample_cv_data):
+    def test_generate_showcase_index_json_updated(
+        self, temp_output_dir, sample_cv_data
+    ):
         """Test that index.json is updated."""
         service = build_service(temp_output_dir, showcase_enabled=True)
         cv_id = "test-cv-123"
@@ -199,7 +205,9 @@ class TestGenerateShowcaseForCV:
         key = key_path.read_text(encoding="utf-8").strip()
         assert len(key) > 0
 
-    def test_generate_showcase_same_cv_uses_same_key(self, temp_output_dir, sample_cv_data):
+    def test_generate_showcase_same_cv_uses_same_key(
+        self, temp_output_dir, sample_cv_data
+    ):
         """Test that same CV ID uses same key on subsequent calls."""
         service = build_service(temp_output_dir, showcase_enabled=True)
         cv_id = "test-cv-123"
@@ -211,7 +219,9 @@ class TestGenerateShowcaseForCV:
         second_key = key_path.read_text(encoding="utf-8").strip()
         assert first_key == second_key
 
-    def test_generate_showcase_scrambled_html_files_created(self, temp_output_dir, sample_cv_data):
+    def test_generate_showcase_scrambled_html_files_created(
+        self, temp_output_dir, sample_cv_data
+    ):
         """Test that scrambled HTML files are created in correct directory structure."""
         service = build_service(temp_output_dir, showcase_enabled=True)
         cv_id = "test-cv-123"

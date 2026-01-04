@@ -5,8 +5,8 @@ from backend.scripts.check_profile_db.get_query_result import check_get_query_re
 from backend.scripts.check_profile_db.relationships import check_relationships
 
 __all__ = [
-    'check_profile_nodes',
-    'check_person_nodes',
-    'check_get_query_result',
-    'check_relationships',
+    "check_profile_nodes",
+    "check_person_nodes",
+    "check_get_query_result",
+    "check_relationships",
 ]

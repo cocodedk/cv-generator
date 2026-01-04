@@ -99,6 +99,7 @@ def create_cover_letter_router(  # noqa: C901
 
     class CoverLetterPDFRequest(BaseModel):
         """Request model for cover letter PDF export."""
+
         html: str = Field(..., min_length=1, description="HTML content to render")
 
     @router.post("/api/ai/cover-letter/pdf")
@@ -129,8 +130,7 @@ def create_cover_letter_router(  # noqa: C901
         except Exception as exc:
             logger.error("Failed to generate PDF", exc_info=exc)
             raise HTTPException(
-                status_code=500,
-                detail=f"PDF generation failed: {str(exc)}"
+                status_code=500, detail=f"PDF generation failed: {str(exc)}"
             ) from exc
 
     return router

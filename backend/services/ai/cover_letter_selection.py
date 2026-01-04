@@ -35,12 +35,16 @@ def _format_profile_for_selection(profile: ProfileData) -> str:
         if exp.description:
             exp_lines.append(f"    Description: {exp.description}")
         if exp.start_date:
-            exp_lines.append(f"    Dates: {exp.start_date} - {exp.end_date or 'Present'}")
+            exp_lines.append(
+                f"    Dates: {exp.start_date} - {exp.end_date or 'Present'}"
+            )
         for project in exp.projects:
             if project.name:
                 exp_lines.append(f"    Project: {project.name}")
             if project.technologies:
-                exp_lines.append(f"      Technologies: {', '.join(project.technologies)}")
+                exp_lines.append(
+                    f"      Technologies: {', '.join(project.technologies)}"
+                )
             if project.highlights:
                 for highlight in project.highlights:
                     exp_lines.append(f"      • {highlight}")
@@ -182,12 +186,16 @@ async def select_relevant_content(  # noqa: C901
             experience_indices = data.get("experience_indices", [])
             skill_names = data.get("skill_names", [])
             key_highlights = data.get("key_highlights", [])
-            relevance_reasoning = data.get("relevance_reasoning", "Selected based on job requirements")
+            relevance_reasoning = data.get(
+                "relevance_reasoning", "Selected based on job requirements"
+            )
 
             # Validate indices are within bounds
             max_idx = len(profile.experience) - 1
             experience_indices = [
-                idx for idx in experience_indices if isinstance(idx, int) and 0 <= idx <= max_idx
+                idx
+                for idx in experience_indices
+                if isinstance(idx, int) and 0 <= idx <= max_idx
             ]
 
             # Validate skills exist in profile
@@ -201,8 +209,12 @@ async def select_relevant_content(  # noqa: C901
             return SelectedContent(
                 experience_indices=experience_indices,
                 skill_names=skill_names,
-                key_highlights=key_highlights if isinstance(key_highlights, list) else [],
-                relevance_reasoning=relevance_reasoning if isinstance(relevance_reasoning, str) else "",
+                key_highlights=key_highlights
+                if isinstance(key_highlights, list)
+                else [],
+                relevance_reasoning=relevance_reasoning
+                if isinstance(relevance_reasoning, str)
+                else "",
             )
 
     except httpx.HTTPError as e:

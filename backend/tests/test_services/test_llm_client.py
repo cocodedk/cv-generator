@@ -21,6 +21,7 @@ def llm_client():
     ):
         # Reset singleton
         import backend.services.ai.llm_client as llm_module
+
         llm_module._llm_client = None
         yield LLMClient()
 
@@ -36,6 +37,7 @@ class TestLLMClient:
         """Test is_configured returns False when AI_ENABLED is false."""
         with patch.dict("os.environ", {"AI_ENABLED": "false"}):
             import backend.services.ai.llm_client as llm_module
+
             llm_module._llm_client = None
             client = LLMClient()
             assert client.is_configured() is False
@@ -44,6 +46,7 @@ class TestLLMClient:
         """Test is_configured returns False when base URL is missing."""
         with patch.dict("os.environ", {"AI_BASE_URL": "", "AI_ENABLED": "true"}):
             import backend.services.ai.llm_client as llm_module
+
             llm_module._llm_client = None
             client = LLMClient()
             assert client.is_configured() is False
@@ -52,6 +55,7 @@ class TestLLMClient:
         """Test is_configured returns False when API key is missing."""
         with patch.dict("os.environ", {"AI_API_KEY": "", "AI_ENABLED": "true"}):
             import backend.services.ai.llm_client as llm_module
+
             llm_module._llm_client = None
             client = LLMClient()
             assert client.is_configured() is False
@@ -60,13 +64,7 @@ class TestLLMClient:
     async def test_rewrite_text_success(self, llm_client):
         """Test successful text rewrite."""
         mock_response = {
-            "choices": [
-                {
-                    "message": {
-                        "content": "Rewritten text from LLM"
-                    }
-                }
-            ]
+            "choices": [{"message": {"content": "Rewritten text from LLM"}}]
         }
 
         with patch("httpx.AsyncClient") as mock_client_class:
@@ -98,6 +96,7 @@ class TestLLMClient:
         """Test rewrite_text raises ValueError when not configured."""
         with patch.dict("os.environ", {"AI_ENABLED": "false"}):
             import backend.services.ai.llm_client as llm_module
+
             llm_module._llm_client = None
             client = LLMClient()
 
@@ -115,6 +114,7 @@ class TestLLMClient:
 
             def raise_error():
                 raise error
+
             mock_response_obj.raise_for_status = raise_error
             mock_client.post = AsyncMock(return_value=mock_response_obj)
             mock_client.__aenter__ = AsyncMock(return_value=mock_client)
@@ -147,13 +147,7 @@ class TestLLMClient:
     async def test_rewrite_text_strips_whitespace(self, llm_client):
         """Test rewrite_text strips whitespace from response."""
         mock_response = {
-            "choices": [
-                {
-                    "message": {
-                        "content": "  Rewritten text  \n\n"
-                    }
-                }
-            ]
+            "choices": [{"message": {"content": "  Rewritten text  \n\n"}}]
         }
 
         with patch("httpx.AsyncClient") as mock_client_class:
@@ -176,6 +170,7 @@ class TestGetLLMClient:
     def test_get_llm_client_returns_singleton(self):
         """Test get_llm_client returns the same instance."""
         import backend.services.ai.llm_client as llm_module
+
         llm_module._llm_client = None
 
         client1 = get_llm_client()

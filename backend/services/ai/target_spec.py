@@ -18,7 +18,9 @@ _PREFERRED_HINTS = ("nice to have", "plus", "bonus", "preferred")
 
 
 def build_target_spec(job_description: str) -> TargetSpec:
-    lines = [normalize_text(line) for line in job_description.splitlines() if line.strip()]
+    lines = [
+        normalize_text(line) for line in job_description.splitlines() if line.strip()
+    ]
     required: Set[str] = set()
     preferred: Set[str] = set()
     responsibilities: List[str] = []
@@ -29,7 +31,18 @@ def build_target_spec(job_description: str) -> TargetSpec:
             required.update(words)
         elif any(hint in line for hint in _PREFERRED_HINTS):
             preferred.update(words)
-        if any(verb in line for verb in ("build", "design", "own", "lead", "deliver", "maintain", "improve")):
+        if any(
+            verb in line
+            for verb in (
+                "build",
+                "design",
+                "own",
+                "lead",
+                "deliver",
+                "maintain",
+                "improve",
+            )
+        ):
             responsibilities.append(line[:140])
 
     if not required and not preferred:

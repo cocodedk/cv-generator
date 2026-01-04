@@ -32,5 +32,6 @@ def create_profile(profile_data: Dict[str, Any]) -> bool:
     except Exception as e:
         print(f"❌ Error creating profile: {e}")
         import traceback
+
         traceback.print_exc()
         return False

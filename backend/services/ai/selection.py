@@ -20,18 +20,28 @@ def select_experiences(
     scored: List[Tuple[float, Experience]] = []
     for experience in experiences:
         exp_score = score_item(
-            text_parts=[experience.title, experience.company, experience.description or ""],
-            technologies=[tech for project in experience.projects for tech in project.technologies],
+            text_parts=[
+                experience.title,
+                experience.company,
+                experience.description or "",
+            ],
+            technologies=[
+                tech for project in experience.projects for tech in project.technologies
+            ],
             start_date=experience.start_date,
             spec=spec,
         ).value
         scored.append((exp_score, experience))
 
-    top_experiences = [experience for _, experience in top_n_scored(scored, max_experiences)]
+    top_experiences = [
+        experience for _, experience in top_n_scored(scored, max_experiences)
+    ]
     trimmed: List[Experience] = []
     for experience in top_experiences:
         projects = _select_projects(experience, spec, max_projects=2)
-        trimmed.append(Experience(**experience.model_dump(exclude={"projects"}), projects=projects))
+        trimmed.append(
+            Experience(**experience.model_dump(exclude={"projects"}), projects=projects)
+        )
 
     return trimmed, []
 
@@ -54,7 +64,9 @@ def _select_projects(experience: Experience, spec, max_projects: int) -> List[Pr
     trimmed: List[Project] = []
     for project in top_projects:
         highlights = _select_highlights(project, spec, max_highlights=3)
-        trimmed.append(Project(**project.model_dump(exclude={"highlights"}), highlights=highlights))
+        trimmed.append(
+            Project(**project.model_dump(exclude={"highlights"}), highlights=highlights)
+        )
     return trimmed
 
 
@@ -73,7 +85,9 @@ def _select_highlights(project: Project, spec, max_highlights: int) -> List[str]
     return [highlight for _, highlight in top_n_scored(scored, max_highlights)]
 
 
-def select_education(education: List[Education], spec, max_education: int) -> List[Education]:
+def select_education(
+    education: List[Education], spec, max_education: int
+) -> List[Education]:
     if not education:
         return []
     scored: List[Tuple[float, Education]] = []
@@ -88,7 +102,9 @@ def select_education(education: List[Education], spec, max_education: int) -> Li
     return [edu for _, edu in top_n_scored(scored, max_education)]
 
 
-def select_skills(skills: List[Skill], spec, selected_experiences: List[Experience]) -> List[Skill]:
+def select_skills(
+    skills: List[Skill], spec, selected_experiences: List[Experience]
+) -> List[Skill]:
     if not skills:
         return []
 
@@ -98,10 +114,7 @@ def select_skills(skills: List[Skill], spec, selected_experiences: List[Experien
             exp.title
             + " "
             + " ".join(
-                [
-                    proj.name + " " + " ".join(proj.technologies)
-                    for proj in exp.projects
-                ]
+                [proj.name + " " + " ".join(proj.technologies) for proj in exp.projects]
             )
             for exp in selected_experiences
         ]

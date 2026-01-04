@@ -2,7 +2,10 @@
 
 import asyncio
 import logging
-from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
+from playwright.async_api import (
+    async_playwright,
+    TimeoutError as PlaywrightTimeoutError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +97,8 @@ class PDFService:
                     try:
                         await asyncio.wait_for(
                             page.evaluate("() => document.fonts.ready"),
-                            timeout=self.timeout / 1000,  # Convert milliseconds to seconds
+                            timeout=self.timeout
+                            / 1000,  # Convert milliseconds to seconds
                         )
                     except asyncio.TimeoutError:
                         logger.warning(
@@ -125,7 +129,12 @@ class PDFService:
                         height=f"{height_mm}mm",
                         print_background=True,
                         display_header_footer=False,
-                        margin={"top": "0mm", "right": "0mm", "bottom": "0mm", "left": "0mm"},
+                        margin={
+                            "top": "0mm",
+                            "right": "0mm",
+                            "bottom": "0mm",
+                            "left": "0mm",
+                        },
                     )
 
                     return pdf_bytes
@@ -135,7 +144,9 @@ class PDFService:
 
             except PlaywrightTimeoutError as e:
                 logger.error(f"PDF generation timeout: {e}")
-                raise RuntimeError(f"PDF generation timed out after {self.timeout/1000}s") from e
+                raise RuntimeError(
+                    f"PDF generation timed out after {self.timeout/1000}s"
+                ) from e
             except Exception as e:
                 logger.error(f"PDF generation failed: {e}", exc_info=True)
                 raise RuntimeError(f"Failed to generate PDF: {str(e)}") from e

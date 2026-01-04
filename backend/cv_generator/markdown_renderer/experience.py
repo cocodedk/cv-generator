@@ -56,7 +56,9 @@ def add_project_header(lines: List[str], project: Dict[str, Any]) -> None:
     project_desc = project.get("description") or ""
     project_heading = project_name
     if project_desc:
-        project_heading = f"{project_name} — {project_desc}" if project_name else project_desc
+        project_heading = (
+            f"{project_name} — {project_desc}" if project_name else project_desc
+        )
     if project_heading:
         lines.append(f"**{project_heading}**")
 

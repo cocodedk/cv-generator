@@ -11,9 +11,7 @@ class TestDocxRoutes:
 
     async def test_generate_cv_docx(self, client, sample_cv_data):
         """Ensure DOCX generation endpoint returns filename."""
-        with patch(
-            "backend.database.queries.create_cv", return_value="docx-cv-id"
-        ):
+        with patch("backend.database.queries.create_cv", return_value="docx-cv-id"):
             with patch(
                 "backend.services.cv_file_service.CVFileService.generate_docx_for_cv",
                 return_value="cv_docx.docx",
@@ -50,9 +48,7 @@ class TestDocxRoutes:
                     "backend.services.cv_file_service.CVFileService.generate_docx_for_cv",
                     return_value="test_cv.docx",
                 ):
-                    response = await client.get(
-                        "/api/download-docx/test_cv.docx"
-                    )
+                    response = await client.get("/api/download-docx/test_cv.docx")
                     assert response.status_code == 200
                     assert (
                         response.headers["content-type"]

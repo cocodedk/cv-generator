@@ -2,7 +2,12 @@
 import logging
 from fastapi import APIRouter, HTTPException, Request
 from slowapi import Limiter
-from backend.models import ProfileData, ProfileResponse, ProfileListResponse, ProfileListItem
+from backend.models import (
+    ProfileData,
+    ProfileResponse,
+    ProfileListResponse,
+    ProfileListItem,
+)
 from backend.database import queries
 
 logger = logging.getLogger(__name__)
@@ -15,7 +20,9 @@ def _is_delete_confirmed(request: Request) -> bool:
     return value in {"true", "1", "yes"}
 
 
-def _log_profile_delete_request(request: Request, updated_at: str | None = None) -> None:
+def _log_profile_delete_request(
+    request: Request, updated_at: str | None = None
+) -> None:
     client_host = request.client.host if request.client else None
     logger.warning(
         "Profile delete requested path=%s updated_at=%s ip=%s origin=%r referer=%r ua=%r",

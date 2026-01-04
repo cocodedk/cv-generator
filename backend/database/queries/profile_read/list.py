@@ -25,10 +25,12 @@ def list_profiles() -> list[Dict[str, Any]]:
             result = tx.run(query)
             profiles = []
             for record in result:
-                profiles.append({
-                    "name": record.get("name", "Unknown"),
-                    "updated_at": record.get("updated_at"),
-                })
+                profiles.append(
+                    {
+                        "name": record.get("name", "Unknown"),
+                        "updated_at": record.get("updated_at"),
+                    }
+                )
             return profiles
 
         return session.execute_read(work)

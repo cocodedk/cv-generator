@@ -61,18 +61,22 @@ class TestLLMTailorCV:
 
     async def test_llm_tailor_preserves_facts(self, sample_draft, sample_profile):
         """Test that LLM tailoring preserves original facts."""
-        job_description = "We need a Python developer with FastAPI experience. Must have led teams."
+        job_description = (
+            "We need a Python developer with FastAPI experience. Must have led teams."
+        )
 
         with patch("backend.services.ai.llm_tailor.get_llm_client") as mock_get_client:
             mock_client = Mock()
             mock_client.is_configured.return_value = True
-            mock_client.rewrite_text = AsyncMock(side_effect=[
-                "Developed web applications with React and Python",  # description
-                "Created a full-stack e-commerce solution",  # project description
-                "Optimized database queries to improve performance",  # highlight 1
-                "Developed REST APIs using FastAPI",  # highlight 2
-                "Led a team of 3 developers",  # highlight 3
-            ])
+            mock_client.rewrite_text = AsyncMock(
+                side_effect=[
+                    "Developed web applications with React and Python",  # description
+                    "Created a full-stack e-commerce solution",  # project description
+                    "Optimized database queries to improve performance",  # highlight 1
+                    "Developed REST APIs using FastAPI",  # highlight 2
+                    "Led a team of 3 developers",  # highlight 3
+                ]
+            )
             mock_get_client.return_value = mock_client
 
             result = await llm_tailor_cv(sample_draft, job_description, sample_profile)
@@ -83,12 +87,19 @@ class TestLLMTailorCV:
             assert len(result.experience[0].projects[0].highlights) == 3
 
             # Verify technologies are preserved
-            assert result.experience[0].projects[0].technologies == ["Python", "FastAPI", "React", "PostgreSQL"]
+            assert result.experience[0].projects[0].technologies == [
+                "Python",
+                "FastAPI",
+                "React",
+                "PostgreSQL",
+            ]
 
             # Verify LLM was called for each text field
             assert mock_client.rewrite_text.call_count == 5
 
-    async def test_llm_tailor_fallback_when_not_configured(self, sample_draft, sample_profile):
+    async def test_llm_tailor_fallback_when_not_configured(
+        self, sample_draft, sample_profile
+    ):
         """Test that tailoring falls back gracefully when LLM is not configured."""
         job_description = "Python developer needed."
 
@@ -136,7 +147,9 @@ class TestLLMTailorCV:
             mock_client.rewrite_text = AsyncMock(return_value="Rewritten highlight")
             mock_get_client.return_value = mock_client
 
-            result = await llm_tailor_cv(draft_with_empty, "Job description", sample_profile)
+            result = await llm_tailor_cv(
+                draft_with_empty, "Job description", sample_profile
+            )
 
             # Empty descriptions should not trigger LLM calls
             assert result.experience[0].description is None
@@ -157,22 +170,32 @@ class TestLLMTailorCV:
             result = await llm_tailor_cv(sample_draft, job_description, sample_profile)
 
             # Should return draft with original text on error
-            assert result.experience[0].description == sample_draft.experience[0].description
+            assert (
+                result.experience[0].description
+                == sample_draft.experience[0].description
+            )
 
-    async def test_llm_tailor_handles_empty_llm_response(self, sample_draft, sample_profile):
+    async def test_llm_tailor_handles_empty_llm_response(
+        self, sample_draft, sample_profile
+    ):
         """Test that empty LLM responses fall back to original."""
         job_description = "Python developer."
 
         with patch("backend.services.ai.llm_tailor.get_llm_client") as mock_get_client:
             mock_client = Mock()
             mock_client.is_configured.return_value = True
-            mock_client.rewrite_text = AsyncMock(return_value="   ")  # Empty/whitespace response
+            mock_client.rewrite_text = AsyncMock(
+                return_value="   "
+            )  # Empty/whitespace response
             mock_get_client.return_value = mock_client
 
             result = await llm_tailor_cv(sample_draft, job_description, sample_profile)
 
             # Should use original text when LLM returns empty
-            assert result.experience[0].description == sample_draft.experience[0].description
+            assert (
+                result.experience[0].description
+                == sample_draft.experience[0].description
+            )
 
 
 class TestReorderSkillsForJD:
@@ -228,3 +251,56 @@ class TestReorderSkillsForJD:
         # Backend skills should come first
         skill_names = [s.name for s in result]
         assert "Python" in skill_names[:2] or "Java" in skill_names[:2]
+
+    async def test_llm_tailor_includes_additional_context_in_prompt(
+        self, sample_draft, sample_profile
+    ):
+        """Test that additional_context is included in LLM prompts."""
+        job_description = "We need a Python developer with FastAPI experience."
+        additional_context = "Rated among top 2% of AI coders in 2025"
+
+        with patch("backend.services.ai.llm_tailor.get_llm_client") as mock_get_client:
+            mock_client = Mock()
+            mock_client.is_configured.return_value = True
+            mock_client.rewrite_text = AsyncMock(return_value="Tailored text")
+            mock_get_client.return_value = mock_client
+
+            await llm_tailor_cv(
+                sample_draft, job_description, sample_profile, additional_context
+            )
+
+            # Verify LLM was called
+            assert mock_client.rewrite_text.called
+
+            # Check that additional_context appears in at least one prompt
+            call_args_list = mock_client.rewrite_text.call_args_list
+            found_context = False
+            for call_args in call_args_list:
+                prompt = call_args[0][1]  # Second positional argument is the prompt
+                if (
+                    "top 2% of AI coders" in prompt
+                    or "Additional achievements" in prompt
+                ):
+                    found_context = True
+                    break
+            assert found_context, "Additional context should appear in LLM prompts"
+
+    async def test_llm_tailor_without_additional_context(
+        self, sample_draft, sample_profile
+    ):
+        """Test that llm_tailor works correctly when additional_context is None."""
+        job_description = "We need a Python developer."
+
+        with patch("backend.services.ai.llm_tailor.get_llm_client") as mock_get_client:
+            mock_client = Mock()
+            mock_client.is_configured.return_value = True
+            mock_client.rewrite_text = AsyncMock(return_value="Tailored text")
+            mock_get_client.return_value = mock_client
+
+            result = await llm_tailor_cv(
+                sample_draft, job_description, sample_profile, None
+            )
+
+            # Should still work correctly
+            assert len(result.experience) == 1
+            assert mock_client.rewrite_text.called

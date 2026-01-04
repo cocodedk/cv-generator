@@ -3,7 +3,7 @@ import sys
 from datetime import datetime
 
 # Add app directory to path (Docker container has /app as working directory)
-sys.path.insert(0, '/app')
+sys.path.insert(0, "/app")
 
 from backend.database.connection import Neo4jConnection
 
@@ -91,7 +91,9 @@ def recover_profile():
             result = session.run(recovery_query, updated_at=updated_at)
             record = result.single()
             if record:
-                print(f"✅ Profile created with updated_at: {record['profile_updated_at']}")
+                print(
+                    f"✅ Profile created with updated_at: {record['profile_updated_at']}"
+                )
             else:
                 print("❌ Failed to create Profile")
                 return
@@ -108,7 +110,7 @@ def recover_profile():
             print(f"  Educations: {record['educations']}")
             print(f"  Skills: {record['skills']}")
 
-            if record['persons'] > 0:
+            if record["persons"] > 0:
                 print("\n✅ Recovery successful! Profile is connected.")
             else:
                 print("\n⚠️  Profile created but no Person nodes connected.")
@@ -122,6 +124,7 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"❌ Error: {e}")
         import traceback
+
         traceback.print_exc()
     finally:
         Neo4jConnection.close()

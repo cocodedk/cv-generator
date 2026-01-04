@@ -17,7 +17,10 @@ MAX_HIGHLIGHT_CHARS = 200
 
 
 async def llm_tailor_cv(
-    draft: CVData, job_description: str, original_profile: CVData
+    draft: CVData,
+    job_description: str,
+    original_profile: CVData,
+    additional_context: Optional[str] = None,
 ) -> CVData:
     """
     Tailor CV content using LLM to better match job description.
@@ -29,6 +32,7 @@ async def llm_tailor_cv(
         draft: The selected/reordered CV draft
         job_description: The job description to match against
         original_profile: Original profile for reference (to prevent hallucination)
+        additional_context: Optional additional achievements or context to incorporate
 
     Returns:
         Tailored CV with reworded content
@@ -37,7 +41,9 @@ async def llm_tailor_cv(
 
     # If LLM is not configured, return draft unchanged with a warning logged
     if not llm_client.is_configured():
-        logger.warning("LLM not configured, skipping tailoring. Set AI_ENABLED=true and configure API.")
+        logger.warning(
+            "LLM not configured, skipping tailoring. Set AI_ENABLED=true and configure API."
+        )
         return draft
 
     tailored_experiences: List[Experience] = []
@@ -47,7 +53,11 @@ async def llm_tailor_cv(
         tailored_description = experience.description
         if experience.description:
             tailored_description = await _tailor_text(
-                llm_client, experience.description, job_description, "experience description"
+                llm_client,
+                experience.description,
+                job_description,
+                "experience description",
+                additional_context,
             )
 
         # Tailor projects
@@ -57,14 +67,22 @@ async def llm_tailor_cv(
             tailored_proj_description = project.description
             if project.description:
                 tailored_proj_description = await _tailor_text(
-                    llm_client, project.description, job_description, "project description"
+                    llm_client,
+                    project.description,
+                    job_description,
+                    "project description",
+                    additional_context,
                 )
 
             # Tailor highlights
             tailored_highlights: List[str] = []
             for highlight in project.highlights:
                 tailored_highlight = await _tailor_text(
-                    llm_client, highlight, job_description, "bullet point"
+                    llm_client,
+                    highlight,
+                    job_description,
+                    "bullet point",
+                    additional_context,
                 )
                 tailored_highlights.append(tailored_highlight)
 
@@ -104,14 +122,14 @@ async def llm_tailor_cv(
 
 def _strip_html(text: str) -> str:
     """Strip HTML tags and decode entities to get plain text length."""
-    plain = re.sub(r'<[^>]+>', '', text)
-    plain = plain.replace('&nbsp;', ' ')
-    plain = plain.replace('&amp;', '&')
-    plain = plain.replace('&lt;', '<')
-    plain = plain.replace('&gt;', '>')
-    plain = plain.replace('&quot;', '"')
-    plain = plain.replace('&#39;', "'")
-    plain = re.sub(r'&#(\d+);', lambda m: chr(int(m.group(1))), plain)
+    plain = re.sub(r"<[^>]+>", "", text)
+    plain = plain.replace("&nbsp;", " ")
+    plain = plain.replace("&amp;", "&")
+    plain = plain.replace("&lt;", "<")
+    plain = plain.replace("&gt;", ">")
+    plain = plain.replace("&quot;", '"')
+    plain = plain.replace("&#39;", "'")
+    plain = re.sub(r"&#(\d+);", lambda m: chr(int(m.group(1))), plain)
     return plain
 
 
@@ -125,7 +143,11 @@ def _get_max_chars(context: str) -> Optional[int]:
 
 
 async def _tailor_text(
-    llm_client, original_text: str, job_description: str, context: str
+    llm_client,
+    original_text: str,
+    job_description: str,
+    context: str,
+    additional_context: Optional[str] = None,
 ) -> str:
     """
     Tailor a single piece of text using LLM.
@@ -135,6 +157,7 @@ async def _tailor_text(
         original_text: Text to tailor
         job_description: Job description context
         context: Description of what this text is (for error handling)
+        additional_context: Optional additional achievements or context to incorporate
 
     Returns:
         Tailored text, or original if tailoring fails
@@ -147,8 +170,16 @@ async def _tailor_text(
     if max_chars:
         length_instruction = f"\n- Keep the rewritten text under {max_chars} characters (CRITICAL - do not exceed this limit)"
 
+    additional_context_section = ""
+    if additional_context and additional_context.strip():
+        additional_context_section = f"""
+
+Additional achievements/context to incorporate:
+{additional_context[:1000]}
+"""
+
     user_prompt = f"""Job Description:
-{job_description[:2000]}
+{job_description[:2000]}{additional_context_section}
 
 Original {context}:
 {original_text}

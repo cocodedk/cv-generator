@@ -27,7 +27,7 @@ def check_get_query_result(session, get_query: str) -> None:
             f"{len(record.get('skills', [])) if record.get('skills') else 0}"
         )
 
-        if not record.get('person'):
+        if not record.get("person"):
             print("  ⚠️  NO PERSON NODE IN RESULT!")
     else:
         print("  ⚠️  GET_QUERY returned no results!")

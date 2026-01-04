@@ -16,5 +16,5 @@ def get_profile_data() -> Dict[str, Any]:
         "personal_info": get_personal_info(),
         "experience": get_experience_data(),
         "education": get_education_data(),
-        "skills": get_skills_data()
+        "skills": get_skills_data(),
     }

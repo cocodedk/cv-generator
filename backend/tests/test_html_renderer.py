@@ -17,7 +17,10 @@ def test_render_html_uses_theme_specific_template_when_available(sample_cv_data)
     html = render_html(sample_cv_data)
     assert sample_cv_data["personal_info"]["name"] in html
     # Professional template should have specific styling
-    assert "professional" in html.lower() or sample_cv_data["personal_info"]["name"] in html
+    assert (
+        "professional" in html.lower()
+        or sample_cv_data["personal_info"]["name"] in html
+    )
 
     # Test creative theme
     sample_cv_data["theme"] = "creative"
@@ -81,7 +84,15 @@ def test_render_html_template_files_exist():
     from backend.cv_generator.html_renderer.render import TEMPLATES_DIR
 
     # Check that new theme templates exist
-    new_theme_templates = ["professional.html", "creative.html", "tech.html", "executive.html", "colorful.html"]
+    new_theme_templates = [
+        "professional.html",
+        "creative.html",
+        "tech.html",
+        "executive.html",
+        "colorful.html",
+    ]
     for template_file in new_theme_templates:
         template_path = TEMPLATES_DIR / template_file
-        assert template_path.exists(), f"Theme template {template_file} should exist at {template_path}"
+        assert (
+            template_path.exists()
+        ), f"Theme template {template_file} should exist at {template_path}"

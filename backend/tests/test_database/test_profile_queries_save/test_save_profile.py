@@ -10,7 +10,9 @@ from backend.tests.test_database.helpers.profile_queries.mocks import (
 class TestSaveProfile:
     """Test save_profile query."""
 
-    def test_save_profile_creates_new_profile(self, mock_neo4j_connection, sample_cv_data):
+    def test_save_profile_creates_new_profile(
+        self, mock_neo4j_connection, sample_cv_data
+    ):
         """Test save_profile creates new profile when none exists."""
         profile_data = {
             "personal_info": sample_cv_data["personal_info"],
@@ -35,7 +37,9 @@ class TestSaveProfile:
         assert mock_session.read_transaction.call_count == 1
         assert mock_session.write_transaction.call_count == 1
 
-    def test_save_profile_updates_existing_profile(self, mock_neo4j_connection, sample_cv_data):
+    def test_save_profile_updates_existing_profile(
+        self, mock_neo4j_connection, sample_cv_data
+    ):
         """Test save_profile updates existing profile."""
         profile_data = {
             "personal_info": sample_cv_data["personal_info"],
@@ -49,21 +53,23 @@ class TestSaveProfile:
         mock_tx_read, _ = create_mock_tx_with_result({"profile": {}})
 
         # Mock write transaction (update profile) - multiple calls for new implementation
-        mock_tx_write, _ = create_mock_tx_with_multiple_results([
-            {"profile": {}},  # update_profile_timestamp
-            {"deleted": 0},   # delete projects
-            {"deleted": 0},   # delete experiences
-            {"deleted": 0},   # delete education
-            {"deleted": 0},   # delete skills
-            {"deleted": 0},   # delete person
-            {"remaining_persons": 0},  # verify_person_deletion
-            {"person_element_id": "test-element-id"},  # create_person_node
-            {"person_count": 1},  # verify_single_person
-            None,  # create_experience_nodes
-            None,  # create_education_nodes
-            None,  # create_skill_nodes
-            {"profile": {}},  # final verify
-        ])
+        mock_tx_write, _ = create_mock_tx_with_multiple_results(
+            [
+                {"profile": {}},  # update_profile_timestamp
+                {"deleted": 0},  # delete projects
+                {"deleted": 0},  # delete experiences
+                {"deleted": 0},  # delete education
+                {"deleted": 0},  # delete skills
+                {"deleted": 0},  # delete person
+                {"remaining_persons": 0},  # verify_person_deletion
+                {"person_element_id": "test-element-id"},  # create_person_node
+                {"person_count": 1},  # verify_single_person
+                None,  # create_experience_nodes
+                None,  # create_education_nodes
+                None,  # create_skill_nodes
+                {"profile": {}},  # final verify
+            ]
+        )
 
         setup_mock_session_for_read_write(mock_session, mock_tx_read, mock_tx_write)
 
@@ -95,7 +101,9 @@ class TestSaveProfile:
         success = queries.save_profile(minimal_data)
         assert success is True
 
-    def test_profile_node_persists_through_update(self, mock_neo4j_connection, sample_cv_data):
+    def test_profile_node_persists_through_update(
+        self, mock_neo4j_connection, sample_cv_data
+    ):
         """Test that Profile node is never deleted during update operations."""
         profile_data = {
             "personal_info": sample_cv_data["personal_info"],
@@ -109,21 +117,23 @@ class TestSaveProfile:
         mock_tx_read, _ = create_mock_tx_with_result({"profile": {}})
 
         # Mock write transaction (update profile) - multiple calls for new implementation
-        mock_tx_write, _ = create_mock_tx_with_multiple_results([
-            {"profile": {}},  # update_profile_timestamp
-            {"deleted": 0},   # delete projects
-            {"deleted": 0},   # delete experiences
-            {"deleted": 0},   # delete education
-            {"deleted": 0},   # delete skills
-            {"deleted": 0},   # delete person
-            {"remaining_persons": 0},  # verify_person_deletion
-            {"person_element_id": "test-element-id"},  # create_person_node
-            {"person_count": 1},  # verify_single_person
-            None,  # create_experience_nodes
-            None,  # create_education_nodes
-            None,  # create_skill_nodes
-            {"profile": {"updated_at": "2024-01-01T00:00:00"}},  # final verify
-        ])
+        mock_tx_write, _ = create_mock_tx_with_multiple_results(
+            [
+                {"profile": {}},  # update_profile_timestamp
+                {"deleted": 0},  # delete projects
+                {"deleted": 0},  # delete experiences
+                {"deleted": 0},  # delete education
+                {"deleted": 0},  # delete skills
+                {"deleted": 0},  # delete person
+                {"remaining_persons": 0},  # verify_person_deletion
+                {"person_element_id": "test-element-id"},  # create_person_node
+                {"person_count": 1},  # verify_single_person
+                None,  # create_experience_nodes
+                None,  # create_education_nodes
+                None,  # create_skill_nodes
+                {"profile": {"updated_at": "2024-01-01T00:00:00"}},  # final verify
+            ]
+        )
 
         setup_mock_session_for_read_write(mock_session, mock_tx_read, mock_tx_write)
 

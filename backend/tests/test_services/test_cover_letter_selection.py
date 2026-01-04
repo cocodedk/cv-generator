@@ -281,13 +281,7 @@ class TestSelectRelevantContent:
             }
         )
         mock_response = {
-            "choices": [
-                {
-                    "message": {
-                        "content": f"```json\n{json_content}\n```"
-                    }
-                }
-            ]
+            "choices": [{"message": {"content": f"```json\n{json_content}\n```"}}]
         }
 
         with patch("httpx.AsyncClient") as mock_client_class:
@@ -321,13 +315,7 @@ class TestSelectRelevantContent:
         mock_llm_client.timeout = 30
 
         mock_response = {
-            "choices": [
-                {
-                    "message": {
-                        "content": "This is not valid JSON"
-                    }
-                }
-            ]
+            "choices": [{"message": {"content": "This is not valid JSON"}}]
         }
 
         with patch("httpx.AsyncClient") as mock_client_class:
@@ -394,7 +382,11 @@ class TestSelectRelevantContent:
                     "message": {
                         "content": json.dumps(
                             {
-                                "experience_indices": [0, 5, -1],  # 5 and -1 are invalid
+                                "experience_indices": [
+                                    0,
+                                    5,
+                                    -1,
+                                ],  # 5 and -1 are invalid
                                 "skill_names": ["Django"],
                                 "key_highlights": [],
                                 "relevance_reasoning": "Test",

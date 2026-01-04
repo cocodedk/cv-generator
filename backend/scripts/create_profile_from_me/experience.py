@@ -28,9 +28,18 @@ def get_experience_data() -> List[Dict[str, Any]]:
                         "CMDB-like system, and assessment/reporting factory."
                     ),
                     "technologies": [
-                        "Python", "Django", "PostgreSQL", "Neo4j", "Redis",
-                        "TypeScript", "React", "Tailwind", "pgvector",
-                        "OpenAI / Azure AI", "Atlassian Confluence", "Jira"
+                        "Python",
+                        "Django",
+                        "PostgreSQL",
+                        "Neo4j",
+                        "Redis",
+                        "TypeScript",
+                        "React",
+                        "Tailwind",
+                        "pgvector",
+                        "OpenAI / Azure AI",
+                        "Atlassian Confluence",
+                        "Jira",
                     ],
                     "highlights": [
                         "AI-generated security questionnaires",
@@ -40,10 +49,10 @@ def get_experience_data() -> List[Dict[str, Any]]:
                         "Reduced assessment turnaround from ~3 weeks to < 48 hours",
                         "Reduced manual review effort by ~75%",
                         "Multi-tenant architecture, operated as single-tenant per customer",
-                        "Strong data isolation and compliance alignment"
-                    ]
+                        "Strong data isolation and compliance alignment",
+                    ],
                 }
-            ]
+            ],
         },
         {
             "title": "Security & GRC Consultant",
@@ -55,7 +64,7 @@ def get_experience_data() -> List[Dict[str, Any]]:
                 "Long-term engagement with high trust and high autonomy. "
                 "Built FITS during this period. Focus on GRC automation, "
                 "ISMS implementation, and security program management."
-            )
+            ),
         },
         {
             "title": "Security & Compliance Consultant - Phoenix Project",
@@ -71,7 +80,7 @@ def get_experience_data() -> List[Dict[str, Any]]:
                 "Conducted security assessments and gap analyses. "
                 "Supported vulnerability management and mitigation coordination. "
                 "Worked with asset inventories, dependency mapping, and risk classification."
-            )
+            ),
         },
         {
             "title": "GRC Consultant",
@@ -83,6 +92,6 @@ def get_experience_data() -> List[Dict[str, Any]]:
                 "Archer-related work in large-scale compliance and security environments. "
                 "Worked extensively with RSA Archer as central GRC platform for risk, "
                 "control, and assessment management."
-            )
-        }
+            ),
+        },
     ]

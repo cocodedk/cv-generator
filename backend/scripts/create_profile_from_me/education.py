@@ -13,12 +13,12 @@ def get_education_data() -> List[Dict[str, Any]]:
             "degree": "Datamatiker",
             "institution": "Niels Brock Copenhagen Business College",
             "field": "Computer Science",
-            "year": "2000"
+            "year": "2000",
         },
         {
             "degree": "Advanced Diploma / Continuing Education in Cybersecurity",
             "institution": "Erhvervsakademi / EK",
             "field": "Cybersecurity and Information Security Management",
-            "year": "2020"
-        }
+            "year": "2020",
+        },
     ]

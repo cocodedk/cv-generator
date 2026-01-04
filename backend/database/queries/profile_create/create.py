@@ -36,7 +36,9 @@ def create_profile(profile_data: Dict[str, Any]) -> bool:
             create_skill_nodes(tx, updated_at, params.get("skills", []))
 
             # Verify profile was created
-            verify_query = "MATCH (profile:Profile { updated_at: $updated_at }) RETURN profile"
+            verify_query = (
+                "MATCH (profile:Profile { updated_at: $updated_at }) RETURN profile"
+            )
             result = tx.run(verify_query, updated_at=updated_at)
             return result.single() is not None
 

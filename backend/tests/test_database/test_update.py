@@ -76,7 +76,9 @@ class TestUpdateCV:
                             "name": "Migration Program",
                             "description": "Moved legacy services to a new platform.",
                             "technologies": ["Python", "Neo4j"],
-                            "highlights": ["Delivered the migration with zero downtime."],
+                            "highlights": [
+                                "Delivered the migration with zero downtime."
+                            ],
                         }
                     ],
                 }

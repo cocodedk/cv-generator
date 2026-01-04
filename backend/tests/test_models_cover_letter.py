@@ -18,7 +18,10 @@ class TestCoverLetterRequest:
             company_address="123 Tech Street\nSan Francisco, CA 94102",
             tone="professional",
         )
-        assert request.job_description == "We are looking for a Senior Developer with Python experience."
+        assert (
+            request.job_description
+            == "We are looking for a Senior Developer with Python experience."
+        )
         assert request.company_name == "Tech Corp"
         assert request.hiring_manager_name == "John Doe"
         assert request.tone == "professional"
@@ -89,7 +92,9 @@ class TestCoverLetterResponse:
             cover_letter_text="Cover letter plain text",
             highlights_used=["Highlight 1", "Highlight 2"],
         )
-        assert response.cover_letter_html == "<html><body>Cover letter HTML</body></html>"
+        assert (
+            response.cover_letter_html == "<html><body>Cover letter HTML</body></html>"
+        )
         assert response.cover_letter_text == "Cover letter plain text"
         assert len(response.highlights_used) == 2
 

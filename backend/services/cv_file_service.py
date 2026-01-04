@@ -34,7 +34,9 @@ class CVFileService:
         self.scramble_key = scramble_key
         self.docx_generator = DocxCVGenerator()
 
-    def _build_output_path(self, cv_id: str, extension: str = ".html") -> tuple[str, Path]:
+    def _build_output_path(
+        self, cv_id: str, extension: str = ".html"
+    ) -> tuple[str, Path]:
         filename = f"cv_{cv_id[:8]}{extension}"
         output_path = self.output_dir / filename
         if output_path.exists():
@@ -84,7 +86,9 @@ class CVFileService:
 
         return filename
 
-    def generate_showcase_for_cv(self, cv_id: str, cv_dict: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    def generate_showcase_for_cv(
+        self, cv_id: str, cv_dict: Dict[str, Any]
+    ) -> Optional[Dict[str, Any]]:
         """Generate HTML files for all layouts for public showcase."""
         if not self.showcase_enabled:
             return None
@@ -187,7 +191,10 @@ class CVFileService:
                 os.chmod(key_path, 0o600)
             except OSError:
                 # Log but don't fail if permission change fails
-                logger.debug("Could not set restrictive permissions on existing key file: %s", key_path)
+                logger.debug(
+                    "Could not set restrictive permissions on existing key file: %s",
+                    key_path,
+                )
             return key
         key = base64.b64encode(os.urandom(24)).decode("ascii")
         key_path.write_text(key, encoding="utf-8")
@@ -196,5 +203,7 @@ class CVFileService:
             os.chmod(key_path, 0o600)
         except OSError:
             # Log but don't fail if permission change fails
-            logger.debug("Could not set restrictive permissions on key file: %s", key_path)
+            logger.debug(
+                "Could not set restrictive permissions on key file: %s", key_path
+            )
         return key
