@@ -1,7 +1,8 @@
 """Step 4: Adapt content wording to match JD while preserving all facts."""
 
+import asyncio
 import logging
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 from backend.models import Experience, Project
 from backend.services.ai.pipeline.models import JDAnalysis, SelectionResult, AdaptedContent
 from backend.services.ai.llm_client import get_llm_client
@@ -33,17 +34,156 @@ async def adapt_content(
     llm_client = get_llm_client()
 
     if llm_client.is_configured():
-        try:
-            return await _adapt_with_llm(
-                llm_client, selection_result, jd_analysis, additional_context
-            )
-        except Exception as e:
-            logger.warning(f"LLM adaptation failed, using original content: {e}")
+        return await _adapt_with_llm(
+            llm_client, selection_result, jd_analysis, additional_context
+        )
 
     # Without LLM, return content as-is
     return AdaptedContent(
         experiences=selection_result.experiences,
         adaptation_notes={},
+        warnings=[],
+    )
+
+
+def _build_jd_summary(jd_analysis: JDAnalysis) -> str:
+    """Build JD summary string for adaptation context."""
+    return f"""
+Required Skills: {', '.join(list(jd_analysis.required_skills)[:20])}
+Preferred Skills: {', '.join(list(jd_analysis.preferred_skills)[:20])}
+Key Responsibilities: {'; '.join(jd_analysis.responsibilities[:5])}
+"""
+
+
+def _collect_adaptation_tasks(selection_result: SelectionResult) -> List[Tuple[str, str, str, str, str]]:
+    """Collect all text items that need adaptation."""
+    adaptation_tasks: List[Tuple[str, str, str, str, str]] = []  # (type, exp_idx, proj_idx, hl_idx, text)
+
+    for exp_idx, exp in enumerate(selection_result.experiences):
+        logger.debug(f"Collecting adaptation tasks for experience {exp_idx+1}/{len(selection_result.experiences)}: {exp.title} at {exp.company}")
+
+        # Experience description
+        if exp.description:
+            adaptation_tasks.append(("exp_desc", str(exp_idx), "", "", exp.description))
+
+        # Project descriptions and highlights
+        for proj_idx, project in enumerate(exp.projects):
+            if project.description:
+                adaptation_tasks.append(("proj_desc", str(exp_idx), str(proj_idx), "", project.description))
+
+            for hl_idx, highlight in enumerate(project.highlights):
+                adaptation_tasks.append(("highlight", str(exp_idx), str(proj_idx), str(hl_idx), highlight))
+
+    return adaptation_tasks
+
+
+async def _adapt_single_text_item(
+    llm_client,
+    task_info: Tuple[str, str, str, str, str],
+    jd_summary: str,
+    context_section: str,
+) -> Tuple[str, str, str, str, str, str, Optional[str]]:
+    """Adapt a single text item with error handling."""
+    task_type, exp_idx, proj_idx, hl_idx, original_text = task_info
+    context_type_map = {
+        "exp_desc": "experience description",
+        "proj_desc": "project description",
+        "highlight": "bullet point",
+    }
+    context_type = context_type_map.get(task_type, "text")
+
+    try:
+        adapted = await _adapt_text(
+            llm_client,
+            original_text,
+            jd_summary,
+            context_type,
+            context_section,
+        )
+        return (task_type, exp_idx, proj_idx, hl_idx, original_text, adapted, None)
+    except ValueError as e:
+        logger.warning(f"Failed to adapt {context_type}: {e}")
+        return (task_type, exp_idx, proj_idx, hl_idx, original_text, original_text, str(e))
+
+
+def _build_adapted_text_map(
+    adaptation_results: List[Tuple[str, str, str, str, str, str, Optional[str]]],
+    warnings: List[str],
+) -> Dict[Tuple[str, str, str, str], Tuple[str, Optional[str]]]:
+    """Build lookup map for adapted text."""
+    adapted_text_map: Dict[Tuple[str, str, str, str], Tuple[str, Optional[str]]] = {}
+    for task_type, exp_idx, proj_idx, hl_idx, original, adapted, error in adaptation_results:
+        key = (task_type, exp_idx, proj_idx, hl_idx)
+        adapted_text_map[key] = (adapted, error)
+        if error:
+            warnings.append(error)
+    return adapted_text_map
+
+
+def _reconstruct_project(
+    project: Project,
+    exp_idx: int,
+    proj_idx: int,
+    adapted_text_map: Dict[Tuple[str, str, str, str], Tuple[str, Optional[str]]],
+) -> Project:
+    """Reconstruct a project with adapted content."""
+    # Get adapted project description
+    adapted_proj_desc = project.description
+    proj_desc_key = ("proj_desc", str(exp_idx), str(proj_idx), "")
+    if proj_desc_key in adapted_text_map:
+        adapted_proj_desc, _ = adapted_text_map[proj_desc_key]
+        logger.debug(f"    Project description adapted: {len(project.description)} → {len(adapted_proj_desc)} chars")
+
+    # Get adapted highlights
+    adapted_highlights: List[str] = []
+    for hl_idx, highlight in enumerate(project.highlights):
+        hl_key = ("highlight", str(exp_idx), str(proj_idx), str(hl_idx))
+        if hl_key in adapted_text_map:
+            adapted_hl, _ = adapted_text_map[hl_key]
+            adapted_highlights.append(adapted_hl)
+        else:
+            adapted_highlights.append(highlight)  # Fallback
+
+    return Project(
+        name=project.name,
+        description=adapted_proj_desc,
+        highlights=adapted_highlights,
+        technologies=project.technologies,  # Never change technologies
+        url=project.url,
+    )
+
+
+def _reconstruct_experience(
+    exp: Experience,
+    exp_idx: int,
+    adapted_text_map: Dict[Tuple[str, str, str, str], Tuple[str, Optional[str]]],
+    adaptation_notes: Dict[str, str],
+) -> Experience:
+    """Reconstruct an experience with adapted content."""
+    logger.debug(f"Reconstructing experience {exp_idx+1}: {exp.title} at {exp.company}")
+
+    # Get adapted description
+    adapted_description = exp.description
+    desc_key = ("exp_desc", str(exp_idx), "", "")
+    if desc_key in adapted_text_map:
+        adapted_description, error = adapted_text_map[desc_key]
+        if adapted_description != exp.description:
+            logger.info(f"  Description adapted: {len(exp.description)} → {len(adapted_description)} chars")
+            adaptation_notes[f"{exp.company}_description"] = "Reworded to match JD terminology"
+
+    # Reconstruct projects with adapted content
+    adapted_projects: List[Project] = []
+    for proj_idx, project in enumerate(exp.projects):
+        adapted_projects.append(_reconstruct_project(project, exp_idx, proj_idx, adapted_text_map))
+
+    return Experience(
+        title=exp.title,
+        company=exp.company,
+        start_date=exp.start_date,
+        end_date=exp.end_date,
+        description=adapted_description,
+        location=exp.location,
+        projects=adapted_projects,
     )
 
 
@@ -57,80 +197,34 @@ async def _adapt_with_llm(
 
     adapted_experiences: List[Experience] = []
     adaptation_notes: Dict[str, str] = {}
+    warnings: List[str] = []
 
-    jd_summary = f"""
-Required Skills: {', '.join(list(jd_analysis.required_skills)[:20])}
-Preferred Skills: {', '.join(list(jd_analysis.preferred_skills)[:20])}
-Key Responsibilities: {'; '.join(jd_analysis.responsibilities[:5])}
-"""
-
+    jd_summary = _build_jd_summary(jd_analysis)
     context_section = f"\nAdditional Context: {additional_context}" if additional_context else ""
 
-    for exp in selection_result.experiences:
-        # Adapt experience description
-        adapted_description = exp.description
-        if exp.description:
-            adapted_description = await _adapt_text(
-                llm_client,
-                exp.description,
-                jd_summary,
-                "experience description",
-                context_section,
-            )
-            if adapted_description != exp.description:
-                adaptation_notes[f"{exp.company}_description"] = "Reworded to match JD terminology"
+    logger.info(f"Adapting content for {len(selection_result.experiences)} experiences")
 
-        # Adapt projects
-        adapted_projects: List[Project] = []
-        for project in exp.projects:
-            # Adapt project description
-            adapted_proj_desc = project.description
-            if project.description:
-                adapted_proj_desc = await _adapt_text(
-                    llm_client,
-                    project.description,
-                    jd_summary,
-                    "project description",
-                    context_section,
-                )
+    # Collect all text items that need adaptation
+    adaptation_tasks = _collect_adaptation_tasks(selection_result)
+    logger.info(f"Collected {len(adaptation_tasks)} text items to adapt - running in parallel")
 
-            # Adapt highlights
-            adapted_highlights: List[str] = []
-            for highlight in project.highlights:
-                adapted_hl = await _adapt_text(
-                    llm_client,
-                    highlight,
-                    jd_summary,
-                    "bullet point",
-                    context_section,
-                )
-                adapted_highlights.append(adapted_hl)
+    # Adapt all text items in parallel
+    adaptation_results = await asyncio.gather(
+        *[_adapt_single_text_item(llm_client, task, jd_summary, context_section) for task in adaptation_tasks],
+        return_exceptions=False
+    )
 
-            adapted_projects.append(
-                Project(
-                    name=project.name,
-                    description=adapted_proj_desc,
-                    highlights=adapted_highlights,
-                    technologies=project.technologies,  # Never change technologies
-                    url=project.url,
-                )
-            )
+    # Build a lookup map for adapted text
+    adapted_text_map = _build_adapted_text_map(adaptation_results, warnings)
 
-        adapted_experiences.append(
-            Experience(
-                title=exp.title,
-                company=exp.company,
-                start_date=exp.start_date,
-                end_date=exp.end_date,
-                description=adapted_description,
-                location=exp.location,
-                projects=adapted_projects,
-            )
-        )
+    # Reconstruct experiences with adapted content
+    for exp_idx, exp in enumerate(selection_result.experiences):
+        adapted_experiences.append(_reconstruct_experience(exp, exp_idx, adapted_text_map, adaptation_notes))
 
     return AdaptedContent(
         experiences=adapted_experiences,
         adaptation_notes=adaptation_notes,
+        warnings=warnings,
     )
 
 
@@ -172,21 +266,30 @@ CRITICAL RULES:
 
 Return ONLY the reworded text, no explanations."""
 
-    try:
-        adapted = await llm_client.rewrite_text(original_text, prompt)
-        adapted = adapted.strip()
+    logger.debug(f"LLM adapting {context_type}: original={len(original_text)} chars, limit={max_chars}")
+    adapted = await llm_client.rewrite_text(original_text, prompt)
+    adapted = adapted.strip()
+    logger.debug(f"LLM response for {context_type}: {len(adapted)} chars - '{adapted[:100]}...'")
 
-        # Validate length
-        if len(adapted) > max_chars + 20:
-            logger.warning(f"Adapted {context_type} exceeds limit, using original")
-            return original_text
+    # Validate length
+    if len(adapted) > max_chars + 20:
+        logger.error(
+            f"LLM output for {context_type} exceeds limit: {len(adapted)} > {max_chars} "
+            f"(original: {len(original_text)} chars)"
+        )
+        raise ValueError(
+            f"LLM output for {context_type} exceeds character limit "
+            f"({len(adapted)} > {max_chars})"
+        )
 
-        # Validate we didn't lose essential content (simple check)
-        if len(adapted) < len(original_text) * 0.3:
-            logger.warning(f"Adapted {context_type} too short, using original")
-            return original_text
+    # Validate we didn't lose essential content (simple check)
+    if len(adapted) < len(original_text) * 0.3:
+        logger.error(
+            f"LLM output for {context_type} too short: {len(adapted)} < {len(original_text) * 0.3} "
+            f"(original: {len(original_text)} chars)"
+        )
+        raise ValueError(
+            f"LLM output for {context_type} is too short - possible content loss"
+        )
 
-        return adapted
-    except Exception as e:
-        logger.error(f"Failed to adapt {context_type}: {e}")
-        return original_text  # Fallback to original
+    return adapted

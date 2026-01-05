@@ -1,26 +1,18 @@
-"""Heuristics-first CV draft generator from saved profile + job description."""
+"""CV draft generator using multi-step AI pipeline."""
 
 from __future__ import annotations
 
 import logging
 
-from backend.models import CVData, ProfileData
+from backend.models import ProfileData
 from backend.models_ai import AIGenerateCVRequest, AIGenerateCVResponse
 from backend.services.ai.review import (
     build_evidence_map,
     build_questions,
     build_summary,
 )
-from backend.services.ai.rewrite import rewrite_cv_bullets
-from backend.services.ai.llm_tailor import llm_tailor_cv
-from backend.services.ai.selection import (
-    select_education,
-    select_experiences,
-    select_skills,
-)
-from backend.services.ai.target_spec import build_target_spec
 from backend.services.ai.pipeline.jd_analyzer import analyze_jd
-from backend.services.ai.pipeline.skill_mapper import map_skills
+from backend.services.ai.pipeline.skill_relevance_evaluator import evaluate_all_skills
 from backend.services.ai.pipeline.content_selector import select_content
 from backend.services.ai.pipeline.content_adapter import adapt_content
 from backend.services.ai.pipeline.cv_assembler import assemble_cv
@@ -34,28 +26,38 @@ async def generate_cv_draft(
     """
     Generate CV draft using multi-step AI pipeline.
 
-    Uses new pipeline when style is 'llm_tailor', falls back to legacy for other styles.
+    Steps:
+    1. Analyze JD to extract requirements
+    2. Evaluate skills for relevance
+    3. Select relevant content from profile
+    4. Adapt content for JD
+    5. Assemble final CV
     """
-    # Use new pipeline for llm_tailor style
-    if request.style == "llm_tailor":
-        return await _generate_with_pipeline(profile, request)
-
-    # Legacy flow for other styles
-    return await _generate_legacy(profile, request)
-
-
-async def _generate_with_pipeline(
-    profile: ProfileData, request: AIGenerateCVRequest
-) -> AIGenerateCVResponse:
-    """Generate CV using the new multi-step pipeline."""
+    logger.info(f"Starting CV generation pipeline for {len(profile.experience)} experiences, {len(profile.skills)} skills")
 
     # Step 1: Analyze JD
+    logger.info("Step 1: Analyzing job description")
     jd_analysis = await analyze_jd(request.job_description)
+    logger.info(
+        f"JD Analysis: {len(jd_analysis.required_skills)} required skills, "
+        f"{len(jd_analysis.preferred_skills)} preferred skills, "
+        f"{len(jd_analysis.responsibilities)} responsibilities"
+    )
 
-    # Step 2: Map skills
-    skill_mapping = await map_skills(profile.skills, jd_analysis)
+    # Step 2: Evaluate each skill individually for relevance
+    logger.info("Step 2: Evaluating skill relevance")
+    skill_mapping = await evaluate_all_skills(
+        profile.skills,
+        jd_analysis,
+        raw_jd=request.job_description,
+    )
+    logger.info(
+        f"Skill mapping: {len(skill_mapping.matched_skills)} matched skills, "
+        f"{len(skill_mapping.coverage_gaps)} gaps"
+    )
 
     # Step 3: Select content
+    logger.info("Step 3: Selecting relevant content")
     max_experiences = request.max_experiences or 4
     selection_result = select_content(
         profile.experience,
@@ -63,13 +65,20 @@ async def _generate_with_pipeline(
         skill_mapping,
         max_experiences=max_experiences,
     )
+    logger.info(f"Selected {len(selection_result.experiences)} experiences")
 
     # Step 4: Adapt content
+    logger.info("Step 4: Adapting content wording")
     adapted_content = await adapt_content(
         selection_result,
         jd_analysis,
         request.additional_context,
     )
+    logger.info(
+        f"Content adaptation complete: {len(adapted_content.adaptation_notes)} items adapted, "
+        f"{len(adapted_content.warnings)} warnings"
+    )
+    warnings = adapted_content.warnings or []
 
     # Step 5: Assemble CV
     draft_cv, coverage_summary = assemble_cv(
@@ -97,7 +106,7 @@ async def _generate_with_pipeline(
     if coverage_summary.gaps:
         summary_items.append(f"{len(coverage_summary.gaps)} requirements not fully covered")
 
-    # Build evidence map (using legacy function for compatibility)
+    # Build evidence map
     class SimpleSpec:
         def __init__(self, jd):
             self.required_keywords = jd.required_skills
@@ -109,46 +118,8 @@ async def _generate_with_pipeline(
 
     return AIGenerateCVResponse(
         draft_cv=draft_cv,
-        warnings=[],
-        questions=questions,
-        summary=summary_items,
-        evidence_map=evidence_map,
-    )
-
-
-async def _generate_legacy(
-    profile: ProfileData, request: AIGenerateCVRequest
-) -> AIGenerateCVResponse:
-    """Legacy CV generation flow for non-llm_tailor styles."""
-    spec = build_target_spec(request.job_description)
-
-    max_experiences = request.max_experiences or 4
-    selected_experiences, warnings = select_experiences(
-        profile.experience, spec, max_experiences
-    )
-    selected_education = select_education(profile.education, spec, max_education=2)
-    selected_skills = select_skills(profile.skills, spec, selected_experiences)
-
-    questions = build_questions(selected_experiences)
-    summary = build_summary(request, selected_experiences, selected_skills)
-    evidence_map = build_evidence_map(spec, selected_experiences)
-
-    draft = CVData(
-        personal_info=profile.personal_info,
-        experience=selected_experiences,
-        education=selected_education,
-        skills=selected_skills,
-        theme="classic",
-        target_company=request.target_company,
-        target_role=request.target_role,
-    )
-    if request.style == "rewrite_bullets":
-        draft = rewrite_cv_bullets(draft)
-
-    return AIGenerateCVResponse(
-        draft_cv=draft,
         warnings=warnings,
         questions=questions,
-        summary=summary,
+        summary=summary_items,
         evidence_map=evidence_map,
     )

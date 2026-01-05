@@ -2,7 +2,7 @@
 
 import pytest
 from backend.models import Experience, Project
-from backend.services.ai.pipeline.models import JDAnalysis, SelectionResult, AdaptedContent
+from backend.services.ai.pipeline.models import JDAnalysis, SelectionResult
 from backend.services.ai.pipeline.content_adapter import adapt_content
 
 

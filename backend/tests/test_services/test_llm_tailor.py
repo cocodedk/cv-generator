@@ -100,7 +100,7 @@ class TestLLMTailorCV:
     async def test_llm_tailor_fallback_when_not_configured(
         self, sample_draft, sample_profile
     ):
-        """Test that tailoring falls back gracefully when LLM is not configured."""
+        """Test that tailoring raises error when LLM is not configured (no silent fallback)."""
         job_description = "Python developer needed."
 
         with patch("backend.services.ai.llm_tailor.get_llm_client") as mock_get_client:
@@ -108,11 +108,8 @@ class TestLLMTailorCV:
             mock_client.is_configured.return_value = False
             mock_get_client.return_value = mock_client
 
-            result = await llm_tailor_cv(sample_draft, job_description, sample_profile)
-
-            # Should return draft unchanged
-            assert result == sample_draft
-            mock_client.rewrite_text.assert_not_called()
+            with pytest.raises(ValueError, match="LLM is not configured"):
+                await llm_tailor_cv(sample_draft, job_description, sample_profile)
 
     async def test_llm_tailor_handles_empty_text(self, sample_draft, sample_profile):
         """Test that empty text fields are handled correctly."""
@@ -158,7 +155,7 @@ class TestLLMTailorCV:
             assert mock_client.rewrite_text.call_count == 1
 
     async def test_llm_tailor_handles_llm_errors(self, sample_draft, sample_profile):
-        """Test that LLM errors are handled gracefully."""
+        """Test that LLM errors are raised (no silent fallback)."""
         job_description = "Python developer."
 
         with patch("backend.services.ai.llm_tailor.get_llm_client") as mock_get_client:
@@ -167,18 +164,13 @@ class TestLLMTailorCV:
             mock_client.rewrite_text = AsyncMock(side_effect=Exception("API Error"))
             mock_get_client.return_value = mock_client
 
-            result = await llm_tailor_cv(sample_draft, job_description, sample_profile)
-
-            # Should return draft with original text on error
-            assert (
-                result.experience[0].description
-                == sample_draft.experience[0].description
-            )
+            with pytest.raises(Exception, match="API Error"):
+                await llm_tailor_cv(sample_draft, job_description, sample_profile)
 
     async def test_llm_tailor_handles_empty_llm_response(
         self, sample_draft, sample_profile
     ):
-        """Test that empty LLM responses fall back to original."""
+        """Test that empty LLM responses raise ValueError (no silent fallback)."""
         job_description = "Python developer."
 
         with patch("backend.services.ai.llm_tailor.get_llm_client") as mock_get_client:
@@ -189,13 +181,8 @@ class TestLLMTailorCV:
             )  # Empty/whitespace response
             mock_get_client.return_value = mock_client
 
-            result = await llm_tailor_cv(sample_draft, job_description, sample_profile)
-
-            # Should use original text when LLM returns empty
-            assert (
-                result.experience[0].description
-                == sample_draft.experience[0].description
-            )
+            with pytest.raises(ValueError, match="LLM returned empty result"):
+                await llm_tailor_cv(sample_draft, job_description, sample_profile)
 
 
 class TestReorderSkillsForJD:

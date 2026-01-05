@@ -5,7 +5,6 @@ from typing import List, Dict
 from backend.models import Experience, Project
 from backend.services.ai.pipeline.models import JDAnalysis, SkillMapping, SelectionResult
 from backend.services.ai.scoring import score_item, top_n_scored
-from backend.services.ai.text import extract_words
 
 logger = logging.getLogger(__name__)
 

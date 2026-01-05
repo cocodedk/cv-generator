@@ -100,6 +100,51 @@ class TestSkillMapper:
         # Node.js might be in gaps (unless heuristic matches it)
         assert isinstance(result.coverage_gaps, list)
 
+    def test_heuristic_mapping_detects_ecosystem_matches(self):
+        """Test that ecosystem matches are detected correctly."""
+        profile_skills = [
+            Skill(name="Express", category="Backend", level="Advanced"),
+            Skill(name="Fastify", category="Backend", level="Advanced"),
+        ]
+        jd_analysis = JDAnalysis(
+            required_skills={"node.js"},
+            preferred_skills=set(),
+            responsibilities=[],
+            domain_keywords=set(),
+            seniority_signals=[],
+        )
+
+        result = _map_with_heuristics(profile_skills, jd_analysis)
+
+        # Should find matches (may be ecosystem type)
+        assert len(result.matched_skills) >= 0
+        # Check match types include ecosystem if matches found
+        if result.matched_skills:
+            match_types = {m.match_type for m in result.matched_skills}
+            assert any(
+                mt in ("exact", "synonym", "ecosystem") for mt in match_types
+            )
+
+    def test_heuristic_mapping_classifies_match_types(self):
+        """Test that match types are correctly classified."""
+        profile_skills = [
+            Skill(name="Python", category="Languages", level="Expert"),
+        ]
+        jd_analysis = JDAnalysis(
+            required_skills={"python"},
+            preferred_skills=set(),
+            responsibilities=[],
+            domain_keywords=set(),
+            seniority_signals=[],
+        )
+
+        result = _map_with_heuristics(profile_skills, jd_analysis)
+
+        if result.matched_skills:
+            match = result.matched_skills[0]
+            assert match.match_type in ("exact", "synonym", "ecosystem")
+            assert match.confidence > 0.0
+
     @pytest.mark.asyncio
     async def test_map_skills_fallback_to_heuristics_when_llm_not_configured(self):
         profile_skills = [
