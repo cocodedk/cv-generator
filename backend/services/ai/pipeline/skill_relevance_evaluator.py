@@ -27,6 +27,124 @@ def _skill_in_raw_jd(skill_name: str, raw_jd: str) -> bool:
     return bool(re.search(pattern, jd_lower))
 
 
+def _match_skills_in_raw_jd(
+    profile_skills: List[Skill],
+    raw_jd: str,
+    selected_skill_names: set[str],
+) -> List[SkillMatch]:
+    """LAYER 1: Check raw JD text for literal skill matches."""
+    matched_skills_list: List[SkillMatch] = []
+    for skill in profile_skills:
+        if skill.name in selected_skill_names:
+            continue
+
+        if _skill_in_raw_jd(skill.name, raw_jd):
+            logger.info(f"Raw JD match: '{skill.name}' found in job description")
+            match = SkillMatch(
+                profile_skill=skill,
+                jd_requirement=skill.name,  # Self-reference for raw matches
+                match_type="exact",
+                confidence=0.98,
+                explanation=f"'{skill.name}' appears directly in job description",
+            )
+            matched_skills_list.append(match)
+            selected_skill_names.add(skill.name)
+    return matched_skills_list
+
+
+def _match_skills_to_requirements(
+    profile_skills: List[Skill],
+    all_jd_requirements: List[str],
+    selected_skill_names: set[str],
+) -> List[SkillMatch]:
+    """LAYER 2: Check against extracted JD requirements using tech_terms_match."""
+    matched_skills_list: List[SkillMatch] = []
+    for skill in profile_skills:
+        if skill.name in selected_skill_names:
+            continue
+
+        for req in all_jd_requirements:
+            if tech_terms_match(skill.name, req):
+                logger.info(f"Tech match: '{skill.name}' matches requirement '{req}'")
+                match = SkillMatch(
+                    profile_skill=skill,
+                    jd_requirement=req,
+                    match_type="exact",
+                    confidence=0.9,
+                    explanation=f"Technology match: {skill.name} ↔ {req}",
+                )
+                matched_skills_list.append(match)
+                selected_skill_names.add(skill.name)
+                break
+    return matched_skills_list
+
+
+async def _evaluate_skill_with_error_handling(
+    skill: Skill, all_jd_requirements: List[str], llm_client
+) -> tuple[Skill, Optional[SkillRelevanceResult], Optional[Exception]]:
+    """Wrapper to handle errors per skill without stopping others."""
+    try:
+        logger.debug(f"LLM evaluating skill: '{skill.name}' against {len(all_jd_requirements)} requirements")
+        result = await evaluate_skill_relevance(skill, all_jd_requirements, llm_client)
+        return skill, result, None
+    except Exception as e:
+        logger.error(f"Failed to evaluate skill '{skill.name}': {e}", exc_info=True)
+        return skill, None, e
+
+
+def _process_llm_evaluation_results(
+    evaluation_results: List[tuple[Skill, Optional[SkillRelevanceResult], Optional[Exception]]],
+    matched_skills_list: List[SkillMatch],
+    selected_skill_names: set[str],
+) -> List[str]:
+    """Process LLM evaluation results and return list of failed skills."""
+    failed_skills = []
+    match_type_map = {
+        "direct": "exact",
+        "foundation": "ecosystem",
+        "alternative": "ecosystem",
+        "related": "related",
+    }
+    confidence_map = {
+        "direct": 0.95,
+        "foundation": 0.85,
+        "alternative": 0.75,
+        "related": 0.65,
+    }
+
+    for skill, result, error in evaluation_results:
+        if error:
+            failed_skills.append(skill.name)
+            logger.warning(
+                f"Skipping skill '{skill.name}' due to error: {error}. "
+                f"Continuing with other skills."
+            )
+            continue
+
+        if result and result.relevant:
+            match_type = match_type_map.get(result.relevance_type, "related")
+            confidence = confidence_map.get(result.relevance_type, 0.65)
+
+            logger.info(
+                f"LLM match: '{skill.name}' → '{result.match}' "
+                f"(type: {result.relevance_type}, confidence: {confidence:.2f})"
+            )
+
+            match = SkillMatch(
+                profile_skill=skill,
+                jd_requirement=result.match,
+                match_type=match_type,
+                confidence=confidence,
+                explanation=result.why,
+            )
+            matched_skills_list.append(match)
+            selected_skill_names.add(skill.name)
+        else:
+            logger.debug(f"LLM determined '{skill.name}' is not relevant")
+
+    return failed_skills
+
+
 async def evaluate_all_skills(
     profile_skills: List[Skill],
     jd_analysis: JDAnalysis,
@@ -50,42 +168,11 @@ async def evaluate_all_skills(
     all_jd_requirements = list(jd_analysis.required_skills | jd_analysis.preferred_skills)
 
     # LAYER 1: First, check raw JD text for literal skill matches
-    # This is the most reliable - if "Python" appears in JD, include Python skill
     if raw_jd:
-        for skill in profile_skills:
-            if skill.name in selected_skill_names:
-                continue
-
-            if _skill_in_raw_jd(skill.name, raw_jd):
-                logger.info(f"Raw JD match: '{skill.name}' found in job description")
-                match = SkillMatch(
-                    profile_skill=skill,
-                    jd_requirement=skill.name,  # Self-reference for raw matches
-                    match_type="exact",
-                    confidence=0.98,
-                    explanation=f"'{skill.name}' appears directly in job description",
-                )
-                matched_skills_list.append(match)
-                selected_skill_names.add(skill.name)
+        matched_skills_list.extend(_match_skills_in_raw_jd(profile_skills, raw_jd, selected_skill_names))
 
     # LAYER 2: Check against extracted JD requirements using tech_terms_match
-    for skill in profile_skills:
-        if skill.name in selected_skill_names:
-            continue
-
-        for req in all_jd_requirements:
-            if tech_terms_match(skill.name, req):
-                logger.info(f"Tech match: '{skill.name}' matches requirement '{req}'")
-                match = SkillMatch(
-                    profile_skill=skill,
-                    jd_requirement=req,
-                    match_type="exact",
-                    confidence=0.9,
-                    explanation=f"Technology match: {skill.name} ↔ {req}",
-                )
-                matched_skills_list.append(match)
-                selected_skill_names.add(skill.name)
-                break
+    matched_skills_list.extend(_match_skills_to_requirements(profile_skills, all_jd_requirements, selected_skill_names))
 
     # LAYER 3: LLM evaluation for remaining skills (semantic matching)
     remaining_skills = [s for s in profile_skills if s.name not in selected_skill_names]
@@ -104,79 +191,24 @@ async def evaluate_all_skills(
             f"(already matched {len(selected_skill_names)} via layers 1-2)"
         )
 
-        # Evaluate all remaining skills in parallel
-        async def evaluate_skill_with_error_handling(skill: Skill):
-            """Wrapper to handle errors per skill without stopping others."""
-            try:
-                logger.debug(f"LLM evaluating skill: '{skill.name}' against {len(all_jd_requirements)} requirements")
-                result = await evaluate_skill_relevance(skill, all_jd_requirements, llm_client)
-                return skill, result, None
-            except Exception as e:
-                logger.error(f"Failed to evaluate skill '{skill.name}': {e}", exc_info=True)
-                return skill, None, e
-
         # Run all skill evaluations in parallel
         evaluation_results = await asyncio.gather(
-            *[evaluate_skill_with_error_handling(skill) for skill in remaining_skills],
+            *[_evaluate_skill_with_error_handling(skill, all_jd_requirements, llm_client) for skill in remaining_skills],
             return_exceptions=False
         )
 
         # Process results
-        failed_skills = []
-        for skill, result, error in evaluation_results:
-            if error:
-                # Log warning but continue - one failed skill shouldn't kill the entire CV
-                # Retry logic in llm_client should handle transient errors, but if it still fails,
-                # we skip that skill and continue with others
-                failed_skills.append(skill.name)
-                logger.warning(
-                    f"Skipping skill '{skill.name}' due to error: {error}. "
-                    f"Continuing with other skills."
-                )
-                continue
+        failed_skills = _process_llm_evaluation_results(evaluation_results, matched_skills_list, selected_skill_names)
 
-            if result and result.relevant:
-                match_type_map = {
-                    "direct": "exact",
-                    "foundation": "ecosystem",
-                    "alternative": "ecosystem",
-                    "related": "related",
-                }
-                match_type = match_type_map.get(result.relevance_type, "related")
-
-                confidence_map = {
-                    "direct": 0.95,
-                    "foundation": 0.85,
-                    "alternative": 0.75,
-                    "related": 0.65,
-                }
-                confidence = confidence_map.get(result.relevance_type, 0.65)
-
-                logger.info(
-                    f"LLM match: '{skill.name}' → '{result.match}' "
-                    f"(type: {result.relevance_type}, confidence: {confidence:.2f})"
-                )
-
-                match = SkillMatch(
-                    profile_skill=skill,
-                    jd_requirement=result.match,
-                    match_type=match_type,
-                    confidence=confidence,
-                    explanation=result.why,
-                )
-                matched_skills_list.append(match)
-                selected_skill_names.add(skill.name)
-            else:
-                logger.debug(f"LLM determined '{skill.name}' is not relevant")
+        # Log summary if any skills failed
+        if failed_skills:
+            selected_skills = [s for s in profile_skills if s.name in selected_skill_names]
+            logger.warning(
+                f"Skipped {len(failed_skills)} skill(s) due to errors: {', '.join(failed_skills)}. "
+                f"CV generation will continue with {len(selected_skills)} successfully evaluated skills."
+            )
 
     selected_skills = [s for s in profile_skills if s.name in selected_skill_names]
-
-    # Log summary if any skills failed
-    if failed_skills:
-        logger.warning(
-            f"Skipped {len(failed_skills)} skill(s) due to errors: {', '.join(failed_skills)}. "
-            f"CV generation will continue with {len(selected_skills)} successfully evaluated skills."
-        )
 
     # Find gaps (JD requirements not covered)
     covered_requirements = {m.jd_requirement for m in matched_skills_list}
