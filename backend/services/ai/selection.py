@@ -124,9 +124,17 @@ def select_skills(
     required_keywords = list(spec.required_keywords)
     preferred_keywords = list(spec.preferred_keywords)
 
+    # Extract responsibility words for support detection
+    responsibility_words = set()
+    if hasattr(spec, 'responsibilities'):
+        for resp in spec.responsibilities:
+            responsibility_words.update(extract_words(resp))
+
     scored: List[Tuple[float, Skill]] = []
     for skill in skills:
-        # Use smart matching for JD keywords (handles TailwindCSS vs Tailwind CSS)
+        skill_words = word_set([skill.name, skill.category or ""])
+
+        # Direct matches (exact or synonym)
         matches_required = any(
             tech_terms_match(skill.name, kw) for kw in required_keywords
         )
@@ -134,15 +142,37 @@ def select_skills(
             tech_terms_match(skill.name, kw) for kw in preferred_keywords
         )
 
-        # Check if skill appears in selected experiences (exact word match is fine here)
-        skill_words = word_set([skill.name, skill.category or ""])
+        # Ecosystem/related matches: skill words overlap with JD keywords but not exact match
+        ecosystem_match = False
+        if not matches_required and not matches_preferred:
+            skill_normalized = skill.name.lower()
+            # Check for partial matches or word overlaps
+            for kw in required_keywords + preferred_keywords:
+                kw_normalized = kw.lower()
+                if (skill_normalized in kw_normalized or kw_normalized in skill_normalized) and skill_normalized != kw_normalized:
+                    ecosystem_match = True
+                    break
+                # Check word overlap
+                kw_words = set(extract_words(kw))
+                if skill_words & kw_words:
+                    ecosystem_match = True
+                    break
+
+        # Responsibility support: skill words overlap with responsibility words
+        responsibility_support = bool(skill_words & responsibility_words) if responsibility_words else False
+
+        # Check if skill appears in selected experiences
         appears_in_selected = bool(skill_words & selected_words)
 
-        # Weighted scoring: JD match is primary (70%), experience bonus (30%)
+        # Updated weighted scoring:
+        # 40% required direct match, 15% preferred direct match,
+        # 25% ecosystem/related match, 10% responsibility support, 10% experience
         score = (
-            0.5 * float(matches_required)
-            + 0.2 * float(matches_preferred)
-            + 0.3 * float(appears_in_selected)
+            0.40 * float(matches_required)
+            + 0.15 * float(matches_preferred)
+            + 0.25 * float(ecosystem_match)
+            + 0.10 * float(responsibility_support)
+            + 0.10 * float(appears_in_selected)
         )
         scored.append((score, skill))
 

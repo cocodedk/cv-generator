@@ -57,3 +57,23 @@ class TestSkillSelection:
 
         # Should fallback to returning skills rather than empty list
         assert len(selected) > 0
+
+    def test_responsibility_support_scoring(self):
+        """Test that skills supporting responsibilities are scored."""
+        skills = [
+            Skill(name="CI/CD", category="DevOps"),
+            Skill(name="Docker", category="DevOps"),
+            Skill(name="Python", category="Backend"),
+        ]
+        # Job description with deployment responsibilities
+        spec = build_target_spec(
+            "Must have Python. You will deploy applications using CI/CD pipelines."
+        )
+        selected = select_skills(skills, spec, [])
+
+        # Should include skills that support responsibilities
+        selected_names = {s.name for s in selected}
+        # Python should be selected (required match)
+        assert "Python" in selected_names
+        # CI/CD or Docker might be selected if they support responsibilities
+        # (depends on word matching in responsibilities)

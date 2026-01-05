@@ -1,7 +1,7 @@
 """Data models for pipeline steps."""
 
 from dataclasses import dataclass
-from typing import List, Set, Dict, Optional
+from typing import List, Set, Dict
 from backend.models import Experience, Skill
 
 
@@ -22,7 +22,7 @@ class SkillMatch:
 
     profile_skill: Skill
     jd_requirement: str
-    match_type: str  # "exact", "synonym", "related", "covers"
+    match_type: str  # "exact", "synonym", "related", "covers", "ecosystem", "responsibility_support", "domain_complement", "category_match"
     confidence: float  # 0.0 to 1.0
     explanation: str  # Why this match was made
 
@@ -50,6 +50,16 @@ class AdaptedContent:
 
     experiences: List[Experience]
     adaptation_notes: Dict[str, str]  # Maps content_id -> what was changed
+
+
+@dataclass(frozen=True)
+class SkillRelevanceResult:
+    """Result of AI evaluation for a single skill's relevance to JD."""
+
+    relevant: bool
+    relevance_type: str  # "direct", "foundation", "alternative", "related"
+    why: str  # Explanation of relevance
+    match: str  # Which JD requirement it matches
 
 
 @dataclass(frozen=True)

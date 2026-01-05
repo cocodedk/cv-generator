@@ -60,13 +60,21 @@ Required: {', '.join(jd_required_list[:30])}
 Preferred: {', '.join(jd_preferred_list[:30])}
 
 For each profile skill, determine:
-1. Does it match any JD requirement? (exact match, synonym, or related)
-2. What type of match? (exact, synonym, related, covers)
+1. Does it match any JD requirement? (exact match, synonym, ecosystem, or related)
+2. What type of match? (exact, synonym, ecosystem, related, covers)
 3. Confidence level (0.0 to 1.0)
 4. Brief explanation
 
+Match types:
+- exact: Identical or normalized same (e.g., "PostgreSQL" ↔ "Postgres")
+- synonym: Same technology, different name (e.g., "JavaScript" ↔ "Node.js")
+- ecosystem: Related technology from same ecosystem (e.g., "Express" when JD mentions "Node.js")
+- related: Generally related but not same ecosystem (e.g., "React" ↔ "JavaScript")
+- covers: Profile skill encompasses JD requirement
+
 Examples:
 - Profile: "JavaScript", JD: "Node.js" → synonym match (Node.js IS JavaScript runtime)
+- Profile: "Express", JD: "Node.js" → ecosystem match (Express is Node.js framework)
 - Profile: "Python", JD: "Python" → exact match
 - Profile: "React", JD: "JavaScript" → related match (React uses JavaScript)
 - Profile: "PostgreSQL", JD: "Postgres" → exact match (same thing)
@@ -166,12 +174,27 @@ def _map_with_heuristics(
         # Check against required keywords using smart matching
         for jd_kw in required_keywords:
             if tech_terms_match(skill.name, jd_kw):
+                # Determine match type: exact if normalized same, otherwise ecosystem/related
+                normalized_skill = normalize_keyword(skill.name)
+                normalized_jd = normalize_keyword(jd_kw)
+
+                if normalized_skill == normalized_jd:
+                    match_type = "exact"
+                    confidence = 0.9
+                elif normalized_skill in normalized_jd or normalized_jd in normalized_skill:
+                    match_type = "synonym"
+                    confidence = 0.85
+                else:
+                    # Related match - could be ecosystem
+                    match_type = "ecosystem"
+                    confidence = 0.75
+
                 match = SkillMatch(
                     profile_skill=skill,
                     jd_requirement=normalize_keyword(jd_kw),
-                    match_type="exact",
-                    confidence=0.9,
-                    explanation=f"Match: '{skill.name}' ↔ '{jd_kw}'",
+                    match_type=match_type,
+                    confidence=confidence,
+                    explanation=f"Match: '{skill.name}' ↔ '{jd_kw}' ({match_type})",
                 )
                 matched_skills_list.append(match)
                 selected_skill_names.add(skill.name)
@@ -183,12 +206,25 @@ def _map_with_heuristics(
         if not skill_matched:
             for jd_kw in preferred_keywords:
                 if tech_terms_match(skill.name, jd_kw):
+                    normalized_skill = normalize_keyword(skill.name)
+                    normalized_jd = normalize_keyword(jd_kw)
+
+                    if normalized_skill == normalized_jd:
+                        match_type = "exact"
+                        confidence = 0.7
+                    elif normalized_skill in normalized_jd or normalized_jd in normalized_skill:
+                        match_type = "synonym"
+                        confidence = 0.65
+                    else:
+                        match_type = "ecosystem"
+                        confidence = 0.6
+
                     match = SkillMatch(
                         profile_skill=skill,
                         jd_requirement=normalize_keyword(jd_kw),
-                        match_type="exact",
-                        confidence=0.7,
-                        explanation=f"Preferred match: '{skill.name}' ↔ '{jd_kw}'",
+                        match_type=match_type,
+                        confidence=confidence,
+                        explanation=f"Preferred match: '{skill.name}' ↔ '{jd_kw}' ({match_type})",
                     )
                     matched_skills_list.append(match)
                     selected_skill_names.add(skill.name)

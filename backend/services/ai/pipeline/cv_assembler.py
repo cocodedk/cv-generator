@@ -77,27 +77,48 @@ def _build_coverage_summary(
 ) -> CoverageSummary:
     """Build summary of how CV covers JD requirements."""
 
-    # Skills that are covered
+    # Skills that are covered (direct matches)
     covered_requirements: List[str] = []
     for match in skill_mapping.matched_skills:
         if match.match_type in ("exact", "synonym", "covers"):
             covered_requirements.append(match.jd_requirement)
 
-    # Partially covered (related matches)
+    # Partially covered (ecosystem, related, responsibility support, etc.)
     partially_covered: List[str] = []
     for match in skill_mapping.matched_skills:
-        if match.match_type == "related":
+        if match.match_type in ("related", "ecosystem", "responsibility_support", "domain_complement", "category_match"):
             partially_covered.append(match.jd_requirement)
 
     # Gaps
     gaps = skill_mapping.coverage_gaps
 
-    # Skill justifications
+    # Skill justifications with categorization
     skill_justifications: Dict[str, str] = {}
     for match in skill_mapping.matched_skills:
         skill_name = match.profile_skill.name
+
+        # Categorize match type for better justifications
+        category_map = {
+            "exact": "Direct Match",
+            "synonym": "Direct Match",
+            "covers": "Direct Match",
+            "ecosystem": "Technology Ecosystem",
+            "responsibility_support": "Supports Responsibilities",
+            "domain_complement": "Domain Complement",
+            "category_match": "Technology Category Match",
+            "related": "Related Technology",
+        }
+        category = category_map.get(match.match_type, "Match")
+
+        # Build enhanced justification
         if skill_name not in skill_justifications:
-            skill_justifications[skill_name] = match.explanation
+            justification = f"[{category}] {match.explanation}"
+            skill_justifications[skill_name] = justification
+        else:
+            # If skill has multiple matches, combine them
+            existing = skill_justifications[skill_name]
+            if category not in existing:
+                skill_justifications[skill_name] = f"{existing}; [{category}] {match.explanation}"
 
     return CoverageSummary(
         covered_requirements=list(set(covered_requirements)),

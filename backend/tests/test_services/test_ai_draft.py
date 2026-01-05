@@ -120,11 +120,14 @@ class TestAIDraftGenerator:
 
         mock_llm_client = Mock()
         mock_llm_client.is_configured.return_value = True
-        mock_llm_client.rewrite_text = AsyncMock(return_value="LLM-tailored text")
+        mock_llm_client.rewrite_text = AsyncMock(return_value='{"relevant":true,"type":"direct","why":"Match","match":"FastAPI"}')
 
         # Mock pipeline LLM calls
         with patch(
             "backend.services.ai.pipeline.content_adapter.get_llm_client",
+            return_value=mock_llm_client,
+        ), patch(
+            "backend.services.ai.pipeline.skill_relevance_evaluator.get_llm_client",
             return_value=mock_llm_client,
         ):
             result = await generate_cv_draft(profile, request)
@@ -172,6 +175,9 @@ class TestAIDraftGenerator:
         with patch(
             "backend.services.ai.pipeline.content_adapter.get_llm_client",
             return_value=mock_llm_client,
+        ), patch(
+            "backend.services.ai.pipeline.skill_relevance_evaluator.get_llm_client",
+            return_value=mock_llm_client,
         ):
             result = await generate_cv_draft(profile, request)
             # Should still return a valid result
@@ -214,11 +220,14 @@ class TestAIDraftGenerator:
 
         mock_llm_client = Mock()
         mock_llm_client.is_configured.return_value = True
-        mock_llm_client.rewrite_text = AsyncMock(return_value="Tailored text")
+        mock_llm_client.rewrite_text = AsyncMock(return_value='{"relevant":true,"type":"direct","why":"Match","match":"FastAPI"}')
 
         # Mock pipeline LLM calls
         with patch(
             "backend.services.ai.pipeline.content_adapter.get_llm_client",
+            return_value=mock_llm_client,
+        ), patch(
+            "backend.services.ai.pipeline.skill_relevance_evaluator.get_llm_client",
             return_value=mock_llm_client,
         ):
             await generate_cv_draft(profile, request)

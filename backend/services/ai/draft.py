@@ -12,7 +12,6 @@ from backend.services.ai.review import (
     build_summary,
 )
 from backend.services.ai.rewrite import rewrite_cv_bullets
-from backend.services.ai.llm_tailor import llm_tailor_cv
 from backend.services.ai.selection import (
     select_education,
     select_experiences,
@@ -20,7 +19,7 @@ from backend.services.ai.selection import (
 )
 from backend.services.ai.target_spec import build_target_spec
 from backend.services.ai.pipeline.jd_analyzer import analyze_jd
-from backend.services.ai.pipeline.skill_mapper import map_skills
+from backend.services.ai.pipeline.skill_relevance_evaluator import evaluate_all_skills
 from backend.services.ai.pipeline.content_selector import select_content
 from backend.services.ai.pipeline.content_adapter import adapt_content
 from backend.services.ai.pipeline.cv_assembler import assemble_cv
@@ -52,8 +51,8 @@ async def _generate_with_pipeline(
     # Step 1: Analyze JD
     jd_analysis = await analyze_jd(request.job_description)
 
-    # Step 2: Map skills
-    skill_mapping = await map_skills(profile.skills, jd_analysis)
+    # Step 2: Evaluate each skill individually for relevance
+    skill_mapping = await evaluate_all_skills(profile.skills, jd_analysis)
 
     # Step 3: Select content
     max_experiences = request.max_experiences or 4
