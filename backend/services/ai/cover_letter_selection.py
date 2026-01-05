@@ -135,9 +135,12 @@ async def select_relevant_content(  # noqa: C901
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message},
             ],
-            "temperature": 0.3,  # Lower temperature for more consistent selection
-            "max_tokens": 1000,
+            "max_completion_tokens": 1000,
         }
+
+        # Only include temperature for models that support it
+        if not llm_client._is_reasoning_model():
+            payload["temperature"] = 0.3  # Lower temperature for consistent selection
 
         headers = {
             "Authorization": f"Bearer {llm_client.api_key}",

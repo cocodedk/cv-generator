@@ -8,7 +8,78 @@ from backend.services.ai.pipeline.skill_relevance_evaluator import (
     evaluate_all_skills,
     evaluate_skill_relevance,
     parse_relevance_response,
+    _skill_in_raw_jd,
 )
+
+
+class TestSkillInRawJD:
+    """Tests for raw JD text matching."""
+
+    def test_finds_exact_match(self):
+        """Test that exact skill name is found in JD."""
+        jd = "Strong programming skills in Python and SQL."
+        assert _skill_in_raw_jd("Python", jd) is True
+        assert _skill_in_raw_jd("SQL", jd) is True
+
+    def test_case_insensitive(self):
+        """Test that matching is case-insensitive."""
+        jd = "Experience with PYTHON and sql."
+        assert _skill_in_raw_jd("Python", jd) is True
+        assert _skill_in_raw_jd("python", jd) is True
+        assert _skill_in_raw_jd("SQL", jd) is True
+
+    def test_word_boundary_prevents_false_positives(self):
+        """Test that Java doesn't match JavaScript."""
+        jd = "Must have JavaScript experience."
+        assert _skill_in_raw_jd("Java", jd) is False
+        assert _skill_in_raw_jd("JavaScript", jd) is True
+
+    def test_does_not_match_absent_skill(self):
+        """Test that skills not in JD return False."""
+        jd = "Experience with Python and Django."
+        assert _skill_in_raw_jd("React", jd) is False
+        assert _skill_in_raw_jd("Vue", jd) is False
+
+    def test_matches_in_parentheses(self):
+        """Test that skills in parentheses are found."""
+        jd = "Experience with containerization (e.g., Docker, Kubernetes)."
+        assert _skill_in_raw_jd("Docker", jd) is True
+        assert _skill_in_raw_jd("Kubernetes", jd) is True
+
+
+class TestRawJDMatching:
+    """Tests for raw JD matching in evaluate_all_skills."""
+
+    @pytest.mark.asyncio
+    async def test_raw_jd_matching_finds_literal_skills(self):
+        """Test that skills appearing literally in JD are matched."""
+        profile_skills = [
+            Skill(name="Python", category="Languages"),
+            Skill(name="Docker", category="DevOps"),
+            Skill(name="React", category="Frontend"),  # Not in JD
+        ]
+        jd_analysis = JDAnalysis(
+            required_skills=set(),  # Empty - rely on raw JD matching
+            preferred_skills=set(),
+            responsibilities=[],
+            domain_keywords=set(),
+            seniority_signals=[],
+        )
+        raw_jd = "We need Python and Docker experience."
+
+        mock_llm_client = Mock()
+        mock_llm_client.is_configured.return_value = False
+
+        with patch(
+            "backend.services.ai.pipeline.skill_relevance_evaluator.get_llm_client",
+            return_value=mock_llm_client,
+        ):
+            result = await evaluate_all_skills(profile_skills, jd_analysis, raw_jd=raw_jd)
+
+            selected_names = [s.name for s in result.selected_skills]
+            assert "Python" in selected_names
+            assert "Docker" in selected_names
+            assert "React" not in selected_names
 
 
 class TestSkillRelevanceEvaluator:
@@ -105,7 +176,7 @@ class TestSkillRelevanceEvaluator:
 
     @pytest.mark.asyncio
     async def test_evaluate_all_skills_fallback_when_llm_not_configured(self):
-        """Test that evaluator falls back to heuristic mapper when LLM not configured."""
+        """Test that evaluator works when LLM not configured if all skills match in layers 1-2."""
         profile_skills = [
             Skill(name="Python", category="Languages", level="Expert"),
         ]
@@ -124,12 +195,10 @@ class TestSkillRelevanceEvaluator:
             "backend.services.ai.pipeline.skill_relevance_evaluator.get_llm_client",
             return_value=mock_llm_client,
         ):
-            result = await evaluate_all_skills(profile_skills, jd_analysis)
-
-            # Should use fallback mapper
-            assert isinstance(result.matched_skills, list)
-            assert isinstance(result.selected_skills, list)
-            assert isinstance(result.coverage_gaps, list)
+            result = await evaluate_all_skills(profile_skills, jd_analysis, raw_jd="Python required")
+            # Python matches via tech_terms_match in layer 2, so no LLM needed
+            assert "Python" in [s.name for s in result.selected_skills]
+            # Should not raise error because all skills matched without LLM
 
     @pytest.mark.asyncio
     async def test_evaluate_all_skills_filters_relevant_only(self):
@@ -150,7 +219,8 @@ class TestSkillRelevanceEvaluator:
         mock_llm_client.is_configured.return_value = True
 
         async def mock_rewrite(text, prompt):
-            if "Python" in prompt:
+            # Check for the specific skill being evaluated (in quotes after "Is the skill")
+            if 'skill "Python"' in prompt:
                 return '{"relevant":true,"type":"direct","why":"Match","match":"python"}'
             else:
                 return '{"relevant":false,"type":"related","why":"Not relevant","match":""}'
@@ -163,6 +233,8 @@ class TestSkillRelevanceEvaluator:
         ):
             result = await evaluate_all_skills(profile_skills, jd_analysis)
 
-            # Should only include Python
-            assert len(result.selected_skills) == 1
-            assert result.selected_skills[0].name == "Python"
+            # Should only include Python (COBOL may be added by heuristic fallback
+            # but won't match python via tech_terms_match)
+            assert "Python" in [s.name for s in result.selected_skills]
+            # COBOL should not be in selected skills (no match to "python")
+            assert "COBOL" not in [s.name for s in result.selected_skills]

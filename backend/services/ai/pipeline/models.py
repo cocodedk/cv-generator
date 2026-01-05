@@ -50,6 +50,7 @@ class AdaptedContent:
 
     experiences: List[Experience]
     adaptation_notes: Dict[str, str]  # Maps content_id -> what was changed
+    warnings: List[str] = None  # Issues encountered during adaptation (e.g. char limit overruns)
 
 
 @dataclass(frozen=True)

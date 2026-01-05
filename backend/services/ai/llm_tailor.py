@@ -39,12 +39,10 @@ async def llm_tailor_cv(
     """
     llm_client = get_llm_client()
 
-    # If LLM is not configured, return draft unchanged with a warning logged
     if not llm_client.is_configured():
-        logger.warning(
-            "LLM not configured, skipping tailoring. Set AI_ENABLED=true and configure API."
+        raise ValueError(
+            "LLM is not configured. Set AI_ENABLED=true and configure API credentials."
         )
-        return draft
 
     tailored_experiences: List[Experience] = []
 
@@ -194,28 +192,23 @@ RULES:
 
 Return ONLY the reworded text, no explanations."""
 
-    try:
-        tailored = await llm_client.rewrite_text(original_text, user_prompt)
-        # Validate that we got something back
-        if not tailored or not tailored.strip():
-            logger.warning(f"LLM returned empty result for {context}, using original")
-            return original_text
+    tailored = await llm_client.rewrite_text(original_text, user_prompt)
 
-        tailored = tailored.strip()
+    # Validate that we got something back
+    if not tailored or not tailored.strip():
+        raise ValueError(f"LLM returned empty result for {context}")
 
-        # Validate length constraint - if exceeded, fall back to original
-        if max_chars:
-            plain_length = len(_strip_html(tailored))
-            if plain_length > max_chars + 20:  # Small buffer for minor overruns
-                logger.warning(
-                    f"LLM result for {context} exceeds limit ({plain_length} > {max_chars}), using original"
-                )
-                return original_text
+    tailored = tailored.strip()
 
-        return tailored
-    except Exception as e:
-        logger.error(f"Failed to tailor {context}: {e}", exc_info=True)
-        return original_text  # Fallback to original on error
+    # Validate length constraint
+    if max_chars:
+        plain_length = len(_strip_html(tailored))
+        if plain_length > max_chars + 20:  # Small buffer for minor overruns
+            raise ValueError(
+                f"LLM result for {context} exceeds limit ({plain_length} > {max_chars})"
+            )
+
+    return tailored
 
 
 def _reorder_skills_for_jd(skills: List[Skill], job_description: str) -> List[Skill]:

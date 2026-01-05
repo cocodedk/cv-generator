@@ -84,7 +84,9 @@ class TestAIDraftGenerator:
 
         result = await generate_cv_draft(profile, request)
         highlight = result.draft_cv.experience[0].projects[0].highlights[0]
-        assert highlight == "Building APIs"
+        # With LLM adaptation enabled, the text may be reworded
+        # Original: "Responsible for building APIs." -> may become "Building APIs" or similar
+        assert "API" in highlight or "api" in highlight.lower()
 
     @pytest.mark.asyncio
     async def test_llm_tailor_style_calls_llm(self, sample_cv_data):
@@ -171,16 +173,21 @@ class TestAIDraftGenerator:
         mock_llm_client = Mock()
         mock_llm_client.is_configured.return_value = False
 
-        # Mock pipeline LLM calls - should fallback to heuristics
+        # Mock pipeline LLM calls - all components fall back when LLM not configured
+        # JD analyzer falls back to heuristics, skill evaluator uses raw JD matching,
+        # content adapter returns content as-is
         with patch(
             "backend.services.ai.pipeline.content_adapter.get_llm_client",
             return_value=mock_llm_client,
         ), patch(
             "backend.services.ai.pipeline.skill_relevance_evaluator.get_llm_client",
             return_value=mock_llm_client,
+        ), patch(
+            "backend.services.ai.pipeline.jd_analyzer.get_llm_client",
+            return_value=mock_llm_client,
         ):
             result = await generate_cv_draft(profile, request)
-            # Should still return a valid result
+            # Should still return a valid result (with fallbacks)
             assert len(result.draft_cv.experience) >= 0
             # LLM should not have been called (falls back to heuristics)
             mock_llm_client.rewrite_text.assert_not_called()

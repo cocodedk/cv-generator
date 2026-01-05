@@ -27,13 +27,12 @@ async def map_skills(
     """
     llm_client = get_llm_client()
 
-    if llm_client.is_configured():
-        try:
-            return await _map_with_llm(llm_client, profile_skills, jd_analysis)
-        except Exception as e:
-            logger.warning(f"LLM skill mapping failed, falling back to heuristics: {e}")
+    if not llm_client.is_configured():
+        raise ValueError(
+            "LLM is not configured. Set AI_ENABLED=true and configure API credentials."
+        )
 
-    return _map_with_heuristics(profile_skills, jd_analysis)
+    return await _map_with_llm(llm_client, profile_skills, jd_analysis)
 
 
 async def _map_with_llm(
