@@ -1,8 +1,7 @@
 """Tests for Content Selector (Step 3)."""
 
-import pytest
 from backend.models import Experience, Project
-from backend.services.ai.pipeline.models import JDAnalysis, SkillMapping, SkillMatch
+from backend.services.ai.pipeline.models import JDAnalysis, SkillMapping
 from backend.services.ai.pipeline.content_selector import select_content
 
 

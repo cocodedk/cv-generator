@@ -1,7 +1,6 @@
 """Tests for CV Assembler (Step 5)."""
 
-import pytest
-from backend.models import PersonalInfo, Education, Skill
+from backend.models import PersonalInfo, Skill
 from backend.services.ai.pipeline.models import (
     JDAnalysis,
     SkillMapping,
