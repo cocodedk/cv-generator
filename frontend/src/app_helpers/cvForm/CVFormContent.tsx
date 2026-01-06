@@ -114,6 +114,35 @@ export default function CVFormContent({
             </select>
           </div>
         </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid gap-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="target_role">
+              Job Title
+            </label>
+            <input
+              id="target_role"
+              {...register('target_role')}
+              type="text"
+              placeholder="e.g. Senior Software Engineer"
+              className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
+            />
+          </div>
+          <div className="grid gap-2">
+            <label
+              className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              htmlFor="target_company"
+            >
+              Target Company
+            </label>
+            <input
+              id="target_company"
+              {...register('target_company')}
+              type="text"
+              placeholder="e.g. Google"
+              className="w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
+            />
+          </div>
+        </div>
         <PersonalInfo
           register={register}
           errors={errors}

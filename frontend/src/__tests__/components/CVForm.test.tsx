@@ -242,4 +242,73 @@ describe('CVForm', () => {
       expect(mockOnSuccess).toHaveBeenCalled()
     })
   })
+
+  it('renders target company and job title fields', () => {
+    renderCVForm({
+      onSuccess: mockOnSuccess,
+      onError: mockOnError,
+      setLoading: mockSetLoading,
+    })
+
+    expect(screen.getByPlaceholderText('e.g. Senior Software Engineer')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('e.g. Google')).toBeInTheDocument()
+  })
+
+  it('allows target company and job title input', async () => {
+    const user = userEvent.setup()
+
+    renderCVForm({
+      onSuccess: mockOnSuccess,
+      onError: mockOnError,
+      setLoading: mockSetLoading,
+    })
+
+    const jobTitleInput = screen.getByLabelText(/job title/i)
+    const companyInput = screen.getByLabelText(/target company/i)
+
+    await act(async () => {
+      await user.type(jobTitleInput, 'Senior Software Engineer')
+      await user.type(companyInput, 'Google')
+    })
+
+    expect(jobTitleInput).toHaveValue('Senior Software Engineer')
+    expect(companyInput).toHaveValue('Google')
+  })
+
+  it('includes target fields in form submission', async () => {
+    mockedAxios.post.mockResolvedValue({ data: mockCvResponse })
+
+    renderCVForm({
+      onSuccess: mockOnSuccess,
+      onError: mockOnError,
+      setLoading: mockSetLoading,
+    })
+
+    await fillNameField('John Doe')
+
+    // Fill in target fields using placeholder text to ensure we get the right inputs
+    const user = userEvent.setup()
+    const jobTitleInput = screen.getByPlaceholderText('e.g. Senior Software Engineer')
+    const companyInput = screen.getByPlaceholderText('e.g. Google')
+
+    await act(async () => {
+      await user.type(jobTitleInput, 'Senior Developer')
+      await user.type(companyInput, 'Tech Corp')
+    })
+
+    await submitForm()
+
+    await waitFor(() => {
+      expect(mockedAxios.post).toHaveBeenCalledWith(
+        '/api/save-cv',
+        expect.objectContaining({
+          personal_info: expect.objectContaining({
+            name: 'John Doe',
+          }),
+          target_role: 'Senior Developer',
+          target_company: 'Tech Corp',
+        })
+      )
+    })
+  })
 })

@@ -23,4 +23,6 @@ export const defaultCvData: CVData = {
   skills: [],
   theme: 'classic',
   layout: 'classic-two-column',
+  target_company: '',
+  target_role: '',
 }
