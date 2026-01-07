@@ -155,7 +155,10 @@ describe('AiGenerateFields', () => {
     )
 
     const additionalContextField = screen.getByLabelText(/additional context/i)
-    expect(additionalContextField).toHaveAttribute('placeholder', expect.stringContaining('top 2%'))
+    expect(additionalContextField).toHaveAttribute(
+      'placeholder',
+      expect.stringContaining('enterprise-focused')
+    )
   })
 
   it('displays help text for additional_context field', () => {
@@ -168,6 +171,6 @@ describe('AiGenerateFields', () => {
       />
     )
 
-    expect(screen.getByText(/achievements or context to weave/i)).toBeInTheDocument()
+    expect(screen.getByText(/directive to guide cv tailoring/i)).toBeInTheDocument()
   })
 })

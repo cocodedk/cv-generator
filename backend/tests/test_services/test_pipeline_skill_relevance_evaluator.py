@@ -71,7 +71,7 @@ class TestRawJDMatching:
         mock_llm_client.is_configured.return_value = False
 
         with patch(
-            "backend.services.ai.pipeline.skill_relevance_evaluator.get_llm_client",
+            "backend.services.ai.pipeline.skill_relevance_evaluator.evaluation.get_llm_client",
             return_value=mock_llm_client,
         ):
             result = await evaluate_all_skills(profile_skills, jd_analysis, raw_jd=raw_jd)
@@ -90,7 +90,7 @@ class TestSkillRelevanceEvaluator:
         jd_requirements = ["Python", "Django"]
 
         mock_llm_client = Mock()
-        mock_llm_client.rewrite_text = AsyncMock(
+        mock_llm_client.generate_text = AsyncMock(
             return_value='{"relevant":true,"type":"direct","why":"Exact match","match":"Python"}'
         )
 
@@ -107,7 +107,7 @@ class TestSkillRelevanceEvaluator:
         jd_requirements = ["Django", "Flask"]
 
         mock_llm_client = Mock()
-        mock_llm_client.rewrite_text = AsyncMock(
+        mock_llm_client.generate_text = AsyncMock(
             return_value='{"relevant":true,"type":"foundation","why":"Django uses Python","match":"Django"}'
         )
 
@@ -124,7 +124,7 @@ class TestSkillRelevanceEvaluator:
         jd_requirements = ["Django"]
 
         mock_llm_client = Mock()
-        mock_llm_client.rewrite_text = AsyncMock(
+        mock_llm_client.generate_text = AsyncMock(
             return_value='{"relevant":true,"type":"alternative","why":"Both Python web frameworks","match":"Django"}'
         )
 
@@ -140,7 +140,7 @@ class TestSkillRelevanceEvaluator:
         jd_requirements = ["Python", "Django"]
 
         mock_llm_client = Mock()
-        mock_llm_client.rewrite_text = AsyncMock(
+        mock_llm_client.generate_text = AsyncMock(
             return_value='{"relevant":false,"type":"related","why":"Not related","match":""}'
         )
 
@@ -192,7 +192,7 @@ class TestSkillRelevanceEvaluator:
         mock_llm_client.is_configured.return_value = False
 
         with patch(
-            "backend.services.ai.pipeline.skill_relevance_evaluator.get_llm_client",
+            "backend.services.ai.pipeline.skill_relevance_evaluator.evaluation.get_llm_client",
             return_value=mock_llm_client,
         ):
             result = await evaluate_all_skills(profile_skills, jd_analysis, raw_jd="Python required")
@@ -225,10 +225,10 @@ class TestSkillRelevanceEvaluator:
             else:
                 return '{"relevant":false,"type":"related","why":"Not relevant","match":""}'
 
-        mock_llm_client.rewrite_text = AsyncMock(side_effect=mock_rewrite)
+        mock_llm_client.generate_text = AsyncMock(side_effect=mock_rewrite)
 
         with patch(
-            "backend.services.ai.pipeline.skill_relevance_evaluator.get_llm_client",
+            "backend.services.ai.pipeline.skill_relevance_evaluator.evaluation.get_llm_client",
             return_value=mock_llm_client,
         ):
             result = await evaluate_all_skills(profile_skills, jd_analysis)

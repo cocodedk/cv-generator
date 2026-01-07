@@ -12,6 +12,7 @@ class CoverLetterRequest(BaseModel):
     hiring_manager_name: Optional[str] = Field(default=None, max_length=200)
     company_address: Optional[str] = Field(default=None, max_length=500)
     tone: Literal["professional", "enthusiastic", "conversational"] = "professional"
+    llm_instructions: Optional[str] = Field(default=None, max_length=1000)
 
 
 class CoverLetterResponse(BaseModel):
@@ -31,3 +32,46 @@ class CoverLetterResponse(BaseModel):
     selected_skills: List[str] = Field(
         default_factory=list, description="Skills selected as most relevant to the job"
     )
+
+
+class CoverLetterData(BaseModel):
+    """Complete cover letter data model."""
+
+    cover_letter_id: str
+    created_at: str
+    updated_at: str
+    job_description: str
+    company_name: str
+    hiring_manager_name: Optional[str] = None
+    company_address: Optional[str] = None
+    tone: str
+    cover_letter_html: str
+    cover_letter_text: str
+    highlights_used: List[str] = Field(default_factory=list)
+    selected_experiences: List[str] = Field(default_factory=list)
+    selected_skills: List[str] = Field(default_factory=list)
+
+
+class CoverLetterListItem(BaseModel):
+    """Cover letter list item."""
+
+    cover_letter_id: str
+    created_at: str
+    updated_at: str
+    company_name: str
+    hiring_manager_name: Optional[str] = None
+    tone: str
+
+
+class CoverLetterListResponse(BaseModel):
+    """Cover letter list response."""
+
+    cover_letters: List[CoverLetterListItem]
+    total: int
+
+
+class CoverLetterSaveRequest(BaseModel):
+    """Request to save a cover letter."""
+
+    cover_letter_response: CoverLetterResponse
+    request_data: CoverLetterRequest

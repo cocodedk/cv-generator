@@ -11,6 +11,7 @@ const mockedAxios = axios as any
 describe('CoverLetterModal', () => {
   const mockOnClose = vi.fn()
   const mockOnError = vi.fn()
+  const mockOnSuccess = vi.fn()
   const mockSetLoading = vi.fn()
 
   beforeEach(() => {
@@ -19,19 +20,30 @@ describe('CoverLetterModal', () => {
 
   it('renders the modal with form fields', () => {
     render(
-      <CoverLetterModal onClose={mockOnClose} onError={mockOnError} setLoading={mockSetLoading} />
+      <CoverLetterModal
+        onClose={mockOnClose}
+        onError={mockOnError}
+        onSuccess={mockOnSuccess}
+        setLoading={mockSetLoading}
+      />
     )
 
     expect(screen.getByText('Generate Cover Letter')).toBeInTheDocument()
     expect(screen.getByLabelText(/company name/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/job description/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/tone/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/llm instructions/i)).toBeInTheDocument()
   })
 
   it('allows user to fill in form fields', async () => {
     const user = userEvent.setup()
     render(
-      <CoverLetterModal onClose={mockOnClose} onError={mockOnError} setLoading={mockSetLoading} />
+      <CoverLetterModal
+        onClose={mockOnClose}
+        onError={mockOnError}
+        onSuccess={mockOnSuccess}
+        setLoading={mockSetLoading}
+      />
     )
 
     const companyInput = screen.getByLabelText(/company name/i)
@@ -49,7 +61,12 @@ describe('CoverLetterModal', () => {
   it('disables generate button when form is invalid', async () => {
     const user = userEvent.setup()
     render(
-      <CoverLetterModal onClose={mockOnClose} onError={mockOnError} setLoading={mockSetLoading} />
+      <CoverLetterModal
+        onClose={mockOnClose}
+        onError={mockOnError}
+        onSuccess={mockOnSuccess}
+        setLoading={mockSetLoading}
+      />
     )
 
     const generateButton = screen.getByRole('button', { name: /^generate$/i })
@@ -67,7 +84,12 @@ describe('CoverLetterModal', () => {
   it('enables generate button when form is valid', async () => {
     const user = userEvent.setup()
     render(
-      <CoverLetterModal onClose={mockOnClose} onError={mockOnError} setLoading={mockSetLoading} />
+      <CoverLetterModal
+        onClose={mockOnClose}
+        onError={mockOnError}
+        onSuccess={mockOnSuccess}
+        setLoading={mockSetLoading}
+      />
     )
 
     const companyInput = screen.getByLabelText(/company name/i)
@@ -93,7 +115,12 @@ describe('CoverLetterModal', () => {
     })
 
     render(
-      <CoverLetterModal onClose={mockOnClose} onError={mockOnError} setLoading={mockSetLoading} />
+      <CoverLetterModal
+        onClose={mockOnClose}
+        onError={mockOnError}
+        onSuccess={mockOnSuccess}
+        setLoading={mockSetLoading}
+      />
     )
 
     const companyInput = screen.getByLabelText(/company name/i)
@@ -134,7 +161,12 @@ describe('CoverLetterModal', () => {
     })
 
     render(
-      <CoverLetterModal onClose={mockOnClose} onError={mockOnError} setLoading={mockSetLoading} />
+      <CoverLetterModal
+        onClose={mockOnClose}
+        onError={mockOnError}
+        onSuccess={mockOnSuccess}
+        setLoading={mockSetLoading}
+      />
     )
 
     const companyInput = screen.getByLabelText(/company name/i)
@@ -160,7 +192,12 @@ describe('CoverLetterModal', () => {
   it('closes modal when cancel button is clicked', async () => {
     const user = userEvent.setup()
     render(
-      <CoverLetterModal onClose={mockOnClose} onError={mockOnError} setLoading={mockSetLoading} />
+      <CoverLetterModal
+        onClose={mockOnClose}
+        onError={mockOnError}
+        onSuccess={mockOnSuccess}
+        setLoading={mockSetLoading}
+      />
     )
 
     const cancelButton = screen.getByRole('button', { name: /cancel/i })
@@ -176,6 +213,7 @@ describe('CoverLetterModal', () => {
       <CoverLetterModal
         onClose={mockOnClose}
         onError={mockOnError}
+        onSuccess={mockOnSuccess}
         setLoading={mockSetLoading}
         initialJobDescription="Pre-filled job description"
       />
@@ -198,7 +236,12 @@ describe('CoverLetterModal', () => {
     })
 
     render(
-      <CoverLetterModal onClose={mockOnClose} onError={mockOnError} setLoading={mockSetLoading} />
+      <CoverLetterModal
+        onClose={mockOnClose}
+        onError={mockOnError}
+        onSuccess={mockOnSuccess}
+        setLoading={mockSetLoading}
+      />
     )
 
     const companyInput = screen.getByLabelText(/company name/i)
@@ -236,7 +279,12 @@ describe('CoverLetterModal', () => {
     })
 
     render(
-      <CoverLetterModal onClose={mockOnClose} onError={mockOnError} setLoading={mockSetLoading} />
+      <CoverLetterModal
+        onClose={mockOnClose}
+        onError={mockOnError}
+        onSuccess={mockOnSuccess}
+        setLoading={mockSetLoading}
+      />
     )
 
     const companyInput = screen.getByLabelText(/company name/i)
@@ -267,6 +315,123 @@ describe('CoverLetterModal', () => {
     await waitFor(() => {
       // Should have been called twice (generate + regenerate)
       expect(mockedAxios.post).toHaveBeenCalledTimes(2)
+    })
+  })
+
+  it('saves cover letter successfully', async () => {
+    const user = userEvent.setup()
+    mockedAxios.post
+      .mockResolvedValueOnce({
+        data: {
+          cover_letter_html: '<div>Cover letter HTML</div>',
+          cover_letter_text: 'Cover letter text',
+          highlights_used: [],
+          selected_experiences: [],
+          selected_skills: [],
+        },
+      })
+      .mockResolvedValueOnce({
+        data: { success: true },
+      })
+
+    render(
+      <CoverLetterModal
+        onClose={mockOnClose}
+        onError={mockOnError}
+        onSuccess={mockOnSuccess}
+        setLoading={mockSetLoading}
+      />
+    )
+
+    const companyInput = screen.getByLabelText(/company name/i)
+    const jdTextarea = screen.getByLabelText(/job description/i)
+
+    await act(async () => {
+      await user.type(companyInput, 'Tech Corp')
+      await user.type(jdTextarea, 'We are looking for a Senior Developer with Python experience.')
+    })
+
+    const generateButton = screen.getByRole('button', { name: /^generate$/i })
+    await act(async () => {
+      await user.click(generateButton)
+    })
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument()
+    })
+
+    const saveButton = screen.getByRole('button', { name: /save/i })
+    await act(async () => {
+      await user.click(saveButton)
+    })
+
+    await waitFor(() => {
+      expect(mockOnSuccess).toHaveBeenCalledWith('Cover letter saved successfully!')
+      expect(mockedAxios.post).toHaveBeenCalledWith(
+        '/api/cover-letters',
+        expect.objectContaining({
+          cover_letter_response: expect.objectContaining({
+            cover_letter_html: '<div>Cover letter HTML</div>',
+          }),
+          request_data: expect.objectContaining({
+            company_name: 'Tech Corp',
+          }),
+        })
+      )
+    })
+  })
+
+  it('handles save error', async () => {
+    const user = userEvent.setup()
+    mockedAxios.post
+      .mockResolvedValueOnce({
+        data: {
+          cover_letter_html: '<div>Cover letter HTML</div>',
+          cover_letter_text: 'Cover letter text',
+          highlights_used: [],
+          selected_experiences: [],
+          selected_skills: [],
+        },
+      })
+      .mockRejectedValueOnce({
+        response: {
+          data: { detail: 'Failed to save' },
+        },
+      })
+
+    render(
+      <CoverLetterModal
+        onClose={mockOnClose}
+        onError={mockOnError}
+        onSuccess={mockOnSuccess}
+        setLoading={mockSetLoading}
+      />
+    )
+
+    const companyInput = screen.getByLabelText(/company name/i)
+    const jdTextarea = screen.getByLabelText(/job description/i)
+
+    await act(async () => {
+      await user.type(companyInput, 'Tech Corp')
+      await user.type(jdTextarea, 'We are looking for a Senior Developer with Python experience.')
+    })
+
+    const generateButton = screen.getByRole('button', { name: /^generate$/i })
+    await act(async () => {
+      await user.click(generateButton)
+    })
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /save/i })).toBeInTheDocument()
+    })
+
+    const saveButton = screen.getByRole('button', { name: /save/i })
+    await act(async () => {
+      await user.click(saveButton)
+    })
+
+    await waitFor(() => {
+      expect(mockOnError).toHaveBeenCalledWith('Failed to save')
     })
   })
 })

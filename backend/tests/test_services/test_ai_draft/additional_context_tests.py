@@ -182,23 +182,35 @@ class TestAdditionalContext:
 
         mock_llm_client = Mock()
         mock_llm_client.is_configured.return_value = True
-        mock_llm_client.rewrite_text = AsyncMock(
-            return_value='{"required_skills":["FastAPI"],"preferred_skills":[],"responsibilities":["Build APIs"],"domain_keywords":[],"seniority_signals":[]}'
+        mock_llm_client.generate_text = AsyncMock(
+            side_effect=[
+                '{"type":"directive","placement":"adaptation_guidance","suggested_text":"Make this more enterprise-focused","reasoning":"This is a directive for how to adapt content"}',  # Context analysis
+                '{"required_skills":["FastAPI"],"preferred_skills":[],"responsibilities":["Build APIs"],"domain_keywords":[],"seniority_signals":[]}',  # JD analysis
+            ]
         )
 
-        # Mock JD analyzer LLM call
+        # Mock context analyzer and JD analyzer LLM calls
         with patch(
+            "backend.services.ai.pipeline.context_analyzer.get_llm_client",
+            return_value=mock_llm_client,
+        ), patch(
             "backend.services.ai.pipeline.jd_analyzer.get_llm_client",
             return_value=mock_llm_client,
         ):
             await generate_cv_draft(profile, request)
-            # Verify LLM was called for JD analysis
-            assert mock_llm_client.rewrite_text.called
-            call_args = mock_llm_client.rewrite_text.call_args_list
+            # Verify LLM was called for JD analysis (second call in side_effect)
+            assert mock_llm_client.generate_text.call_count >= 2
+            call_args_list = mock_llm_client.generate_text.call_args_list
 
-            # For select_and_reorder style, directive should NOT appear in JD analysis prompt
-            # (additional_context should only be passed to content adaptation, not as directive)
-            if call_args:
-                jd_prompt = call_args[0][0][1] if len(call_args[0][0]) > 1 else ""
-                # Directive should not appear in JD analysis for non-llm_tailor styles
-                assert "DIRECTIVE" not in jd_prompt or "enterprise-focused" not in jd_prompt
+            # Find the JD analysis call (contains "Analyze this job description")
+            jd_call_args = None
+            for call_args in call_args_list:
+                prompt = call_args[0][0]  # generate_text(prompt, system_prompt)
+                if "Analyze this job description" in prompt:
+                    jd_call_args = call_args
+                    break
+
+            assert jd_call_args is not None, "JD analysis call not found"
+            jd_prompt = jd_call_args[0][0]
+            # Directive should appear in JD analysis when context analysis determines it's directive-type
+            assert "DIRECTIVE:" in jd_prompt and "Make this more enterprise-focused" in jd_prompt

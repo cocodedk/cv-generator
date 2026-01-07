@@ -18,7 +18,6 @@ from backend.services.ai.pipeline.content_selector import select_content
 from backend.services.ai.pipeline.content_adapter import adapt_content
 from backend.services.ai.pipeline.cv_assembler import assemble_cv
 from backend.services.ai.pipeline.context_analyzer import analyze_additional_context
-from backend.services.ai.pipeline.content_incorporator import incorporate_context
 from backend.services.ai.pipeline.models import ContextAnalysis, ContextIncorporation
 
 logger = logging.getLogger(__name__)
@@ -59,8 +58,8 @@ async def generate_cv_draft(
     # Determine if we should use additional_context as directive
     # Use as directive if: (1) llm_tailor style, OR (2) analysis says it's a directive
     use_directive = (
-        (request.style == "llm_tailor" and request.additional_context) or
-        (context_analysis and context_analysis.type == "directive")
+        (request.style == "llm_tailor" and request.additional_context)
+        or (context_analysis and context_analysis.type == "directive")
     )
 
     # Step 1: Analyze JD

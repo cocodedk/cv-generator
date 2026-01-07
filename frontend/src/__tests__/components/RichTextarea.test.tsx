@@ -157,7 +157,7 @@ describe('RichTextarea', () => {
     editor.focus()
     await act(async () => {
       // Simulate paste by typing text quickly (TipTap treats rapid input similarly)
-      await user.type(editor, 'Pasted content', { delay: 0 })
+      await user.type(editor, 'Pasted content', { delay: 1 })
     })
 
     // Wait for onChange to be called

@@ -106,3 +106,53 @@ class TestFormatProfileForSelection:
         assert "EXPERIENCES:" in formatted
         # Skills section may not appear if skills list is empty
         # This is acceptable behavior
+
+    def test_format_profile_no_projects(self):
+        """Test formatting profile with experiences but no projects."""
+        profile = ProfileData(
+            personal_info=PersonalInfo(name="Test", title="Developer"),
+            experience=[
+                Experience(
+                    title="Engineer",
+                    company="Company",
+                    start_date="2020-01",
+                    end_date="2022-01",
+                    projects=[],  # No projects
+                )
+            ],
+            education=[],
+            skills=[Skill(name="Python", category="Programming")],
+        )
+        formatted = _format_profile_for_selection(profile)
+        assert "EXPERIENCES:" in formatted
+        assert "[0]" in formatted
+        assert "Engineer at Company" in formatted
+        assert "SKILLS: Python" in formatted
+
+    def test_format_profile_project_without_technologies(self):
+        """Test formatting profile with project that has no technologies."""
+        profile = ProfileData(
+            personal_info=PersonalInfo(name="Test", title="Developer"),
+            experience=[
+                Experience(
+                    title="Engineer",
+                    company="Company",
+                    start_date="2020-01",
+                    end_date="2022-01",
+                    projects=[
+                        Project(
+                            name="Test Project",
+                            technologies=[],  # No technologies
+                            highlights=["Did something"],
+                        )
+                    ],
+                )
+            ],
+            education=[],
+            skills=[Skill(name="Python", category="Programming")],
+        )
+        formatted = _format_profile_for_selection(profile)
+        assert "Test Project" in formatted
+        assert "Did something" in formatted
+        # Should not have Technologies line when empty
+        assert "Technologies:" not in formatted

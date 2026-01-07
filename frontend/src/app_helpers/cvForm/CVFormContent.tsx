@@ -116,7 +116,10 @@ export default function CVFormContent({
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="grid gap-2">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300" htmlFor="target_role">
+            <label
+              className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              htmlFor="target_role"
+            >
               Job Title
             </label>
             <input

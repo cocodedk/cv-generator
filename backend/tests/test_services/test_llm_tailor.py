@@ -65,7 +65,7 @@ class TestLLMTailorCV:
             "We need a Python developer with FastAPI experience. Must have led teams."
         )
 
-        with patch("backend.services.ai.llm_tailor.get_llm_client") as mock_get_client:
+        with patch("backend.services.ai.llm_tailor.tailoring.get_llm_client") as mock_get_client:
             mock_client = Mock()
             mock_client.is_configured.return_value = True
             mock_client.rewrite_text = AsyncMock(
@@ -103,7 +103,7 @@ class TestLLMTailorCV:
         """Test that tailoring raises error when LLM is not configured (no silent fallback)."""
         job_description = "Python developer needed."
 
-        with patch("backend.services.ai.llm_tailor.get_llm_client") as mock_get_client:
+        with patch("backend.services.ai.llm_tailor.tailoring.get_llm_client") as mock_get_client:
             mock_client = Mock()
             mock_client.is_configured.return_value = False
             mock_get_client.return_value = mock_client
@@ -138,7 +138,7 @@ class TestLLMTailorCV:
             theme="classic",
         )
 
-        with patch("backend.services.ai.llm_tailor.get_llm_client") as mock_get_client:
+        with patch("backend.services.ai.llm_tailor.tailoring.get_llm_client") as mock_get_client:
             mock_client = Mock()
             mock_client.is_configured.return_value = True
             mock_client.rewrite_text = AsyncMock(return_value="Rewritten highlight")
@@ -158,7 +158,7 @@ class TestLLMTailorCV:
         """Test that LLM errors are raised (no silent fallback)."""
         job_description = "Python developer."
 
-        with patch("backend.services.ai.llm_tailor.get_llm_client") as mock_get_client:
+        with patch("backend.services.ai.llm_tailor.tailoring.get_llm_client") as mock_get_client:
             mock_client = Mock()
             mock_client.is_configured.return_value = True
             mock_client.rewrite_text = AsyncMock(side_effect=Exception("API Error"))
@@ -173,7 +173,7 @@ class TestLLMTailorCV:
         """Test that empty LLM responses raise ValueError (no silent fallback)."""
         job_description = "Python developer."
 
-        with patch("backend.services.ai.llm_tailor.get_llm_client") as mock_get_client:
+        with patch("backend.services.ai.llm_tailor.tailoring.get_llm_client") as mock_get_client:
             mock_client = Mock()
             mock_client.is_configured.return_value = True
             mock_client.rewrite_text = AsyncMock(
@@ -246,7 +246,7 @@ class TestReorderSkillsForJD:
         job_description = "We need a Python developer with FastAPI experience."
         additional_context = "Rated among top 2% of AI coders in 2025"
 
-        with patch("backend.services.ai.llm_tailor.get_llm_client") as mock_get_client:
+        with patch("backend.services.ai.llm_tailor.tailoring.get_llm_client") as mock_get_client:
             mock_client = Mock()
             mock_client.is_configured.return_value = True
             mock_client.rewrite_text = AsyncMock(return_value="Tailored text")
@@ -278,7 +278,7 @@ class TestReorderSkillsForJD:
         """Test that llm_tailor works correctly when additional_context is None."""
         job_description = "We need a Python developer."
 
-        with patch("backend.services.ai.llm_tailor.get_llm_client") as mock_get_client:
+        with patch("backend.services.ai.llm_tailor.tailoring.get_llm_client") as mock_get_client:
             mock_client = Mock()
             mock_client.is_configured.return_value = True
             mock_client.rewrite_text = AsyncMock(return_value="Tailored text")

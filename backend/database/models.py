@@ -1,5 +1,5 @@
 """Neo4j node and relationship models for CV data."""
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 from uuid import uuid4
 
@@ -89,3 +89,37 @@ class CVNode:
         self.cv_id = cv_id or str(uuid4())
         self.created_at = created_at or datetime.utcnow().isoformat()
         self.updated_at = updated_at or datetime.utcnow().isoformat()
+
+
+class CoverLetterNode:
+    """Cover letter node model."""
+
+    def __init__(
+        self,
+        cover_letter_id: Optional[str] = None,
+        created_at: Optional[str] = None,
+        updated_at: Optional[str] = None,
+        job_description: str = "",
+        company_name: str = "",
+        hiring_manager_name: Optional[str] = None,
+        company_address: Optional[str] = None,
+        tone: str = "professional",
+        cover_letter_html: str = "",
+        cover_letter_text: str = "",
+        highlights_used: Optional[List[str]] = None,
+        selected_experiences: Optional[List[str]] = None,
+        selected_skills: Optional[List[str]] = None,
+    ):
+        self.cover_letter_id = cover_letter_id or str(uuid4())
+        self.created_at = created_at or datetime.utcnow().isoformat()
+        self.updated_at = updated_at or datetime.utcnow().isoformat()
+        self.job_description = job_description
+        self.company_name = company_name
+        self.hiring_manager_name = hiring_manager_name
+        self.company_address = company_address
+        self.tone = tone
+        self.cover_letter_html = cover_letter_html
+        self.cover_letter_text = cover_letter_text
+        self.highlights_used = highlights_used or []
+        self.selected_experiences = selected_experiences or []
+        self.selected_skills = selected_skills or []

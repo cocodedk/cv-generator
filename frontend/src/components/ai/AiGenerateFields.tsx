@@ -122,7 +122,8 @@ export default function AiGenerateFields({
             disabled={isGenerating}
           />
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            Directive to guide CV tailoring (e.g., style focus, skill emphasis, industry orientation).
+            Directive to guide CV tailoring (e.g., style focus, skill emphasis, industry
+            orientation).
           </p>
         </div>
       )}

@@ -2,7 +2,7 @@
 
 import pytest
 
-from backend.models import ProfileData, PersonalInfo, Address, Experience, Project, Skill
+from backend.models import ProfileData, PersonalInfo, Address
 from backend.services.ai.cover_letter import _format_profile_summary
 
 
