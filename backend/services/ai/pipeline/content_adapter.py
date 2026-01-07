@@ -9,8 +9,13 @@ from backend.services.ai.llm_client import get_llm_client
 
 logger = logging.getLogger(__name__)
 
-_MAX_DESCRIPTION_CHARS = 280
-_MAX_HIGHLIGHT_CHARS = 200
+# Target limits for LLM (conservative to avoid expansion)
+_LLM_TARGET_DESCRIPTION_CHARS = 250
+_LLM_TARGET_HIGHLIGHT_CHARS = 200
+
+# Maximum allowed by model validation (from Experience model)
+_MAX_DESCRIPTION_CHARS = 300
+_MAX_HIGHLIGHT_CHARS = 250
 
 
 async def adapt_content(
@@ -200,7 +205,15 @@ async def _adapt_with_llm(
     warnings: List[str] = []
 
     jd_summary = _build_jd_summary(jd_analysis)
-    context_section = f"\nAdditional Context: {additional_context}" if additional_context else ""
+    # Treat additional_context as directive when provided
+    if additional_context and additional_context.strip():
+        context_section = f"""
+
+DIRECTIVE: {additional_context}
+
+Follow this directive when adapting content. The directive should guide how you reword and emphasize content to match the job description. For example, if the directive is "enterprise-focused", use enterprise-oriented terminology and emphasize enterprise-related aspects."""
+    else:
+        context_section = ""
 
     logger.info(f"Adapting content for {len(selection_result.experiences)} experiences")
 
@@ -246,11 +259,13 @@ async def _adapt_text(
     if not original_text or not original_text.strip():
         return original_text
 
+    # Use conservative target for LLM, but allow up to model validation limit
+    target_chars = _LLM_TARGET_DESCRIPTION_CHARS if "description" in context_type else _LLM_TARGET_HIGHLIGHT_CHARS
     max_chars = _MAX_DESCRIPTION_CHARS if "description" in context_type else _MAX_HIGHLIGHT_CHARS
-    length_instruction = f"\n- Keep the rewritten text under {max_chars} characters (CRITICAL)"
+    length_instruction = f"\n- Aim to keep the rewritten text under {target_chars} characters"
 
     prompt = f"""Job Description Context:
-{jd_summary[:2000]}{additional_context}
+{jd_summary}{additional_context}
 
 Original {context_type}:
 {original_text}
@@ -266,16 +281,16 @@ CRITICAL RULES:
 
 Return ONLY the reworded text, no explanations."""
 
-    logger.debug(f"LLM adapting {context_type}: original={len(original_text)} chars, limit={max_chars}")
+    logger.debug(f"LLM adapting {context_type}: original={len(original_text)} chars, target={target_chars}, max={max_chars}")
     adapted = await llm_client.rewrite_text(original_text, prompt)
     adapted = adapted.strip()
     logger.debug(f"LLM response for {context_type}: {len(adapted)} chars - '{adapted[:100]}...'")
 
-    # Validate length
-    if len(adapted) > max_chars + 20:
+    # Validate length - allow up to model validation limit even if over target
+    if len(adapted) > max_chars:
         logger.error(
-            f"LLM output for {context_type} exceeds limit: {len(adapted)} > {max_chars} "
-            f"(original: {len(original_text)} chars)"
+            f"LLM output for {context_type} exceeds model validation limit: {len(adapted)} > {max_chars} "
+            f"(target: {target_chars}, original: {len(original_text)} chars)"
         )
         raise ValueError(
             f"LLM output for {context_type} exceeds character limit "

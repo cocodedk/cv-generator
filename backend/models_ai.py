@@ -38,7 +38,7 @@ class AIGenerateCVRequest(BaseModel):
     additional_context: Optional[str] = Field(
         default=None,
         max_length=2000,
-        description="Additional achievements or context to incorporate",
+        description="Directive for CV tailoring (e.g., 'make more enterprise-focused', 'emphasize Python skills'). Only used as directive with llm_tailor style; used as context for other styles.",
     )
 
 

@@ -179,4 +179,23 @@ describe('CVForm - Edit Mode', () => {
 
     expect(mockedAxios.put).not.toHaveBeenCalled()
   })
+
+  it('loads target company and job title in edit mode', async () => {
+    mockedAxios.get.mockResolvedValue({ data: mockCvData })
+
+    renderCVForm({
+      onSuccess: mockOnSuccess,
+      onError: mockOnError,
+      setLoading: mockSetLoading,
+      cvId: 'test-cv-id',
+    })
+
+    await waitForEditModeToLoad()
+
+    const jobTitleInput = screen.getByPlaceholderText('e.g. Senior Software Engineer') as HTMLInputElement
+    const companyInput = screen.getByPlaceholderText('e.g. Google') as HTMLInputElement
+
+    expect(jobTitleInput.value).toBe('Senior Developer')
+    expect(companyInput.value).toBe('Google')
+  })
 })

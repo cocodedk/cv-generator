@@ -30,6 +30,8 @@ export const mockCvData = {
   education: [{ degree: 'BS CS', institution: 'University', year: '2018' }],
   skills: [{ name: 'Python' }],
   theme: 'modern',
+  target_role: 'Senior Developer',
+  target_company: 'Google',
 }
 
 export const mockCvDataMinimal = {

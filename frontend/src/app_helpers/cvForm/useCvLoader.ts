@@ -41,6 +41,8 @@ export function useCvLoader({ cvId, reset, onError, setLoading }: UseCvLoaderPro
           skills: cvData.skills || [],
           theme: cvData.theme || 'classic',
           layout: cvData.layout || 'classic-two-column',
+          target_company: cvData.target_company || '',
+          target_role: cvData.target_role || '',
         })
       } catch (error: any) {
         if (error.response?.status === 404) {

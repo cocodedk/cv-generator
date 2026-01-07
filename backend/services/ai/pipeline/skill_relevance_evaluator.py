@@ -80,12 +80,12 @@ def _match_skills_to_requirements(
 
 
 async def _evaluate_skill_with_error_handling(
-    skill: Skill, all_jd_requirements: List[str], llm_client
+    skill: Skill, all_jd_requirements: List[str], llm_client, additional_context: Optional[str] = None
 ) -> tuple[Skill, Optional[SkillRelevanceResult], Optional[Exception]]:
     """Wrapper to handle errors per skill without stopping others."""
     try:
         logger.debug(f"LLM evaluating skill: '{skill.name}' against {len(all_jd_requirements)} requirements")
-        result = await evaluate_skill_relevance(skill, all_jd_requirements, llm_client)
+        result = await evaluate_skill_relevance(skill, all_jd_requirements, llm_client, additional_context)
         return skill, result, None
     except Exception as e:
         logger.error(f"Failed to evaluate skill '{skill.name}': {e}", exc_info=True)
@@ -149,6 +149,7 @@ async def evaluate_all_skills(
     profile_skills: List[Skill],
     jd_analysis: JDAnalysis,
     raw_jd: Optional[str] = None,
+    additional_context: Optional[str] = None,
 ) -> SkillMapping:
     """
     Evaluate each profile skill individually for relevance to JD requirements.
@@ -157,6 +158,7 @@ async def evaluate_all_skills(
         profile_skills: All skills from user's profile
         jd_analysis: Analyzed JD requirements
         raw_jd: Raw job description text for direct matching
+        additional_context: Optional directive to guide skill evaluation (e.g., "emphasize Python")
 
     Returns:
         SkillMapping with relevant skills and their matches
@@ -193,7 +195,7 @@ async def evaluate_all_skills(
 
         # Run all skill evaluations in parallel
         evaluation_results = await asyncio.gather(
-            *[_evaluate_skill_with_error_handling(skill, all_jd_requirements, llm_client) for skill in remaining_skills],
+            *[_evaluate_skill_with_error_handling(skill, all_jd_requirements, llm_client, additional_context) for skill in remaining_skills],
             return_exceptions=False
         )
 
@@ -222,7 +224,7 @@ async def evaluate_all_skills(
 
 
 async def evaluate_skill_relevance(
-    skill: Skill, jd_requirements: List[str], llm_client
+    skill: Skill, jd_requirements: List[str], llm_client, additional_context: Optional[str] = None
 ) -> SkillRelevanceResult:
     """
     Evaluate single skill relevance using AI prompt.
@@ -231,13 +233,22 @@ async def evaluate_skill_relevance(
         skill: Profile skill to evaluate
         jd_requirements: List of JD required/preferred skills
         llm_client: LLM client instance
+        additional_context: Optional directive to guide evaluation
 
     Returns:
         SkillRelevanceResult with relevance evaluation
     """
     # Improved prompt format for better LLM understanding
     jd_str = ", ".join(jd_requirements[:20])  # Limit to prevent prompt bloat
-    prompt = f"""Given these job requirements: {jd_str}
+    directive_section = ""
+    if additional_context and additional_context.strip():
+        directive_section = f"""
+
+DIRECTIVE: {additional_context}
+
+Follow this directive when evaluating skill relevance. The directive should guide your assessment. For example, if the directive is "emphasize Python", give higher relevance scores to Python-related skills."""
+
+    prompt = f"""Given these job requirements: {jd_str}{directive_section}
 
 Is the skill "{skill.name}" relevant for this job?
 

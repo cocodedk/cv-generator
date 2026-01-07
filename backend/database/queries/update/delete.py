@@ -7,16 +7,21 @@ def update_cv_timestamp(
     updated_at: str,
     theme: str = "classic",
     layout: str = "classic-two-column",
+    target_company: str | None = None,
+    target_role: str | None = None,
 ):
     """Update CV timestamp, theme, and layout."""
     query = """
     MATCH (cv:CV {id: $cv_id})
     SET cv.updated_at = $updated_at,
         cv.theme = $theme,
-        cv.layout = $layout
+        cv.layout = $layout,
+        cv.target_company = $target_company,
+        cv.target_role = $target_role
     """
     result = tx.run(
-        query, cv_id=cv_id, updated_at=updated_at, theme=theme, layout=layout
+        query, cv_id=cv_id, updated_at=updated_at, theme=theme, layout=layout,
+        target_company=target_company, target_role=target_role
     )
     result.consume()
 

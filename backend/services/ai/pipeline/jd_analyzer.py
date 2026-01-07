@@ -2,7 +2,7 @@
 
 import logging
 import re
-from typing import Set, List
+from typing import Set, List, Optional
 from backend.services.ai.pipeline.models import JDAnalysis
 from backend.services.ai.llm_client import get_llm_client
 from backend.services.ai.text import extract_words, normalize_text
@@ -126,7 +126,9 @@ def _extract_tech_terms(text: str) -> Set[str]:
     return extracted
 
 
-async def analyze_jd(job_description: str) -> JDAnalysis:
+async def analyze_jd(
+    job_description: str, additional_context: Optional[str] = None
+) -> JDAnalysis:
     """
     Analyze job description to extract structured requirements.
 
@@ -134,6 +136,7 @@ async def analyze_jd(job_description: str) -> JDAnalysis:
 
     Args:
         job_description: The job description text
+        additional_context: Optional directive to guide analysis (e.g., "enterprise-focused")
 
     Returns:
         JDAnalysis with extracted requirements
@@ -143,7 +146,7 @@ async def analyze_jd(job_description: str) -> JDAnalysis:
 
     if llm_client.is_configured():
         try:
-            result = await _analyze_with_llm(llm_client, job_description)
+            result = await _analyze_with_llm(llm_client, job_description, additional_context)
             logger.info(
                 f"JD Analysis result: {len(result.required_skills)} required, "
                 f"{len(result.preferred_skills)} preferred, {len(result.responsibilities)} responsibilities"
@@ -162,12 +165,22 @@ async def analyze_jd(job_description: str) -> JDAnalysis:
     return result
 
 
-async def _analyze_with_llm(llm_client, job_description: str) -> JDAnalysis:
+async def _analyze_with_llm(
+    llm_client, job_description: str, additional_context: Optional[str] = None
+) -> JDAnalysis:
     """Use LLM to extract structured requirements."""
-    prompt = f"""Analyze this job description and extract structured requirements.
+    directive_section = ""
+    if additional_context and additional_context.strip():
+        directive_section = f"""
+
+DIRECTIVE: {additional_context}
+
+Follow this directive when analyzing the job description. The directive should guide your extraction of requirements, skills, and responsibilities. For example, if the directive is "enterprise-focused", emphasize enterprise-related requirements and skills."""
+
+    prompt = f"""Analyze this job description and extract structured requirements.{directive_section}
 
 Job Description:
-{job_description[:3000]}
+{job_description}
 
 Extract and categorize:
 1. Required skills/technologies (must-have)

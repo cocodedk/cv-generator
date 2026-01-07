@@ -1,7 +1,7 @@
 """Step 3: Select relevant content from profile based on JD requirements."""
 
 import logging
-from typing import List, Dict
+from typing import List, Dict, Optional
 from backend.models import Experience, Project
 from backend.services.ai.pipeline.models import JDAnalysis, SkillMapping, SelectionResult
 from backend.services.ai.scoring import score_item, top_n_scored
@@ -14,6 +14,7 @@ def select_content(
     jd_analysis: JDAnalysis,
     skill_mapping: SkillMapping,
     max_experiences: int = 4,
+    additional_context: Optional[str] = None,
 ) -> SelectionResult:
     """
     Select relevant experiences, projects, and highlights from profile.
@@ -22,9 +23,12 @@ def select_content(
 
     Args:
         profile_experiences: All experiences from user's profile
-        jd_analysis: Analyzed JD requirements
-        skill_mapping: Mapped skills
+        jd_analysis: Analyzed JD requirements (already influenced by additional_context if provided)
+        skill_mapping: Mapped skills (already influenced by additional_context if provided)
         max_experiences: Maximum number of experiences to include
+        additional_context: Optional directive to guide selection (e.g., "enterprise-focused").
+                           Note: Primary influence comes through jd_analysis and skill_mapping
+                           which are already filtered by this directive in earlier pipeline steps.
 
     Returns:
         SelectionResult with selected content and indices
