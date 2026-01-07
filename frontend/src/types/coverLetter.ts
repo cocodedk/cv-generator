@@ -4,6 +4,7 @@ export interface CoverLetterRequest {
   hiring_manager_name?: string
   company_address?: string
   tone: 'professional' | 'enthusiastic' | 'conversational'
+  llm_instructions?: string
 }
 
 export interface CoverLetterResponse {

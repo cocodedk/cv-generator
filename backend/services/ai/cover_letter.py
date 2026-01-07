@@ -75,6 +75,7 @@ def _build_cover_letter_prompt(
     hiring_manager_name: str | None,
     tone: str,
     relevance_reasoning: str | None = None,
+    llm_instructions: str | None = None,
 ) -> str:
     """Build the LLM prompt for cover letter generation."""
     salutation = (
@@ -95,6 +96,10 @@ def _build_cover_letter_prompt(
     if relevance_reasoning:
         reasoning_section = f"\n\nRELEVANCE CONTEXT:\n{relevance_reasoning}\n\nThis explains why these specific experiences and skills were selected as most relevant to this role."
 
+    custom_instructions_section = ""
+    if llm_instructions:
+        custom_instructions_section = f"\n\nADDITIONAL INSTRUCTIONS:\n{llm_instructions}\n\nPlease follow these additional instructions when writing the cover letter."
+
     prompt = f"""You are a professional cover letter writer. Generate a compelling cover letter based on the following information.
 
 PROFILE INFORMATION:
@@ -107,7 +112,7 @@ COMPANY: {company_name}
 
 SALUTATION: {salutation}
 
-TONE: {tone_guide}{reasoning_section}
+TONE: {tone_guide}{reasoning_section}{custom_instructions_section}
 
 REQUIREMENTS:
 1. Write a professional cover letter (3-4 paragraphs, approximately 300-400 words)
@@ -190,6 +195,7 @@ async def generate_cover_letter(
         hiring_manager_name=request.hiring_manager_name,
         tone=request.tone,
         relevance_reasoning=selected_content.relevance_reasoning,
+        llm_instructions=request.llm_instructions,
     )
 
     # Phase 2: Generate cover letter body using LLM

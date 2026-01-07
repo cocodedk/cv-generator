@@ -34,6 +34,29 @@ describe('coverLetterService', () => {
       expect(result).toEqual(mockResponse)
     })
 
+    it('passes LLM instructions through to the API', async () => {
+      const mockResponse = {
+        cover_letter_html: '<div>Cover letter HTML</div>',
+        cover_letter_text: 'Cover letter text',
+        highlights_used: [],
+        selected_experiences: [],
+        selected_skills: [],
+      }
+
+      mockedAxios.post.mockResolvedValue({ data: mockResponse })
+
+      const request = {
+        job_description: 'We need a developer.',
+        company_name: 'Tech Corp',
+        tone: 'professional' as const,
+        llm_instructions: 'Write in Spanish and keep it under 200 words',
+      }
+
+      await generateCoverLetter(request)
+
+      expect(mockedAxios.post).toHaveBeenCalledWith('/api/ai/generate-cover-letter', request)
+    })
+
     it('handles API errors', async () => {
       mockedAxios.post.mockRejectedValue({
         response: {

@@ -12,6 +12,7 @@ class CoverLetterRequest(BaseModel):
     hiring_manager_name: Optional[str] = Field(default=None, max_length=200)
     company_address: Optional[str] = Field(default=None, max_length=500)
     tone: Literal["professional", "enthusiastic", "conversational"] = "professional"
+    llm_instructions: Optional[str] = Field(default=None, max_length=1000)
 
 
 class CoverLetterResponse(BaseModel):

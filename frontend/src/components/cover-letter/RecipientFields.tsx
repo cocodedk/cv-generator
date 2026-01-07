@@ -81,6 +81,23 @@ export default function RecipientFields({ payload, isGenerating, onChange }: Rec
       <div className="grid gap-2">
         <label
           className="text-sm font-medium text-gray-700 dark:text-gray-300"
+          htmlFor="cl_llm_instructions"
+        >
+          LLM Instructions (optional)
+        </label>
+        <textarea
+          id="cl_llm_instructions"
+          value={payload.llm_instructions || ''}
+          onChange={e => onChange('llm_instructions', e.target.value || undefined)}
+          className="min-h-[80px] w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+          placeholder="e.g., Write in Spanish, Keep it under 200 words, Use a formal tone"
+          disabled={isGenerating}
+        />
+      </div>
+
+      <div className="grid gap-2">
+        <label
+          className="text-sm font-medium text-gray-700 dark:text-gray-300"
           htmlFor="cl_job_description"
         >
           Job Description *

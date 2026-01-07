@@ -26,6 +26,7 @@ describe('CoverLetterModal', () => {
     expect(screen.getByLabelText(/company name/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/job description/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/tone/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/llm instructions/i)).toBeInTheDocument()
   })
 
   it('allows user to fill in form fields', async () => {
