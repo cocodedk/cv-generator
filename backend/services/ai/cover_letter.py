@@ -101,7 +101,7 @@ PROFILE INFORMATION:
 {profile_summary}
 
 JOB DESCRIPTION:
-{job_description[:3000]}
+{job_description}
 
 COMPANY: {company_name}
 
@@ -319,6 +319,15 @@ def _format_as_html(
     )
     template = env.get_template("ats.html")
 
+    # Signature - only add if not already in the closing
+    signature = ""
+    if profile.personal_info.name:
+        # Check if the cover letter body already ends with the name
+        body_lower = cover_letter_body.lower()
+        name_lower = profile.personal_info.name.lower()
+        if not body_lower.endswith(name_lower):
+            signature = profile.personal_info.name
+
     html = template.render(
         sender_name=profile.personal_info.name,
         sender_title=profile.personal_info.title,
@@ -330,7 +339,7 @@ def _format_as_html(
         company_name=company_name,
         company_address=normalized_address,
         cover_letter_body=body_html,
-        signature=profile.personal_info.name or "",
+        signature=signature,
     )
 
     return html
@@ -395,8 +404,14 @@ def _format_as_text(
             recipient_lines.append(clean_address)
     recipient_info = "\n".join(recipient_lines)
 
-    # Signature
-    signature = profile.personal_info.name if profile.personal_info.name else ""
+    # Signature - only add if not already in the closing
+    signature = ""
+    if profile.personal_info.name:
+        # Check if the cover letter body already ends with the name
+        body_lower = cover_letter_body.lower()
+        name_lower = profile.personal_info.name.lower()
+        if not body_lower.endswith(name_lower):
+            signature = profile.personal_info.name
 
     text = f"""{sender_info}
 

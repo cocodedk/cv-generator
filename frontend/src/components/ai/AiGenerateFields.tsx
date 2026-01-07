@@ -118,11 +118,11 @@ export default function AiGenerateFields({
             value={payload.additional_context || ''}
             onChange={e => onChange('additional_context', e.target.value || undefined)}
             className="min-h-[60px] w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-            placeholder="e.g. Rated top 2% AI coders in 2025, AWS certified..."
+            placeholder="e.g. Make this more enterprise-focused, Emphasize Python skills, Focus on leadership experience..."
             disabled={isGenerating}
           />
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            Achievements or context to weave into bullet points.
+            Directive to guide CV tailoring (e.g., style focus, skill emphasis, industry orientation).
           </p>
         </div>
       )}

@@ -1,7 +1,7 @@
 """Data models for pipeline steps."""
 
-from dataclasses import dataclass
-from typing import List, Set, Dict
+from dataclasses import dataclass, field
+from typing import List, Set, Dict, Optional
 from backend.models import Experience, Skill
 
 
@@ -71,3 +71,22 @@ class CoverageSummary:
     partially_covered: List[str]
     gaps: List[str]
     skill_justifications: Dict[str, str]  # skill_name -> why included
+
+
+@dataclass(frozen=True)
+class ContextAnalysis:
+    """Analysis of additional_context to determine how to incorporate it."""
+
+    type: str  # "directive", "content_statement", "achievement", or "mixed"
+    placement: str  # "summary", "project_highlight", "experience_description", or "adaptation_guidance"
+    suggested_text: str  # How to phrase this for the CV
+    reasoning: str  # Why this placement
+
+
+@dataclass(frozen=True)
+class ContextIncorporation:
+    """Instructions for incorporating additional_context into CV."""
+
+    summary_update: Optional[str] = None  # Text to add/update in summary
+    project_highlights: List[tuple[int, int, str]] = field(default_factory=list)  # List of (exp_idx, proj_idx, highlight_text)
+    experience_updates: Dict[int, str] = field(default_factory=dict)  # Maps exp_idx -> updated description text

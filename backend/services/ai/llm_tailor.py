@@ -12,8 +12,8 @@ from backend.services.ai.llm_client import get_llm_client
 logger = logging.getLogger(__name__)
 
 # Character limits for different CV fields (plain text, not HTML)
-MAX_DESCRIPTION_CHARS = 280  # Leave buffer for the 300 char model limit
-MAX_HIGHLIGHT_CHARS = 200
+MAX_DESCRIPTION_CHARS = 350  # Leave buffer for the 300 char model limit
+MAX_HIGHLIGHT_CHARS = 250
 
 
 async def llm_tailor_cv(
@@ -173,11 +173,11 @@ async def _tailor_text(
         additional_context_section = f"""
 
 Additional achievements/context to incorporate:
-{additional_context[:1000]}
+{additional_context}
 """
 
     user_prompt = f"""Job Description:
-{job_description[:2000]}{additional_context_section}
+{job_description}{additional_context_section}
 
 Original {context}:
 {original_text}

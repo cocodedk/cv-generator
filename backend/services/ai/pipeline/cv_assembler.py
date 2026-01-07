@@ -1,13 +1,14 @@
 """Step 5: Assemble final CV and validate coverage."""
 
 import logging
-from typing import List, Dict
+from typing import List, Dict, Optional
 from backend.models import CVData, Education, PersonalInfo, Skill
 from backend.services.ai.pipeline.models import (
     JDAnalysis,
     SkillMapping,
     AdaptedContent,
     CoverageSummary,
+    ContextIncorporation,
 )
 from backend.services.ai.selection import select_education
 
@@ -21,6 +22,7 @@ def assemble_cv(
     profile_skills: List[Skill],
     skill_mapping: SkillMapping,
     jd_analysis: JDAnalysis,
+    context_incorporation: Optional[ContextIncorporation] = None,
 ) -> tuple[CVData, CoverageSummary]:
     """
     Assemble final CV from adapted content and validate coverage.
@@ -61,6 +63,10 @@ def assemble_cv(
         skills=selected_skills,
         theme="classic",
     )
+
+    # Apply context incorporation if provided
+    if context_incorporation:
+        draft_cv = _apply_context_incorporation(draft_cv, context_incorporation)
 
     # Build coverage summary
     coverage_summary = _build_coverage_summary(
@@ -125,4 +131,88 @@ def _build_coverage_summary(
         partially_covered=list(set(partially_covered)),
         gaps=gaps,
         skill_justifications=skill_justifications,
+    )
+
+
+def _apply_context_incorporation(
+    cv_data: CVData,
+    incorporation: ContextIncorporation,
+) -> CVData:
+    """Apply context incorporation instructions to CV data."""
+    from backend.models import Experience, Project, PersonalInfo
+
+    # Update summary if provided
+    updated_personal_info = cv_data.personal_info
+    if incorporation.summary_update:
+        current_summary = updated_personal_info.summary or ""
+        if current_summary:
+            updated_summary = f"{current_summary}\n\n{incorporation.summary_update}"
+        else:
+            updated_summary = incorporation.summary_update
+
+        updated_personal_info = PersonalInfo(
+            name=updated_personal_info.name,
+            title=updated_personal_info.title,
+            email=updated_personal_info.email,
+            phone=updated_personal_info.phone,
+            address=updated_personal_info.address,
+            linkedin=updated_personal_info.linkedin,
+            github=updated_personal_info.github,
+            website=updated_personal_info.website,
+            summary=updated_summary,
+            photo=updated_personal_info.photo,
+        )
+
+    # Update experiences
+    updated_experiences = list(cv_data.experience)
+
+    # Apply experience description updates
+    for exp_idx, updated_desc in incorporation.experience_updates.items():
+        if exp_idx < len(updated_experiences):
+            exp = updated_experiences[exp_idx]
+            updated_experiences[exp_idx] = Experience(
+                title=exp.title,
+                company=exp.company,
+                start_date=exp.start_date,
+                end_date=exp.end_date,
+                description=updated_desc,
+                location=exp.location,
+                projects=exp.projects,
+            )
+
+    # Apply project highlight additions
+    for exp_idx, proj_idx, highlight_text in incorporation.project_highlights:
+        if exp_idx < len(updated_experiences):
+            exp = updated_experiences[exp_idx]
+            if proj_idx < len(exp.projects):
+                proj = exp.projects[proj_idx]
+                updated_highlights = list(proj.highlights) + [highlight_text]
+                updated_projects = list(exp.projects)
+                updated_projects[proj_idx] = Project(
+                    name=proj.name,
+                    description=proj.description,
+                    highlights=updated_highlights,
+                    technologies=proj.technologies,
+                    url=proj.url,
+                )
+                updated_experiences[exp_idx] = Experience(
+                    title=exp.title,
+                    company=exp.company,
+                    start_date=exp.start_date,
+                    end_date=exp.end_date,
+                    description=exp.description,
+                    location=exp.location,
+                    projects=updated_projects,
+                )
+
+    # Return updated CV data
+    return CVData(
+        personal_info=updated_personal_info,
+        experience=updated_experiences,
+        education=cv_data.education,
+        skills=cv_data.skills,
+        theme=cv_data.theme,
+        layout=cv_data.layout,
+        target_company=cv_data.target_company,
+        target_role=cv_data.target_role,
     )

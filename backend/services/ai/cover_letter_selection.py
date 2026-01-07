@@ -64,7 +64,7 @@ def _build_selection_prompt(profile_text: str, job_description: str) -> str:
     prompt = f"""You are analyzing a job application. Your task is to identify which parts of the candidate's profile are MOST relevant to this specific job.
 
 JOB DESCRIPTION:
-{job_description[:4000]}
+{job_description}
 
 CANDIDATE PROFILE:
 {profile_text}
