@@ -48,7 +48,7 @@ class TestContextAnalyzer:
         """Test LLM analysis for directive context."""
         mock_llm_client = Mock()
         mock_llm_client.is_configured.return_value = True
-        mock_llm_client.rewrite_text = AsyncMock(return_value=json.dumps({
+        mock_llm_client.generate_text = AsyncMock(return_value=json.dumps({
             "type": "directive",
             "placement": "adaptation_guidance",
             "suggested_text": "Emphasize enterprise scalability",
@@ -68,7 +68,7 @@ class TestContextAnalyzer:
         """Test LLM analysis for content statement context."""
         mock_llm_client = Mock()
         mock_llm_client.is_configured.return_value = True
-        mock_llm_client.rewrite_text = AsyncMock(return_value=json.dumps({
+        mock_llm_client.generate_text = AsyncMock(return_value=json.dumps({
             "type": "content_statement",
             "placement": "summary",
             "suggested_text": "Available for on-site work in San Francisco",
@@ -88,7 +88,7 @@ class TestContextAnalyzer:
         """Test LLM analysis for achievement context."""
         mock_llm_client = Mock()
         mock_llm_client.is_configured.return_value = True
-        mock_llm_client.rewrite_text = AsyncMock(return_value=json.dumps({
+        mock_llm_client.generate_text = AsyncMock(return_value=json.dumps({
             "type": "achievement",
             "placement": "project_highlight",
             "suggested_text": "Rated among top 2% of AI developers globally in 2025",
@@ -108,7 +108,7 @@ class TestContextAnalyzer:
         """Test LLM analysis for mixed context type."""
         mock_llm_client = Mock()
         mock_llm_client.is_configured.return_value = True
-        mock_llm_client.rewrite_text = AsyncMock(return_value=json.dumps({
+        mock_llm_client.generate_text = AsyncMock(return_value=json.dumps({
             "type": "mixed",
             "placement": "summary",
             "suggested_text": "Highly rated AI developer available for enterprise projects",
@@ -127,7 +127,7 @@ class TestContextAnalyzer:
         """Test that LLM errors are handled gracefully with fallback."""
         mock_llm_client = Mock()
         mock_llm_client.is_configured.return_value = True
-        mock_llm_client.rewrite_text = AsyncMock(side_effect=Exception("API Error"))
+        mock_llm_client.generate_text = AsyncMock(side_effect=Exception("API Error"))
 
         with patch("backend.services.ai.pipeline.context_analyzer.get_llm_client", return_value=mock_llm_client):
             result = await analyze_additional_context("Some context", "job description")
@@ -143,7 +143,7 @@ class TestContextAnalyzer:
         """Test that invalid JSON responses are handled gracefully with fallback."""
         mock_llm_client = Mock()
         mock_llm_client.is_configured.return_value = True
-        mock_llm_client.rewrite_text = AsyncMock(return_value="Invalid JSON response")
+        mock_llm_client.generate_text = AsyncMock(return_value="Invalid JSON response")
 
         with patch("backend.services.ai.pipeline.context_analyzer.get_llm_client", return_value=mock_llm_client):
             result = await analyze_additional_context("Some context", "job description")
@@ -177,7 +177,7 @@ class TestAnalyzeWithLLM:
     async def test_analyze_with_llm_constructs_correct_prompt(self):
         """Test that the LLM prompt is constructed correctly."""
         mock_llm_client = Mock()
-        mock_llm_client.rewrite_text = AsyncMock(return_value=json.dumps({
+        mock_llm_client.generate_text = AsyncMock(return_value=json.dumps({
             "type": "directive",
             "placement": "adaptation_guidance",
             "suggested_text": "Test response",
@@ -187,11 +187,11 @@ class TestAnalyzeWithLLM:
         await _analyze_with_llm(mock_llm_client, "test context", "test job description")
 
         # Verify the call was made
-        assert mock_llm_client.rewrite_text.called
-        call_args = mock_llm_client.rewrite_text.call_args
+        assert mock_llm_client.generate_text.called
+        call_args = mock_llm_client.generate_text.call_args
 
         # Check that the prompt contains expected elements
-        prompt = call_args[0][1]  # Second positional argument
+        prompt = call_args[0][0]  # First positional argument
         assert "test context" in prompt
         assert "test job description" in prompt
         assert "Analyze this additional context" in prompt
@@ -201,7 +201,7 @@ class TestAnalyzeWithLLM:
     async def test_analyze_with_llm_parses_json_response_correctly(self):
         """Test that JSON responses are parsed correctly."""
         mock_llm_client = Mock()
-        mock_llm_client.rewrite_text = AsyncMock(return_value=json.dumps({
+        mock_llm_client.generate_text = AsyncMock(return_value=json.dumps({
             "type": "achievement",
             "placement": "experience_description",
             "suggested_text": "Led team of 10 developers",

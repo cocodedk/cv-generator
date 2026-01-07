@@ -25,14 +25,14 @@ def get_cover_letter_by_id(cover_letter_id: str) -> Optional[Dict[str, Any]]:
                 "updated_at": cl["updated_at"],
                 "job_description": cl["job_description"],
                 "company_name": cl["company_name"],
-                "hiring_manager_name": cl["hiring_manager_name"],
-                "company_address": cl["company_address"],
+                "hiring_manager_name": cl.get("hiring_manager_name"),
+                "company_address": cl.get("company_address"),
                 "tone": cl["tone"],
-                "cover_letter_html": cl["cover_letter_html"],
-                "cover_letter_text": cl["cover_letter_text"],
-                "highlights_used": cl["highlights_used"],
-                "selected_experiences": cl["selected_experiences"],
-                "selected_skills": cl["selected_skills"],
+                "cover_letter_html": cl.get("cover_letter_html"),
+                "cover_letter_text": cl.get("cover_letter_text"),
+                "highlights_used": cl.get("highlights_used", []),
+                "selected_experiences": cl.get("selected_experiences", []),
+                "selected_skills": cl.get("selected_skills", []),
             }
 
         return None

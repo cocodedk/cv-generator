@@ -47,9 +47,9 @@ class CoverLetterData(BaseModel):
     tone: str
     cover_letter_html: str
     cover_letter_text: str
-    highlights_used: List[str] = []
-    selected_experiences: List[str] = []
-    selected_skills: List[str] = []
+    highlights_used: List[str] = Field(default_factory=list)
+    selected_experiences: List[str] = Field(default_factory=list)
+    selected_skills: List[str] = Field(default_factory=list)
 
 
 class CoverLetterListItem(BaseModel):

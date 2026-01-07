@@ -3,14 +3,7 @@ import { cleanup } from '@testing-library/react'
 import React from 'react'
 import { afterEach, vi } from 'vitest'
 import { installNoNetworkGuards } from './noNetwork'
-
-declare global {
-  interface GlobalThis {
-    IS_REACT_ACT_ENVIRONMENT: boolean
-  }
-}
-
-globalThis.IS_REACT_ACT_ENVIRONMENT = true
+;(globalThis as any).IS_REACT_ACT_ENVIRONMENT = true
 
 installNoNetworkGuards()
 

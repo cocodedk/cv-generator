@@ -81,12 +81,7 @@ fi
 echo -e "${BLUE}🧪 Running CV Generator Tests & Linting...${NC}"
 echo ""
 
-# Track results
-FLAKE8_PASSED=0
-ESLINT_PASSED=0
-PRETTIER_PASSED=0
-BACKEND_PASSED=0
-FRONTEND_PASSED=0
+# Fail-fast mode: script exits immediately on first failure
 
 # Function to run flake8 (backend linting)
 run_flake8() {
@@ -107,7 +102,6 @@ run_flake8() {
 
     if docker-compose exec -T app flake8 backend --config=.flake8 || docker-compose run --rm app flake8 backend --config=.flake8; then
         echo -e "${GREEN}✅ flake8 passed!${NC}"
-        FLAKE8_PASSED=1
         return 0
     else
         echo -e "${RED}❌ flake8 failed!${NC}"
@@ -128,7 +122,6 @@ run_eslint() {
     cd frontend
     if ../node_modules/.bin/eslint src --ext .ts,.tsx; then
         echo -e "${GREEN}✅ ESLint passed!${NC}"
-        ESLINT_PASSED=1
         cd "$PROJECT_ROOT"
         return 0
     else
@@ -151,7 +144,6 @@ run_prettier() {
     cd frontend
     if ../node_modules/.bin/prettier --check "src/**/*.{ts,tsx,css}"; then
         echo -e "${GREEN}✅ Prettier passed!${NC}"
-        PRETTIER_PASSED=1
         cd "$PROJECT_ROOT"
         return 0
     else
@@ -196,7 +188,6 @@ run_backend_tests() {
     # Run backend tests
     if docker-compose exec -T app $PYTEST_CMD || docker-compose run --rm app $PYTEST_CMD; then
         echo -e "${GREEN}✅ Backend tests passed!${NC}"
-        BACKEND_PASSED=1
         return 0
     else
         echo -e "${RED}❌ Backend tests failed!${NC}"
@@ -225,7 +216,6 @@ run_frontend_tests() {
     cd frontend
     if ../node_modules/.bin/vitest run; then
         echo -e "${GREEN}✅ Frontend tests passed!${NC}"
-        FRONTEND_PASSED=1
         cd "$PROJECT_ROOT"
         return 0
     else
@@ -236,8 +226,7 @@ run_frontend_tests() {
 }
 
 # Run linting and tests based on flags
-# Temporarily disable set -e to allow capturing exit codes
-set +e
+# Exit immediately on first failure (fail-fast mode)
 
 # Run linting (unless --test-only or --integration)
 if [ $TEST_ONLY -eq 0 ] && [ $RUN_INTEGRATION -eq 0 ]; then
@@ -246,16 +235,22 @@ if [ $TEST_ONLY -eq 0 ] && [ $RUN_INTEGRATION -eq 0 ]; then
     echo -e "${BLUE}════════════════════════════════════════${NC}"
     echo ""
 
-    run_flake8
-    FLAKE8_EXIT=$?
+    if ! run_flake8; then
+        echo -e "${RED}❌ Stopping at first failure (flake8)${NC}"
+        exit 1
+    fi
     echo ""
 
-    run_eslint
-    ESLINT_EXIT=$?
+    if ! run_eslint; then
+        echo -e "${RED}❌ Stopping at first failure (ESLint)${NC}"
+        exit 1
+    fi
     echo ""
 
-    run_prettier
-    PRETTIER_EXIT=$?
+    if ! run_prettier; then
+        echo -e "${RED}❌ Stopping at first failure (Prettier)${NC}"
+        exit 1
+    fi
     echo ""
 fi
 
@@ -266,19 +261,20 @@ if [ $LINT_ONLY -eq 0 ]; then
     echo -e "${BLUE}════════════════════════════════════════${NC}"
     echo ""
 
-    run_frontend_tests
-    FRONTEND_EXIT=$?
+    if ! run_frontend_tests; then
+        echo -e "${RED}❌ Stopping at first failure (Frontend tests)${NC}"
+        exit 1
+    fi
     echo ""
 
-    run_backend_tests
-    BACKEND_EXIT=$?
+    if ! run_backend_tests; then
+        echo -e "${RED}❌ Stopping at first failure (Backend tests)${NC}"
+        exit 1
+    fi
     echo ""
 fi
 
-# Re-enable set -e for the rest of the script
-set -e
-
-# Summary
+# Summary - if we reach here, everything passed
 echo -e "${BLUE}════════════════════════════════════════${NC}"
 echo -e "${BLUE}📊 Summary${NC}"
 echo -e "${BLUE}════════════════════════════════════════${NC}"
@@ -286,60 +282,19 @@ echo -e "${BLUE}═════════════════════�
 # Show linting results (if run)
 if [ $TEST_ONLY -eq 0 ] && [ $RUN_INTEGRATION -eq 0 ]; then
     echo -e "${BLUE}Linting:${NC}"
-    if [ $FLAKE8_PASSED -eq 1 ]; then
-        echo -e "  flake8:   ${GREEN}✅ PASSED${NC}"
-    else
-        echo -e "  flake8:   ${RED}❌ FAILED${NC}"
-    fi
-    if [ $ESLINT_PASSED -eq 1 ]; then
-        echo -e "  ESLint:   ${GREEN}✅ PASSED${NC}"
-    else
-        echo -e "  ESLint:   ${RED}❌ FAILED${NC}"
-    fi
-    if [ $PRETTIER_PASSED -eq 1 ]; then
-        echo -e "  Prettier: ${GREEN}✅ PASSED${NC}"
-    else
-        echo -e "  Prettier: ${RED}❌ FAILED${NC}"
-    fi
+    echo -e "  flake8:   ${GREEN}✅ PASSED${NC}"
+    echo -e "  ESLint:   ${GREEN}✅ PASSED${NC}"
+    echo -e "  Prettier: ${GREEN}✅ PASSED${NC}"
     echo ""
 fi
 
 # Show test results (if run)
 if [ $LINT_ONLY -eq 0 ]; then
     echo -e "${BLUE}Tests:${NC}"
-    if [ $BACKEND_PASSED -eq 1 ]; then
-        echo -e "  Backend:  ${GREEN}✅ PASSED${NC}"
-    else
-        echo -e "  Backend:  ${RED}❌ FAILED${NC}"
-    fi
-    if [ $FRONTEND_PASSED -eq 1 ]; then
-        echo -e "  Frontend: ${GREEN}✅ PASSED${NC}"
-    else
-        echo -e "  Frontend: ${RED}❌ FAILED${NC}"
-    fi
+    echo -e "  Frontend: ${GREEN}✅ PASSED${NC}"
+    echo -e "  Backend:  ${GREEN}✅ PASSED${NC}"
 fi
 
 echo ""
-
-# Determine overall result
-ALL_PASSED=1
-
-if [ $TEST_ONLY -eq 0 ] && [ $RUN_INTEGRATION -eq 0 ]; then
-    if [ $FLAKE8_PASSED -ne 1 ] || [ $ESLINT_PASSED -ne 1 ] || [ $PRETTIER_PASSED -ne 1 ]; then
-        ALL_PASSED=0
-    fi
-fi
-
-if [ $LINT_ONLY -eq 0 ]; then
-    if [ $BACKEND_PASSED -ne 1 ] || [ $FRONTEND_PASSED -ne 1 ]; then
-        ALL_PASSED=0
-    fi
-fi
-
-if [ $ALL_PASSED -eq 1 ]; then
-    echo -e "${GREEN}🎉 All checks passed!${NC}"
-    exit 0
-else
-    echo -e "${RED}❌ Some checks failed!${NC}"
-    exit 1
-fi
+echo -e "${GREEN}🎉 All checks passed!${NC}"
+exit 0

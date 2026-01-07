@@ -206,7 +206,10 @@ describe('CVForm - AI Draft', () => {
     // Now additional_context field should be visible
     const additionalContextField = await screen.findByLabelText(/additional context/i)
     expect(additionalContextField).toBeInTheDocument()
-    expect(additionalContextField).toHaveAttribute('placeholder', expect.stringContaining('top 2%'))
+    expect(additionalContextField).toHaveAttribute(
+      'placeholder',
+      expect.stringContaining('enterprise-focused')
+    )
   })
 
   it('shows questions panel with textarea when questions are returned after generation', async () => {

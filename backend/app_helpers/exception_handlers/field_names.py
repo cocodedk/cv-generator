@@ -72,10 +72,12 @@ def build_friendly_field_name(loc: tuple) -> str:  # noqa: C901
                 i += 1
                 continue
             else:
-                # This is a field name
-                section = (
-                    parts[i - 2] if i >= 2 and isinstance(parts[i - 2], str) else None
-                )
+                # This is a field name - find the nearest previous section
+                section = None
+                for j in range(i - 1, -1, -1):
+                    if isinstance(parts[j], str) and parts[j] in field_labels:
+                        section = parts[j]
+                        break
                 if (
                     section
                     and section in field_labels

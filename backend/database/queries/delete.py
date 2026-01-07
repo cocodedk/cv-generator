@@ -35,7 +35,7 @@ def delete_cover_letter(cover_letter_id: str) -> bool:
 
     query = """
     MATCH (cl:CoverLetter {id: $cover_letter_id})
-    DELETE cl
+    DETACH DELETE cl
     RETURN count(cl) AS deleted
     """
 

@@ -119,6 +119,7 @@ export default function CVForm({ onSuccess, onError, setLoading, cvId }: CVFormP
         <CoverLetterModal
           onClose={() => setShowCoverLetterModal(false)}
           onError={onError}
+          onSuccess={onSuccess}
           setLoading={setLoading}
         />
       )}

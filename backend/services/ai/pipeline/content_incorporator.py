@@ -1,7 +1,7 @@
 """Step 6: Incorporate additional_context into CV based on intelligent analysis."""
 
 import logging
-from typing import List, Optional
+from typing import List
 from backend.models import CVData, Experience, Project, PersonalInfo
 from backend.services.ai.pipeline.models import ContextAnalysis, ContextIncorporation
 

@@ -100,7 +100,10 @@ Return JSON:
 }}"""
 
     logger.debug(f"Analyzing additional_context: {additional_context[:100]}...")
-    response = await llm_client.rewrite_text("", prompt)
+    response = await llm_client.generate_text(
+        prompt,
+        system_prompt="You are an assistant analyzing additional context for CV tailoring."
+    )
     logger.debug(f"LLM response for context analysis: {response[:200]}...")
 
     # Extract JSON from response (handle markdown code blocks)

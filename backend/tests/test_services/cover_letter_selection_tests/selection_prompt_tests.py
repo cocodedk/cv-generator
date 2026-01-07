@@ -117,3 +117,36 @@ class TestBuildSelectionPrompt:
         assert "skill_names" in prompt
         assert "key_highlights" in prompt
         assert "relevance_reasoning" in prompt
+
+    def test_build_selection_prompt_empty_profile(self):
+        """Test building selection prompt with empty profile."""
+        profile_text = "EXPERIENCES:\n\nSKILLS:"
+        job_desc = "We need a developer."
+        prompt = _build_selection_prompt(profile_text, job_desc)
+
+        assert job_desc in prompt
+        assert profile_text in prompt
+        assert "Return ONLY valid JSON" in prompt
+
+    def test_build_selection_prompt_complex_job_desc(self):
+        """Test building selection prompt with complex job description."""
+        profile_text = "EXPERIENCES:\n[0] Engineer at Company\n\nSKILLS: Python"
+        complex_job = """
+        Senior Full Stack Developer
+
+        We are looking for an experienced developer with:
+        - 5+ years of experience
+        - React and Node.js expertise
+        - Cloud deployment experience
+
+        Responsibilities:
+        - Build scalable web applications
+        - Lead technical architecture decisions
+        - Mentor junior developers
+        """
+        prompt = _build_selection_prompt(profile_text, complex_job)
+
+        assert complex_job in prompt
+        assert profile_text in prompt
+        assert "IMPORTANT:" in prompt
+        assert "quality over quantity" in prompt

@@ -192,7 +192,9 @@ describe('CVForm - Edit Mode', () => {
 
     await waitForEditModeToLoad()
 
-    const jobTitleInput = screen.getByPlaceholderText('e.g. Senior Software Engineer') as HTMLInputElement
+    const jobTitleInput = screen.getByPlaceholderText(
+      'e.g. Senior Software Engineer'
+    ) as HTMLInputElement
     const companyInput = screen.getByPlaceholderText('e.g. Google') as HTMLInputElement
 
     expect(jobTitleInput.value).toBe('Senior Developer')

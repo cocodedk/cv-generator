@@ -1,7 +1,5 @@
 """Tests for address normalization functions."""
 
-import pytest
-
 from backend.services.ai.cover_letter import _normalize_address, _strip_html_breaks
 
 

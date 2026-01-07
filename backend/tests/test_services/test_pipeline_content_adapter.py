@@ -68,7 +68,7 @@ class TestContentAdapter:
         task_info = ("proj_desc", "0", "0", "", original_text)
 
         # Call _adapt_single_text_item which handles the error
-        with patch('backend.services.ai.pipeline.content_adapter.logger') as mock_logger:
+        with patch('backend.services.ai.pipeline.content_adapter.task_collection.logger') as mock_logger:
             result = await _adapt_single_text_item(
                 mock_llm_client,
                 task_info,

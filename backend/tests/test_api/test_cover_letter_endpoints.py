@@ -30,7 +30,7 @@ class TestGenerateCoverLetter:
         mock_llm_client.api_key = "test-key"
         mock_llm_client.base_url = "https://api.test.com"
         mock_llm_client.timeout = 30
-        mock_llm_client.rewrite_text = AsyncMock(
+        mock_llm_client.generate_text = AsyncMock(
             return_value="Dear John Doe,\n\nI am writing to express my interest in the position..."
         )
 
@@ -42,15 +42,15 @@ class TestGenerateCoverLetter:
         )
 
         with patch(
-            "backend.app_helpers.routes.cover_letter.queries.get_profile",
+            "backend.database.queries.get_profile",
             return_value=profile_data,
         ):
             with patch(
-                "backend.services.ai.cover_letter.get_llm_client",
+                "backend.services.ai.cover_letter.generation.get_llm_client",
                 return_value=mock_llm_client,
             ):
                 with patch(
-                    "backend.services.ai.cover_letter.select_relevant_content",
+                    "backend.services.ai.cover_letter.generation.select_relevant_content",
                     return_value=selected_content,
                 ):
                     response = await client.post(
@@ -79,7 +79,7 @@ class TestGenerateCoverLetter:
     ):
         """Test cover letter generation when profile is missing."""
         with patch(
-            "backend.app_helpers.routes.cover_letter.queries.get_profile",
+            "backend.database.queries.get_profile",
             return_value=None,
         ):
             response = await client.post(
@@ -133,11 +133,11 @@ class TestGenerateCoverLetter:
         mock_llm_client.is_configured.return_value = False
 
         with patch(
-            "backend.app_helpers.routes.cover_letter.queries.get_profile",
+            "backend.database.queries.get_profile",
             return_value=profile_data,
         ):
             with patch(
-                "backend.services.ai.cover_letter.get_llm_client",
+                "backend.services.ai.cover_letter.generation.get_llm_client",
                 return_value=mock_llm_client,
             ):
                 response = await client.post(
@@ -174,7 +174,7 @@ class TestGenerateCoverLetter:
         mock_llm_client.api_key = "test-key"
         mock_llm_client.base_url = "https://api.test.com"
         mock_llm_client.timeout = 30
-        mock_llm_client.rewrite_text = AsyncMock(
+        mock_llm_client.generate_text = AsyncMock(
             return_value="Dear Hiring Manager,\n\nTest letter."
         )
 
@@ -186,15 +186,15 @@ class TestGenerateCoverLetter:
         )
 
         with patch(
-            "backend.app_helpers.routes.cover_letter.queries.get_profile",
+            "backend.database.queries.get_profile",
             return_value=profile_data,
         ):
             with patch(
-                "backend.services.ai.cover_letter.get_llm_client",
+                "backend.services.ai.cover_letter.generation.get_llm_client",
                 return_value=mock_llm_client,
             ):
                 with patch(
-                    "backend.services.ai.cover_letter.select_relevant_content",
+                    "backend.services.ai.cover_letter.generation.select_relevant_content",
                     return_value=selected_content,
                 ):
                     response = await client.post(
@@ -264,3 +264,210 @@ class TestExportCoverLetterPDF:
         )
         # Should either succeed (browser renders what it can) or fail gracefully
         assert response.status_code in [200, 500]
+
+
+@pytest.mark.asyncio
+@pytest.mark.api
+class TestSaveCoverLetter:
+    """Test POST /api/cover-letters endpoint."""
+
+    async def test_save_cover_letter_success(self, client, mock_neo4j_connection):
+        """Test successful cover letter saving."""
+        cover_letter_response = {
+            "cover_letter_html": "<p>Test letter</p>",
+            "cover_letter_text": "Test letter",
+            "highlights_used": [],
+            "selected_experiences": [],
+            "selected_skills": ["Python"]
+        }
+        request_data = {
+            "job_description": "We need a Python developer.",
+            "company_name": "Tech Corp",
+            "tone": "professional"
+        }
+
+        response = await client.post(
+            "/api/cover-letters",
+            json={
+                "cover_letter_response": cover_letter_response,
+                "request_data": request_data
+            },
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "cover_letter_id" in data
+        assert data["status"] == "success"
+
+    async def test_save_cover_letter_validation_error(self, client, mock_neo4j_connection):
+        """Test save cover letter with invalid data."""
+        response = await client.post(
+            "/api/cover-letters",
+            json={
+                "cover_letter_response": {},  # Missing required fields
+                "request_data": {}  # Missing required fields
+            },
+        )
+        assert response.status_code == 422
+
+    async def test_save_cover_letter_database_error(self, client, mock_neo4j_connection):
+        """Test save cover letter with database error."""
+        cover_letter_response = {
+            "cover_letter_html": "<p>Test letter</p>",
+            "cover_letter_text": "Test letter",
+            "highlights_used": [],
+            "selected_experiences": [],
+            "selected_skills": ["Python"]
+        }
+        request_data = {
+            "job_description": "We need a Python developer.",
+            "company_name": "Tech Corp",
+            "tone": "professional"
+        }
+
+        # Patch the session execute_write to raise an exception
+        with patch.object(mock_neo4j_connection.session.return_value, 'execute_write') as mock_execute:
+            mock_execute.side_effect = Exception("Database connection failed")
+
+            response = await client.post(
+                "/api/cover-letters",
+                json={
+                    "cover_letter_response": cover_letter_response,
+                    "request_data": request_data
+                },
+            )
+
+            assert response.status_code == 500
+            data = response.json()
+            assert "Failed to save cover letter" in data["detail"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.api
+class TestListCoverLetters:
+    """Test GET /api/cover-letters endpoint."""
+
+    async def test_list_cover_letters_success(self, client, mock_neo4j_connection):
+        """Test successful cover letter listing."""
+        with patch("backend.app_helpers.routes.cover_letter.endpoints.list_cover_letters") as mock_list:
+            mock_list.return_value = {
+                "cover_letters": [],
+                "total": 0
+            }
+            response = await client.get("/api/cover-letters")
+            assert response.status_code == 200
+
+    async def test_list_cover_letters_with_pagination(self, client, mock_neo4j_connection):
+        """Test cover letter listing with pagination."""
+        with patch("backend.app_helpers.routes.cover_letter.endpoints.list_cover_letters") as mock_list:
+            mock_list.return_value = {
+                "cover_letters": [],
+                "total": 0
+            }
+            response = await client.get("/api/cover-letters?limit=10&offset=5")
+            assert response.status_code == 200
+
+    async def test_list_cover_letters_with_search(self, client, mock_neo4j_connection):
+        """Test cover letter listing with search."""
+        with patch("backend.app_helpers.routes.cover_letter.endpoints.list_cover_letters") as mock_list:
+            mock_list.return_value = {
+                "cover_letters": [],
+                "total": 0
+            }
+            response = await client.get("/api/cover-letters?search=Tech%20Corp")
+            assert response.status_code == 200
+
+    async def test_list_cover_letters_database_error(self, client, mock_neo4j_connection):
+        """Test list cover letters with database error."""
+        with patch("backend.app_helpers.routes.cover_letter.endpoints.list_cover_letters") as mock_list:
+            mock_list.side_effect = Exception("Database error")
+
+            response = await client.get("/api/cover-letters")
+            assert response.status_code == 500
+            data = response.json()
+            assert "Failed to list cover letters" in data["detail"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.api
+class TestGetCoverLetter:
+    """Test GET /api/cover-letters/{cover_letter_id} endpoint."""
+
+    async def test_get_cover_letter_success(self, client, mock_neo4j_connection):
+        """Test successful cover letter retrieval."""
+        mock_cover_letter = {
+            "cover_letter_id": "test-id",
+            "created_at": "2024-01-01T00:00:00",
+            "updated_at": "2024-01-01T00:00:00",
+            "job_description": "We need a Python developer.",
+            "company_name": "Tech Corp",
+            "hiring_manager_name": None,
+            "company_address": None,
+            "tone": "professional",
+            "cover_letter_html": "<p>Test letter</p>",
+            "cover_letter_text": "Test letter",
+            "highlights_used": [],
+            "selected_experiences": [],
+            "selected_skills": ["Python"]
+        }
+
+        with patch("backend.app_helpers.routes.cover_letter.endpoints.get_cover_letter_by_id") as mock_get:
+            mock_get.return_value = mock_cover_letter
+
+            response = await client.get("/api/cover-letters/test-id")
+            assert response.status_code == 200
+            data = response.json()
+            assert data["cover_letter_id"] == "test-id"
+
+    async def test_get_cover_letter_not_found(self, client, mock_neo4j_connection):
+        """Test getting non-existent cover letter."""
+        response = await client.get("/api/cover-letters/non-existent-id")
+        assert response.status_code == 404
+        data = response.json()
+        assert "Cover letter not found" in data["detail"]
+
+    async def test_get_cover_letter_database_error(self, client, mock_neo4j_connection):
+        """Test get cover letter with database error."""
+        with patch("backend.app_helpers.routes.cover_letter.endpoints.get_cover_letter_by_id") as mock_get:
+            mock_get.side_effect = Exception("Database error")
+
+            response = await client.get("/api/cover-letters/test-id")
+            assert response.status_code == 500
+            data = response.json()
+            assert "Failed to get cover letter" in data["detail"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.api
+class TestDeleteCoverLetter:
+    """Test DELETE /api/cover-letters/{cover_letter_id} endpoint."""
+
+    async def test_delete_cover_letter_success(self, client, mock_neo4j_connection):
+        """Test successful cover letter deletion."""
+        with patch("backend.app_helpers.routes.cover_letter.endpoints.delete_cover_letter") as mock_delete:
+            mock_delete.return_value = True
+
+            response = await client.delete("/api/cover-letters/test-id")
+            assert response.status_code == 200
+            data = response.json()
+            assert data["status"] == "success"
+
+    async def test_delete_cover_letter_not_found(self, client, mock_neo4j_connection):
+        """Test deleting non-existent cover letter."""
+        with patch("backend.app_helpers.routes.cover_letter.endpoints.delete_cover_letter") as mock_delete:
+            mock_delete.return_value = False  # Indicates not found
+
+            response = await client.delete("/api/cover-letters/non-existent-id")
+            assert response.status_code == 404
+            data = response.json()
+            assert "Cover letter not found" in data["detail"]
+
+    async def test_delete_cover_letter_database_error(self, client, mock_neo4j_connection):
+        """Test delete cover letter with database error."""
+        with patch("backend.app_helpers.routes.cover_letter.endpoints.delete_cover_letter") as mock_delete:
+            mock_delete.side_effect = Exception("Database error")
+
+            response = await client.delete("/api/cover-letters/test-id")
+            assert response.status_code == 500
+            data = response.json()
+            assert "Failed to delete cover letter" in data["detail"]

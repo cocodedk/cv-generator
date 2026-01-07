@@ -37,25 +37,32 @@ def list_cover_letters(
 
     database = Neo4jConnection.get_database()
     with driver.session(database=database) as session:
-        if search:
-            count_result = session.run(count_query, search=search)
-            results = session.run(query, search=search, offset=offset, limit=limit)
-        else:
-            count_result = session.run(count_query)
-            results = session.run(query, offset=offset, limit=limit)
 
-        total = count_result.single()["total"]
-        # Convert to list to consume all results before session closes
-        cover_letters = [
-            {
-                "cover_letter_id": record["cl"]["id"],
-                "created_at": record["cl"]["created_at"],
-                "updated_at": record["cl"]["updated_at"],
-                "company_name": record["cl"]["company_name"],
-                "hiring_manager_name": record["cl"]["hiring_manager_name"],
-                "tone": record["cl"]["tone"],
-            }
-            for record in results
-        ]
+        def get_count(tx):
+            if search:
+                count_result = tx.run(count_query, search=search)
+            else:
+                count_result = tx.run(count_query)
+            return count_result.single()["total"]
+
+        def get_results(tx):
+            if search:
+                results = tx.run(query, search=search, offset=offset, limit=limit)
+            else:
+                results = tx.run(query, offset=offset, limit=limit)
+            return [
+                {
+                    "cover_letter_id": record["cl"]["id"],
+                    "created_at": record["cl"]["created_at"],
+                    "updated_at": record["cl"]["updated_at"],
+                    "company_name": record["cl"]["company_name"],
+                    "hiring_manager_name": record["cl"]["hiring_manager_name"],
+                    "tone": record["cl"]["tone"],
+                }
+                for record in results
+            ]
+
+        total = session.execute_read(get_count)
+        cover_letters = session.execute_read(get_results)
 
         return {"cover_letters": cover_letters, "total": total}

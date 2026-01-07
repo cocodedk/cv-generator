@@ -3,9 +3,10 @@ import { render, screen, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import AiGeneratePanels from '../../../components/ai/AiGeneratePanels'
 import { AIGenerateCVResponse } from '../../../types/ai'
+import { CVData } from '../../../types/cv'
 
 describe('AiGeneratePanels', () => {
-  const mockDraftCv = {
+  const mockDraftCv: CVData = {
     personal_info: { name: 'Test User' },
     experience: [],
     education: [],

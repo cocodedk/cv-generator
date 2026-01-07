@@ -7,6 +7,7 @@ import CoverLetterPreview from './CoverLetterPreview'
 interface CoverLetterModalProps {
   onClose: () => void
   onError: (message: string) => void
+  onSuccess: (message: string) => void
   setLoading: (loading: boolean) => void
   initialJobDescription?: string
 }
@@ -27,6 +28,7 @@ function getErrorDetail(error: unknown): string | null {
 export default function CoverLetterModal({
   onClose,
   onError,
+  onSuccess,
   setLoading,
   initialJobDescription = '',
 }: CoverLetterModalProps) {
@@ -86,7 +88,7 @@ export default function CoverLetterModal({
     setIsSaving(true)
     try {
       await saveCoverLetter(result, payload)
-      onError('Cover letter saved successfully!')
+      onSuccess('Cover letter saved successfully!')
     } catch (error: unknown) {
       onError(getErrorDetail(error) || 'Failed to save cover letter')
     } finally {

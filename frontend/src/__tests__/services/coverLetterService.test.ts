@@ -67,6 +67,7 @@ describe('coverLetterService', () => {
       const request = {
         job_description: 'We need a developer.',
         company_name: 'Tech Corp',
+        tone: 'professional' as const,
       }
 
       await expect(generateCoverLetter(request)).rejects.toThrow()
