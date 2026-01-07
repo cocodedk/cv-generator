@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { CoverLetterRequest, CoverLetterResponse } from '../../types/coverLetter'
-import { generateCoverLetter } from '../../services/coverLetterService'
+import { generateCoverLetter, saveCoverLetter } from '../../services/coverLetterService'
 import RecipientFields from './RecipientFields'
 import CoverLetterPreview from './CoverLetterPreview'
 
@@ -36,6 +36,7 @@ export default function CoverLetterModal({
   })
   const [result, setResult] = useState<CoverLetterResponse | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
 
   const canGenerate = useMemo(
     () => payload.job_description.trim().length >= 20 && payload.company_name.trim().length > 0,
@@ -80,6 +81,19 @@ export default function CoverLetterModal({
     }
   }
 
+  const onSave = async () => {
+    if (!result || isSaving) return
+    setIsSaving(true)
+    try {
+      await saveCoverLetter(result, payload)
+      onError('Cover letter saved successfully!')
+    } catch (error: unknown) {
+      onError(getErrorDetail(error) || 'Failed to save cover letter')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
       <div className="w-full max-w-3xl max-h-[90vh] flex flex-col rounded-lg bg-white shadow-lg dark:border dark:border-gray-800 dark:bg-gray-900">
@@ -117,14 +131,24 @@ export default function CoverLetterModal({
             Cancel
           </button>
           {result ? (
-            <button
-              type="button"
-              disabled={!canGenerate || isGenerating}
-              onClick={onRegenerate}
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-blue-500"
-            >
-              {isGenerating ? 'Regenerating...' : 'Regenerate'}
-            </button>
+            <>
+              <button
+                type="button"
+                disabled={isSaving}
+                onClick={onSave}
+                className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-green-500"
+              >
+                {isSaving ? 'Saving...' : 'Save'}
+              </button>
+              <button
+                type="button"
+                disabled={!canGenerate || isGenerating}
+                onClick={onRegenerate}
+                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-blue-500"
+              >
+                {isGenerating ? 'Regenerating...' : 'Regenerate'}
+              </button>
+            </>
           ) : (
             <button
               type="button"

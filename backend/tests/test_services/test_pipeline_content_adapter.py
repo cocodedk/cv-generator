@@ -96,8 +96,8 @@ class TestContentAdapter:
         mock_llm_client = Mock()
         mock_llm_client.rewrite_text = AsyncMock()
 
-        # Create text that is within _MAX_DESCRIPTION_CHARS (400)
-        valid_response = "A" * 350  # 350 characters, well under 400
+        # Create text that is within _MAX_DESCRIPTION_CHARS (300)
+        valid_response = "A" * 250  # 250 characters, well under 300
         mock_llm_client.rewrite_text.return_value = valid_response
 
         original_text = "Original project description."

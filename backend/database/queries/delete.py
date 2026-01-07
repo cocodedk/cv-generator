@@ -27,3 +27,25 @@ def delete_cv(cv_id: str) -> bool:
             return deleted > 0
 
         return session.execute_write(work)
+
+
+def delete_cover_letter(cover_letter_id: str) -> bool:
+    """Delete cover letter."""
+    driver = Neo4jConnection.get_driver()
+
+    query = """
+    MATCH (cl:CoverLetter {id: $cover_letter_id})
+    DELETE cl
+    RETURN count(cl) AS deleted
+    """
+
+    database = Neo4jConnection.get_database()
+    with driver.session(database=database) as session:
+
+        def work(tx):
+            result = tx.run(query, cover_letter_id=cover_letter_id)
+            record = result.single()
+            deleted = record["deleted"] if record else 0
+            return deleted > 0
+
+        return session.execute_write(work)
