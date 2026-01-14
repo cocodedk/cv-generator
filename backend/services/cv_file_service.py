@@ -143,6 +143,34 @@ class CVFileService:
         self._write_showcase_index()
         return manifest
 
+    def generate_featured_cv(self) -> Optional[str]:
+        """Generate a single featured CV from the latest profile."""
+        try:
+            # Get the latest profile
+            profile = queries.get_profile()
+            if not profile:
+                logger.warning("No profile found for featured CV generation")
+                return None
+
+            # Prepare CV data with fixed layout and theme
+            cv_dict = self.prepare_cv_dict(profile)
+            cv_dict["layout"] = "section-cards-grid"
+            cv_dict["theme"] = "modern"
+
+            # Generate the featured CV
+            featured_path = Path(__file__).parent.parent.parent / "frontend" / "public" / "cv.html"
+            featured_path.parent.mkdir(parents=True, exist_ok=True)
+
+            html_content = render_print_html(cv_dict)
+            featured_path.write_text(html_content, encoding="utf-8")
+
+            logger.info("Generated featured CV at %s", featured_path)
+            return str(featured_path)
+
+        except Exception as e:
+            logger.exception("Failed to generate featured CV: %s", e)
+            return None
+
     def prepare_cv_dict(self, cv: Dict[str, Any]) -> Dict[str, Any]:
         """Prepare CV data dict for generator from database result."""
         theme = cv.get("theme", "classic")

@@ -88,7 +88,7 @@ print_html_router = print_html.create_print_html_router(limiter, cv_file_service
 app.include_router(print_html_router)
 pdf_router = pdf.create_pdf_router(limiter, cv_file_service, pdf_service)
 app.include_router(pdf_router)
-profile_router = profile.create_profile_router(limiter)
+profile_router = profile.create_profile_router(limiter, cv_file_service)
 app.include_router(profile_router)
 ai_router = ai.create_ai_router(limiter)
 app.include_router(ai_router)

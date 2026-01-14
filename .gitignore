@@ -44,6 +44,9 @@ frontend/public/showcase/**/*.json
 frontend/public/showcase/**/*.html
 !frontend/public/showcase/.gitkeep
 
+# Allow featured CV to be committed
+!frontend/public/cv.html
+
 # Logs
 *.log
 logs/

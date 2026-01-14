@@ -13,8 +13,11 @@ def list_cvs(
         query = """
         MATCH (cv:CV)
         OPTIONAL MATCH (person:Person)-[:BELONGS_TO_CV]->(cv)
-        WHERE person.name CONTAINS $search
-           OR person.email CONTAINS $search
+        WITH cv, person
+        WHERE (person.name IS NOT NULL AND person.name CONTAINS $search)
+           OR (person.email IS NOT NULL AND person.email CONTAINS $search)
+           OR (cv.target_company IS NOT NULL AND cv.target_company CONTAINS $search)
+           OR (cv.target_role IS NOT NULL AND cv.target_role CONTAINS $search)
         RETURN cv, person.name AS person_name, cv.filename AS filename,
                cv.target_company AS target_company, cv.target_role AS target_role
         ORDER BY cv.created_at DESC
@@ -24,8 +27,11 @@ def list_cvs(
         count_query = """
         MATCH (cv:CV)
         OPTIONAL MATCH (person:Person)-[:BELONGS_TO_CV]->(cv)
-        WHERE person.name CONTAINS $search
-           OR person.email CONTAINS $search
+        WITH cv, person
+        WHERE (person.name IS NOT NULL AND person.name CONTAINS $search)
+           OR (person.email IS NOT NULL AND person.email CONTAINS $search)
+           OR (cv.target_company IS NOT NULL AND cv.target_company CONTAINS $search)
+           OR (cv.target_role IS NOT NULL AND cv.target_role CONTAINS $search)
         RETURN count(cv) AS total
         """
     else:

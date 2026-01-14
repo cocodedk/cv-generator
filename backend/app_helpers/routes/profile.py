@@ -35,7 +35,7 @@ def _log_profile_delete_request(
     )
 
 
-def create_profile_router(limiter: Limiter) -> APIRouter:  # noqa: C901
+def create_profile_router(limiter: Limiter, cv_file_service=None) -> APIRouter:  # noqa: C901
     """Create and return profile router with dependencies."""
     router = APIRouter()
 
@@ -48,6 +48,15 @@ def create_profile_router(limiter: Limiter) -> APIRouter:  # noqa: C901
             success = queries.save_profile(profile_dict)
             if not success:
                 raise HTTPException(status_code=500, detail="Failed to save profile")
+
+            # Generate featured CV after profile save
+            if cv_file_service:
+                try:
+                    cv_file_service.generate_featured_cv()
+                    logger.info("Generated featured CV after profile save")
+                except Exception as e:
+                    logger.warning("Failed to generate featured CV after profile save", exc_info=e)
+
             return ProfileResponse(
                 status="success", message="Profile saved successfully"
             )

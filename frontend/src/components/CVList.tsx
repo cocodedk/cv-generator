@@ -114,6 +114,16 @@ export default function CVList({ onError }: CVListProps) {
     window.location.hash = `#edit/${cvId}`
   }
 
+  const handleExport = () => {
+    const params: any = {}
+    if (search) {
+      params.search = search
+    }
+    const queryString = new URLSearchParams(params).toString()
+    const url = `/api/cvs/export?format=csv${queryString ? `&${queryString}` : ''}`
+    window.open(url, '_blank')
+  }
+
   return (
     <div className="bg-white shadow rounded-lg dark:bg-gray-900 dark:border dark:border-gray-800">
       <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
@@ -133,6 +143,18 @@ export default function CVList({ onError }: CVListProps) {
               className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-500"
             >
               Search
+            </button>
+            <button
+              onClick={handleExport}
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 dark:hover:bg-green-500"
+            >
+              Export CSV
+            </button>
+            <button
+              onClick={handleExport}
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 dark:hover:bg-green-500"
+            >
+              Export CSV
             </button>
           </div>
         </div>
