@@ -1,6 +1,9 @@
 # Sample CV Data
 # This is an example CV data structure that can be used for testing
 
+layout: "career-timeline"
+theme: "classic"
+
 personal_info:
   name: "Jane Smith"
   email: "jane.smith@example.com"
@@ -9,6 +12,7 @@ personal_info:
   linkedin: "https://linkedin.com/in/janesmith"
   github: "https://github.com/janesmith"
   website: "https://janesmith.dev"
+  photo: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face"
   summary: "Full-stack developer passionate about creating scalable web applications and clean code."
 
 experience:

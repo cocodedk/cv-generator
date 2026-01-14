@@ -30,6 +30,21 @@
       padding: 48px 24px;
       margin-bottom: 48px;
     }
+    .hero-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .hero-text {
+      flex: 1;
+      text-align: left;
+    }
+    .hero-photo {
+      flex-shrink: 0;
+    }
     h1 {
       font-size: 48px;
       margin: 0 0 8px;
@@ -54,11 +69,31 @@
       color: var(--accent);
       text-decoration: none;
     }
+    .cv-photo-circle {
+      width: 100px;
+      height: 100px;
+      max-width: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 50%;
+      border: 3px solid var(--accent);
+      background-color: var(--bg-card);
+    }
     .cards-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: 1fr 1.5fr;
       gap: 24px;
       margin-bottom: 48px;
+      align-items: start;
+    }
+    .left-column {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .skills-column {
+      display: flex;
+      flex-direction: column;
     }
     .card {
       background: var(--bg-card);
@@ -134,6 +169,19 @@
       .cards-grid {
         grid-template-columns: 1fr;
       }
+      .left-column {
+        gap: 24px;
+      }
+      .hero-content {
+        flex-direction: column;
+        text-align: center;
+      }
+      .hero-text {
+        text-align: center;
+      }
+      .cv-photo-circle {
+        margin: 0 auto;
+      }
     }
     @media print {
       .card {
@@ -149,43 +197,56 @@
 <body>
   <div class="container">
     <header class="hero">
-      {% if personal_info.name %}<h1 data-scramble="1">{{ personal_info.name }}</h1>{% endif %}
-      {% if personal_info.title %}<p class="cv-title" data-scramble="1">{{ personal_info.title }}</p>{% endif %}
-      <div class="cv-contact">
-        {% if personal_info.email %}<span><a data-scramble="1" data-scramble-href="1" href="mailto:{{ personal_info.email }}">{{ personal_info.email }}</a></span>{% endif %}
-        {% if personal_info.phone %}<span data-scramble="1">{{ personal_info.phone }}</span>{% endif %}
-        {% if personal_info.website %}<span><a href="{{ personal_info.website }}">{{ personal_info.website }}</a></span>{% endif %}
-        {% if personal_info.linkedin %}<span><a href="{{ personal_info.linkedin }}">LinkedIn</a></span>{% endif %}
-        {% if personal_info.github %}<span><a href="{{ personal_info.github }}">GitHub</a></span>{% endif %}
+      <div class="hero-content">
+        <div class="hero-text">
+          {% if personal_info.name %}<h1 data-scramble="1">{{ personal_info.name }}</h1>{% endif %}
+          {% if personal_info.title %}<p class="cv-title" data-scramble="1">{{ personal_info.title }}</p>{% endif %}
+          <div class="cv-contact">
+            {% if personal_info.email %}<span><a data-scramble="1" data-scramble-href="1" href="mailto:{{ personal_info.email }}">{{ personal_info.email }}</a></span>{% endif %}
+            {% if personal_info.phone %}<span data-scramble="1">{{ personal_info.phone }}</span>{% endif %}
+            {% if personal_info.website %}<span><a href="{{ personal_info.website }}">{{ personal_info.website }}</a></span>{% endif %}
+            {% if personal_info.linkedin %}<span><a href="{{ personal_info.linkedin }}">LinkedIn</a></span>{% endif %}
+            {% if personal_info.github %}<span><a href="{{ personal_info.github }}">GitHub</a></span>{% endif %}
+          </div>
+        </div>
+        {% if personal_info.photo %}
+        <div class="hero-photo">
+          <img class="cv-photo-circle" src="{{ personal_info.photo }}" alt="Photo"/>
+        </div>
+        {% endif %}
       </div>
     </header>
     <main>
       <div class="cards-grid">
-        {% if personal_info.summary %}
-        <div class="card">
-          <h2>Summary</h2>
-          <div class="card-content" data-scramble="1" data-scramble-mode="html">
-            {{ personal_info.summary | safe }}
+        <div class="left-column">
+          {% if personal_info.summary %}
+          <div class="card">
+            <h2>Summary</h2>
+            <div class="card-content" data-scramble="1" data-scramble-mode="html">
+              {{ personal_info.summary | safe }}
+            </div>
           </div>
+          {% endif %}
+          {% if experience %}
+          <div class="card">
+            <h2>Experience Highlights</h2>
+            <div class="card-content">
+              {% for exp in experience[:3] %}
+                <div style="margin-bottom: 12px;">
+                  <strong>{{ exp.title }}</strong> at {{ exp.company }}
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
         </div>
-        {% endif %}
         {% if skills_by_category %}
-        <div class="card">
-          <h2>Skills</h2>
-          <div class="card-content">
-            {% include "components/skills_list.html" %}
-          </div>
-        </div>
-        {% endif %}
-        {% if experience %}
-        <div class="card">
-          <h2>Experience Highlights</h2>
-          <div class="card-content">
-            {% for exp in experience[:3] %}
-              <div style="margin-bottom: 12px;">
-                <strong>{{ exp.title }}</strong> at {{ exp.company }}
-              </div>
-            {% endfor %}
+        <div class="skills-column">
+          <div class="card">
+            <h2>Skills</h2>
+            <div class="card-content">
+              {% include "components/skills_list.html" %}
+            </div>
           </div>
         </div>
         {% endif %}

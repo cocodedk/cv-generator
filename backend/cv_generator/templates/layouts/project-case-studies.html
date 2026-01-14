@@ -30,6 +30,28 @@
       padding: 64px 24px;
       text-align: center;
     }
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .header-text {
+      flex: 1;
+    }
+    .header-photo {
+      flex-shrink: 0;
+    }
+    .cv-photo-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid rgba(255,255,255,0.8);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
     h1 {
       font-size: 48px;
       margin: 0 0 8px;
@@ -134,6 +156,16 @@
       color: var(--accent);
       text-decoration: none;
     }
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        gap: 24px;
+      }
+      .cv-photo-circle {
+        width: 100px;
+        height: 100px;
+      }
+    }
     @media print {
       header {
         background: var(--accent);
@@ -148,14 +180,23 @@
 <body>
   <div class="container">
     <header>
-      {% if personal_info.name %}<h1 data-scramble="1">{{ personal_info.name }}</h1>{% endif %}
-      {% if personal_info.title %}<p class="cv-title" data-scramble="1">{{ personal_info.title }}</p>{% endif %}
-      <div class="cv-contact">
-        {% if personal_info.email %}<span><a data-scramble="1" data-scramble-href="1" href="mailto:{{ personal_info.email }}">{{ personal_info.email }}</a></span>{% endif %}
-        {% if personal_info.phone %}<span data-scramble="1">{{ personal_info.phone }}</span>{% endif %}
-        {% if personal_info.website %}<span><a href="{{ personal_info.website }}">{{ personal_info.website }}</a></span>{% endif %}
-        {% if personal_info.linkedin %}<span><a href="{{ personal_info.linkedin }}">LinkedIn</a></span>{% endif %}
-        {% if personal_info.github %}<span><a href="{{ personal_info.github }}">GitHub</a></span>{% endif %}
+      <div class="header-content">
+        <div class="header-text">
+          {% if personal_info.name %}<h1 data-scramble="1">{{ personal_info.name }}</h1>{% endif %}
+          {% if personal_info.title %}<p class="cv-title" data-scramble="1">{{ personal_info.title }}</p>{% endif %}
+          <div class="cv-contact">
+            {% if personal_info.email %}<span><a data-scramble="1" data-scramble-href="1" href="mailto:{{ personal_info.email }}">{{ personal_info.email }}</a></span>{% endif %}
+            {% if personal_info.phone %}<span data-scramble="1">{{ personal_info.phone }}</span>{% endif %}
+            {% if personal_info.website %}<span><a href="{{ personal_info.website }}">{{ personal_info.website }}</a></span>{% endif %}
+            {% if personal_info.linkedin %}<span><a href="{{ personal_info.linkedin }}">LinkedIn</a></span>{% endif %}
+            {% if personal_info.github %}<span><a href="{{ personal_info.github }}">GitHub</a></span>{% endif %}
+          </div>
+        </div>
+        {% if personal_info.photo %}
+        <div class="header-photo">
+          <img class="cv-photo-circle" src="{{ personal_info.photo }}" alt="Photo"/>
+        </div>
+        {% endif %}
       </div>
     </header>
     <main>

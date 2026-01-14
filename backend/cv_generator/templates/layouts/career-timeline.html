@@ -74,6 +74,29 @@
       margin-bottom: 32px;
       padding-left: 24px;
     }
+    .timeline-photo-item {
+      margin-bottom: 24px;
+    }
+    .timeline-photo-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .timeline-photo {
+      width: 168px;
+      height: 168px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--accent);
+      box-shadow: 0 0 0 1px #fff;
+    }
+    .timeline-photo-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      font-style: italic;
+    }
     .timeline-item::before {
       content: '';
       position: absolute;
@@ -144,6 +167,10 @@
       .timeline-item::before {
         left: -16px;
       }
+      .timeline-photo {
+        width: 112px;
+        height: 112px;
+      }
     }
     @page{size:A4;margin:0}
     .hint {
@@ -177,6 +204,14 @@
       <section>
         <h2>Career Timeline</h2>
         <ol class="timeline">
+          {% if personal_info.photo %}
+          <li class="timeline-item timeline-photo-item">
+            <div class="timeline-photo-container">
+              <img class="timeline-photo" src="{{ personal_info.photo }}" alt="Profile Photo"/>
+            </div>
+            <div class="timeline-photo-label">Professional Profile</div>
+          </li>
+          {% endif %}
           {% for exp in experience %}
           <li class="timeline-item">
             <div class="timeline-date">
