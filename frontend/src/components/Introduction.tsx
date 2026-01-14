@@ -43,11 +43,12 @@ export default function Introduction() {
       })
   }, [])
 
-  const filteredTemplates = templateData?.templates.filter(template => {
-    if (selectedFilter === 'web') return template.web_optimized
-    if (selectedFilter === 'print') return template.print_friendly
-    return true
-  }) || []
+  const filteredTemplates =
+    templateData?.templates.filter(template => {
+      if (selectedFilter === 'web') return template.web_optimized
+      if (selectedFilter === 'print') return template.print_friendly
+      return true
+    }) || []
 
   const templatesBase = `${import.meta.env.BASE_URL || '/'}templates/`
 
@@ -74,7 +75,8 @@ export default function Introduction() {
                   CV Templates
                 </h2>
                 <p className="text-gray-600 dark:text-gray-400 mt-1">
-                  {templateData.profile_name}'s professional CV in {templateData.templates.length} different styles
+                  {templateData.profile_name}&apos;s professional CV in{' '}
+                  {templateData.templates.length} different styles
                 </p>
               </div>
 
@@ -122,15 +124,23 @@ export default function Introduction() {
                 className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden hover:shadow-xl transition-shadow"
               >
                 {/* Template Preview */}
-                <div className="aspect-[3/4] bg-gray-50 dark:bg-gray-800 relative overflow-hidden">
-                  <iframe
-                    src={`${templatesBase}${template.file}`}
-                    className="w-full h-full border-0 scale-[0.3] origin-top-left"
-                    style={{ width: '333%', height: '333%', transform: 'scale(0.3) translate(-66.67%, -66.67%)' }}
-                    title={`${template.name} preview`}
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+                <div className="h-64 bg-gray-50 dark:bg-gray-800 relative overflow-hidden border-b border-gray-200 dark:border-gray-700">
+                  <div className="absolute inset-0 flex items-start justify-center">
+                    <iframe
+                      src={`${templatesBase}${template.file}`}
+                      className="border-0"
+                      style={{
+                        width: '800px',
+                        height: '1131px', // A4 portrait (1:1.414)
+                        transform: 'scale(0.28)',
+                        transformOrigin: 'top center',
+                      }}
+                      title={`${template.name} preview`}
+                      loading="lazy"
+                      scrolling="no"
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent pointer-events-none" />
                 </div>
 
                 {/* Template Info */}
@@ -233,7 +243,12 @@ export default function Introduction() {
                 className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -286,7 +301,8 @@ export default function Introduction() {
             Create Your Profile
           </h3>
           <p className="text-gray-600 dark:text-gray-400">
-            Build your professional profile with personal information, experience, education, and skills.
+            Build your professional profile with personal information, experience, education, and
+            skills.
           </p>
           <button
             onClick={() => {
@@ -344,9 +360,7 @@ export default function Introduction() {
               />
             </svg>
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-            Export Options
-          </h3>
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Export Options</h3>
           <p className="text-gray-600 dark:text-gray-400">
             Download individual templates or use our API to generate custom versions.
           </p>
