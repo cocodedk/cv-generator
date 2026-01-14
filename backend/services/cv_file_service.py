@@ -4,7 +4,7 @@ import copy
 import json
 import logging
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Dict, Any, Optional
 from backend.cv_generator.generator import DocxCVGenerator
@@ -91,13 +91,23 @@ class CVFileService:
     ) -> Optional[Dict[str, Any]]:
         """Generate HTML files for all layouts for public showcase."""
         if not self.showcase_enabled:
+            logger.debug("Showcase generation disabled, skipping for CV %s", cv_id)
             return None
 
         theme = cv_dict.get("theme", "classic")
-        showcase_key = self.scramble_key or self._load_or_create_showcase_key(cv_id)
-        layout_names = list(LAYOUTS.keys())
-        cv_output_dir = self.showcase_dir / cv_id
-        cv_output_dir.mkdir(parents=True, exist_ok=True)
+        logger.info(
+            "Generating showcase for CV %s with theme %s in directory %s",
+            cv_id, theme, self.showcase_dir
+        )
+
+        try:
+            showcase_key = self.scramble_key or self._load_or_create_showcase_key(cv_id)
+            layout_names = list(LAYOUTS.keys())
+            cv_output_dir = self.showcase_dir / cv_id
+            cv_output_dir.mkdir(parents=True, exist_ok=True)
+        except Exception as e:
+            logger.error("Failed to set up showcase generation for CV %s: %s", cv_id, e)
+            return None
 
         layouts = []
         for layout_name in layout_names:
@@ -207,3 +217,33 @@ class CVFileService:
                 "Could not set restrictive permissions on key file: %s", key_path
             )
         return key
+
+    def cleanup_old_download_files(self, max_age_hours: int = 24) -> int:
+        """Clean up old download files that are older than max_age_hours.
+
+        Returns the number of files cleaned up.
+        """
+        if not self.output_dir.exists():
+            return 0
+
+        cutoff_time = datetime.now() - timedelta(hours=max_age_hours)
+        cleaned_count = 0
+
+        # Clean up HTML and DOCX files
+        for pattern in ["*.html", "*.docx"]:
+            for file_path in self.output_dir.glob(pattern):
+                try:
+                    # Skip if file is in showcase_keys directory
+                    if "showcase_keys" in str(file_path):
+                        continue
+
+                    # Check file modification time
+                    mtime = datetime.fromtimestamp(file_path.stat().st_mtime)
+                    if mtime < cutoff_time:
+                        file_path.unlink()
+                        cleaned_count += 1
+                        logger.info("Cleaned up old download file: %s", file_path)
+                except (OSError, ValueError) as e:
+                    logger.warning("Failed to clean up file %s: %s", file_path, e)
+
+        return cleaned_count

@@ -65,11 +65,19 @@ cv_file_service = CVFileService(
     scramble_key=scramble_key,
 )
 
+# Clean up old download files on startup
+try:
+    cleaned_count = cv_file_service.cleanup_old_download_files(max_age_hours=24)
+    if cleaned_count > 0:
+        print(f"Cleaned up {cleaned_count} old download files on startup")
+except Exception as e:
+    print(f"Warning: Failed to clean up old download files: {e}")
+
 # Initialize PDF service
 pdf_service = PDFService()
 
 # Register routes
-app.include_router(health.router)
+app.include_router(health.create_health_router(cv_file_service))
 cv_router = cv.create_cv_router(limiter, cv_file_service, output_dir)
 app.include_router(cv_router)
 html_router = html.create_html_router(limiter, cv_file_service, output_dir)

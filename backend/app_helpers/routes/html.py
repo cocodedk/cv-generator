@@ -88,6 +88,14 @@ async def _handle_download_html(
     html_filename = (
         filename.replace(".docx", ".html") if filename.endswith(".docx") else filename
     )
+
+    # Log warning to prevent confusion with showcase files
+    logger.warning(
+        "Generating download file %s for CV %s - this is NOT for GitHub Pages publishing. "
+        "Use showcase files from frontend/public/showcase/ for publishing.",
+        html_filename, cv_id
+    )
+
     cv_file_service.generate_file_for_cv(cv_id, cv_dict)
     file_path = _resolve_file_path(current_output_dir, html_filename)
     return _build_html_response(file_path, html_filename)
