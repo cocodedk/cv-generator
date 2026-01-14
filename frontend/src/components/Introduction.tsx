@@ -1,125 +1,190 @@
 import { useEffect, useState } from 'react'
 import { BRANDING } from '../app_helpers/branding'
 
-type FeaturedCVStatus = {
-  available: boolean
-  last_updated?: string
+type CVTemplate = {
+  layout: string
+  theme: string
+  file: string
+  name: string
+  description: string
+  print_friendly: boolean
+  web_optimized: boolean
 }
 
+type TemplateIndex = {
+  generated_at: string
+  profile_name: string
+  templates: CVTemplate[]
+}
+
+type FilterType = 'all' | 'web' | 'print'
+
 export default function Introduction() {
-  const [cvStatus, setCvStatus] = useState<FeaturedCVStatus>({ available: false })
+  const [templateData, setTemplateData] = useState<TemplateIndex | null>(null)
+  const [selectedFilter, setSelectedFilter] = useState<FilterType>('all')
+  const [previewTemplate, setPreviewTemplate] = useState<CVTemplate | null>(null)
 
   useEffect(() => {
-    // Check if the featured CV exists
+    // Load template index
     const basePath = import.meta.env.BASE_URL || '/'
-    const cvUrl = `${basePath}cv.html`
+    const indexUrl = `${basePath}templates/index.json`
 
-    fetch(cvUrl, { method: 'HEAD' })
-      .then(response => {
+    fetch(indexUrl)
+      .then(async response => {
         if (response.ok) {
-          // Get the last modified date from headers
-          const lastModified = response.headers.get('last-modified')
-          setCvStatus({
-            available: true,
-            last_updated: lastModified || undefined,
-          })
+          const data = (await response.json()) as TemplateIndex
+          setTemplateData(data)
         } else {
-          setCvStatus({ available: false })
+          setTemplateData(null)
         }
       })
       .catch(() => {
-        setCvStatus({ available: false })
+        setTemplateData(null)
       })
   }, [])
 
-  const cvUrl = `${import.meta.env.BASE_URL || '/'}cv.html`
+  const filteredTemplates = templateData?.templates.filter(template => {
+    if (selectedFilter === 'web') return template.web_optimized
+    if (selectedFilter === 'print') return template.print_friendly
+    return true
+  }) || []
+
+  const templatesBase = `${import.meta.env.BASE_URL || '/'}templates/`
 
   return (
     <div className="space-y-12">
-      {/* Hero Section with Featured CV */}
+      {/* Hero Section */}
       <div className="text-center space-y-6">
         <h1 className="text-5xl font-bold text-gray-900 dark:text-gray-100">
           Welcome to {BRANDING.appName}
         </h1>
         <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
           Create professional CVs and resumes with ease. Your latest profile is automatically
-          transformed into a beautifully designed CV.
+          transformed into beautifully designed CV templates.
         </p>
       </div>
 
-      {/* Featured CV Display */}
-      {cvStatus.available ? (
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-800 overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
-              <h2 className="text-2xl font-bold text-center">My Professional CV</h2>
-              {cvStatus.last_updated && (
-                <p className="text-center text-blue-100 mt-1 text-sm">
-                  Last updated: {new Date(cvStatus.last_updated).toLocaleDateString()}
+      {/* Template Gallery */}
+      {templateData?.templates ? (
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                  CV Templates
+                </h2>
+                <p className="text-gray-600 dark:text-gray-400 mt-1">
+                  {templateData.profile_name}'s professional CV in {templateData.templates.length} different styles
                 </p>
-              )}
-            </div>
-
-            <div className="p-6">
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-6">
-                <iframe
-                  src={cvUrl}
-                  className="w-full h-96 border-0 rounded"
-                  title="Featured CV"
-                  loading="lazy"
-                />
               </div>
 
-              <div className="flex flex-wrap justify-center gap-4">
-                <a
-                  href={cvUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                    />
-                  </svg>
-                  View Full CV
-                </a>
-
+              {/* Filter Controls */}
+              <div className="flex gap-2">
                 <button
-                  onClick={() => window.open(`${cvUrl}?print=true`, '_blank')}
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2"
+                  onClick={() => setSelectedFilter('all')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    selectedFilter === 'all'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                  }`}
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
-                    />
-                  </svg>
-                  Print CV
+                  All ({templateData.templates.length})
                 </button>
-
-                <a
-                  href="/api/cv/download-featured"
-                  className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2"
+                <button
+                  onClick={() => setSelectedFilter('web')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    selectedFilter === 'web'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                  }`}
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                  Download DOCX
-                </a>
+                  Web ({templateData.templates.filter(t => t.web_optimized).length})
+                </button>
+                <button
+                  onClick={() => setSelectedFilter('print')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    selectedFilter === 'print'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  Print ({templateData.templates.filter(t => t.print_friendly).length})
+                </button>
               </div>
             </div>
           </div>
+
+          {/* Template Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredTemplates.map(template => (
+              <div
+                key={`${template.layout}-${template.theme}`}
+                className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden hover:shadow-xl transition-shadow"
+              >
+                {/* Template Preview */}
+                <div className="aspect-[3/4] bg-gray-50 dark:bg-gray-800 relative overflow-hidden">
+                  <iframe
+                    src={`${templatesBase}${template.file}`}
+                    className="w-full h-full border-0 scale-[0.3] origin-top-left"
+                    style={{ width: '333%', height: '333%', transform: 'scale(0.3) translate(-66.67%, -66.67%)' }}
+                    title={`${template.name} preview`}
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+                </div>
+
+                {/* Template Info */}
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                    {template.name}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    {template.description}
+                  </p>
+
+                  {/* Badges */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {template.web_optimized && (
+                      <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded-full">
+                        Web Optimized
+                      </span>
+                    )}
+                    {template.print_friendly && (
+                      <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded-full">
+                        Print Friendly
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setPreviewTemplate(template)}
+                      className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
+                    >
+                      Preview
+                    </button>
+                    <a
+                      href={`${templatesBase}${template.file}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-center text-sm"
+                    >
+                      View Full
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {filteredTemplates.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-gray-500 dark:text-gray-400">
+                No templates match the selected filter.
+              </p>
+            </div>
+          )}
         </div>
       ) : (
         <div className="max-w-2xl mx-auto text-center">
@@ -138,11 +203,63 @@ export default function Introduction() {
               />
             </svg>
             <h3 className="text-xl font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
-              No CV Available Yet
+              No Templates Available
             </h3>
             <p className="text-yellow-700 dark:text-yellow-300 mb-6">
-              Create your profile to generate your professional CV automatically.
+              Create your profile to generate professional CV templates automatically.
             </p>
+            <button
+              onClick={() => {
+                window.location.hash = 'profile'
+              }}
+              className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+            >
+              Create Profile
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Template Preview Modal */}
+      {previewTemplate && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-900 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-800">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                {previewTemplate.name}
+              </h3>
+              <button
+                onClick={() => setPreviewTemplate(null)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6">
+              <iframe
+                src={`${templatesBase}${previewTemplate.file}`}
+                className="w-full h-96 border-0 rounded"
+                title={`${previewTemplate.name} full preview`}
+              />
+              <div className="flex justify-end gap-3 mt-6">
+                <a
+                  href={`${templatesBase}${previewTemplate.file}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                >
+                  Open in New Tab
+                </a>
+                <button
+                  onClick={() => setPreviewTemplate(null)}
+                  className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -169,8 +286,7 @@ export default function Introduction() {
             Create Your Profile
           </h3>
           <p className="text-gray-600 dark:text-gray-400">
-            Build your professional profile with personal information, experience, education, and
-            skills.
+            Build your professional profile with personal information, experience, education, and skills.
           </p>
           <button
             onClick={() => {
@@ -194,22 +310,21 @@ export default function Introduction() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
               />
             </svg>
           </div>
           <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-            Auto-Generated CV
+            Template Gallery
           </h3>
           <p className="text-gray-600 dark:text-gray-400">
-            Your profile is automatically transformed into a beautifully designed CV using
-            professional layouts.
+            Choose from professional templates optimized for web viewing or print production.
           </p>
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
           >
-            Refresh CV
+            Browse Templates
           </button>
         </div>
 
@@ -230,10 +345,10 @@ export default function Introduction() {
             </svg>
           </div>
           <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-            Multiple Formats
+            Export Options
           </h3>
           <p className="text-gray-600 dark:text-gray-400">
-            Export your CV in HTML, DOCX, and print-ready formats for any professional need.
+            Download individual templates or use our API to generate custom versions.
           </p>
           <a
             href="https://github.com/cocodedk/cv-generator/tree/main/docs"
@@ -241,7 +356,7 @@ export default function Introduction() {
             rel="noopener noreferrer"
             className="inline-block bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
           >
-            View Docs
+            View API Docs
           </a>
         </div>
       </div>

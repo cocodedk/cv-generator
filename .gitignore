@@ -44,8 +44,8 @@ frontend/public/showcase/**/*.json
 frontend/public/showcase/**/*.html
 !frontend/public/showcase/.gitkeep
 
-# Allow featured CV to be committed
-!frontend/public/cv.html
+# Allow template files to be committed
+!frontend/public/templates/
 
 # Logs
 *.log
@@ -60,6 +60,9 @@ playwright-report/
 .playwright-mcp/*.png
 *.png
 !frontend/public/*.png
+
+# CSV files
+*.csv
 coverage*.json
 coverage/
 frontend/coverage/

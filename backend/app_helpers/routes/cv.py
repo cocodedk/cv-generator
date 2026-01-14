@@ -138,18 +138,23 @@ def create_cv_router(  # noqa: C901
             logger.error("Failed to update CV %s", cv_id, exc_info=e)
             raise HTTPException(status_code=500, detail="Failed to update CV")
 
-    @router.post("/api/generate-featured-cv")
-    async def generate_featured_cv():
-        """Generate the featured CV from the latest profile."""
+    @router.post("/api/generate-templates")
+    async def generate_templates():
+        """Generate featured CV templates from the latest profile."""
         try:
-            result = cv_file_service.generate_featured_cv()
+            result = cv_file_service.generate_featured_templates()
             if result:
-                return {"status": "success", "message": "Featured CV generated", "path": result}
+                return {
+                    "status": "success",
+                    "message": f"Generated {len(result['templates'])} templates",
+                    "templates": result["templates"],
+                    "profile_name": result.get("profile_name")
+                }
             else:
-                raise HTTPException(status_code=404, detail="No profile found to generate CV from")
+                raise HTTPException(status_code=404, detail="No profile found to generate templates from")
         except Exception as e:
-            logger.error("Failed to generate featured CV", exc_info=e)
-            raise HTTPException(status_code=500, detail="Failed to generate featured CV")
+            logger.error("Failed to generate templates", exc_info=e)
+            raise HTTPException(status_code=500, detail="Failed to generate templates")
 
     @router.get("/api/cv/download-featured")
     async def download_featured_cv():

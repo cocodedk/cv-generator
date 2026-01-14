@@ -49,13 +49,13 @@ def create_profile_router(limiter: Limiter, cv_file_service=None) -> APIRouter: 
             if not success:
                 raise HTTPException(status_code=500, detail="Failed to save profile")
 
-            # Generate featured CV after profile save
+            # Generate featured templates after profile save
             if cv_file_service:
                 try:
-                    cv_file_service.generate_featured_cv()
-                    logger.info("Generated featured CV after profile save")
+                    cv_file_service.generate_featured_templates()
+                    logger.info("Generated featured templates after profile save")
                 except Exception as e:
-                    logger.warning("Failed to generate featured CV after profile save", exc_info=e)
+                    logger.warning("Failed to generate featured templates after profile save", exc_info=e)
 
             return ProfileResponse(
                 status="success", message="Profile saved successfully"

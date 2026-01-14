@@ -1,0 +1,186 @@
+{
+  "generated_at": "2026-01-14T12:59:30.707532+00:00",
+  "profile_name": "Babak Bandpey",
+  "templates": [
+    {
+      "description": "Web presentation with card-based sections",
+      "file": "section-cards-grid-modern.html",
+      "layout": "section-cards-grid",
+      "name": "Section Cards Grid (modern)",
+      "print_friendly": false,
+      "theme": "modern",
+      "web_optimized": true
+    },
+    {
+      "description": "Web presentation with card-based sections",
+      "file": "section-cards-grid-creative.html",
+      "layout": "section-cards-grid",
+      "name": "Section Cards Grid (creative)",
+      "print_friendly": false,
+      "theme": "creative",
+      "web_optimized": true
+    },
+    {
+      "description": "Web presentation with card-based sections",
+      "file": "section-cards-grid-elegant.html",
+      "layout": "section-cards-grid",
+      "name": "Section Cards Grid (elegant)",
+      "print_friendly": false,
+      "theme": "elegant",
+      "web_optimized": true
+    },
+    {
+      "description": "Web-first with persistent sidebar, still printable",
+      "file": "modern-sidebar-modern.html",
+      "layout": "modern-sidebar",
+      "name": "Modern Sidebar (modern)",
+      "print_friendly": true,
+      "theme": "modern",
+      "web_optimized": true
+    },
+    {
+      "description": "Web-first with persistent sidebar, still printable",
+      "file": "modern-sidebar-professional.html",
+      "layout": "modern-sidebar",
+      "name": "Modern Sidebar (professional)",
+      "print_friendly": true,
+      "theme": "professional",
+      "web_optimized": true
+    },
+    {
+      "description": "Web-first with persistent sidebar, still printable",
+      "file": "modern-sidebar-minimal.html",
+      "layout": "modern-sidebar",
+      "name": "Modern Sidebar (minimal)",
+      "print_friendly": true,
+      "theme": "minimal",
+      "web_optimized": true
+    },
+    {
+      "description": "Narrative progression with timeline visualization",
+      "file": "career-timeline-modern.html",
+      "layout": "career-timeline",
+      "name": "Career Timeline (modern)",
+      "print_friendly": true,
+      "theme": "modern",
+      "web_optimized": true
+    },
+    {
+      "description": "Narrative progression with timeline visualization",
+      "file": "career-timeline-creative.html",
+      "layout": "career-timeline",
+      "name": "Career Timeline (creative)",
+      "print_friendly": true,
+      "theme": "creative",
+      "web_optimized": true
+    },
+    {
+      "description": "Long-scroll story format for projects",
+      "file": "project-case-studies-modern.html",
+      "layout": "project-case-studies",
+      "name": "Project Case Studies (modern)",
+      "print_friendly": false,
+      "theme": "modern",
+      "web_optimized": true
+    },
+    {
+      "description": "Long-scroll story format for projects",
+      "file": "project-case-studies-professional.html",
+      "layout": "project-case-studies",
+      "name": "Project Case Studies (professional)",
+      "print_friendly": false,
+      "theme": "professional",
+      "web_optimized": true
+    },
+    {
+      "description": "Multi-route web CV with navigation",
+      "file": "portfolio-spa-modern.html",
+      "layout": "portfolio-spa",
+      "name": "Portfolio SPA (modern)",
+      "print_friendly": false,
+      "theme": "modern",
+      "web_optimized": true
+    },
+    {
+      "description": "Multi-route web CV with navigation",
+      "file": "portfolio-spa-creative.html",
+      "layout": "portfolio-spa",
+      "name": "Portfolio SPA (creative)",
+      "print_friendly": false,
+      "theme": "creative",
+      "web_optimized": true
+    },
+    {
+      "description": "Web showcase with filtering and interaction",
+      "file": "interactive-skills-matrix-modern.html",
+      "layout": "interactive-skills-matrix",
+      "name": "Interactive Skills Matrix (modern)",
+      "print_friendly": false,
+      "theme": "modern",
+      "web_optimized": true
+    },
+    {
+      "description": "Web showcase with filtering and interaction",
+      "file": "interactive-skills-matrix-tech.html",
+      "layout": "interactive-skills-matrix",
+      "name": "Interactive Skills Matrix (tech)",
+      "print_friendly": false,
+      "theme": "tech",
+      "web_optimized": true
+    },
+    {
+      "description": "Web showcase with dark mode support",
+      "file": "dark-mode-tech-modern.html",
+      "layout": "dark-mode-tech",
+      "name": "Dark Mode Tech (modern)",
+      "print_friendly": false,
+      "theme": "modern",
+      "web_optimized": true
+    },
+    {
+      "description": "Web showcase with dark mode support",
+      "file": "dark-mode-tech-tech.html",
+      "layout": "dark-mode-tech",
+      "name": "Dark Mode Tech (tech)",
+      "print_friendly": false,
+      "theme": "tech",
+      "web_optimized": true
+    },
+    {
+      "description": "Traditional print-first layout with left sidebar and main content",
+      "file": "classic-two-column-professional.html",
+      "layout": "classic-two-column",
+      "name": "Classic Two-Column (professional)",
+      "print_friendly": true,
+      "theme": "professional",
+      "web_optimized": false
+    },
+    {
+      "description": "Traditional print-first layout with left sidebar and main content",
+      "file": "classic-two-column-elegant.html",
+      "layout": "classic-two-column",
+      "name": "Classic Two-Column (elegant)",
+      "print_friendly": true,
+      "theme": "elegant",
+      "web_optimized": false
+    },
+    {
+      "description": "Maximum compatibility with ATS parsers, minimal decoration",
+      "file": "ats-single-column-minimal.html",
+      "layout": "ats-single-column",
+      "name": "ATS-Optimized Single Column (minimal)",
+      "print_friendly": true,
+      "theme": "minimal",
+      "web_optimized": false
+    },
+    {
+      "description": "Publications-first layout for academic use",
+      "file": "academic-cv-professional.html",
+      "layout": "academic-cv",
+      "name": "Academic CV (professional)",
+      "print_friendly": true,
+      "theme": "professional",
+      "web_optimized": false
+    }
+  ]
+}

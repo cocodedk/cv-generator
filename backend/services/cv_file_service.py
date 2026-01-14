@@ -143,32 +143,94 @@ class CVFileService:
         self._write_showcase_index()
         return manifest
 
-    def generate_featured_cv(self) -> Optional[str]:
-        """Generate a single featured CV from the latest profile."""
+    def generate_featured_templates(self) -> Optional[Dict[str, Any]]:
+        """Generate multiple featured CV templates from the latest profile."""
         try:
             # Get the latest profile
             profile = queries.get_profile()
             if not profile:
-                logger.warning("No profile found for featured CV generation")
+                logger.warning("No profile found for featured templates generation")
                 return None
 
-            # Prepare CV data with fixed layout and theme
-            cv_dict = self.prepare_cv_dict(profile)
-            cv_dict["layout"] = "section-cards-grid"
-            cv_dict["theme"] = "modern"
+            # Curated template combinations (layout + theme pairs)
+            template_combinations = [
+                # Web-optimized layouts with modern themes
+                ("section-cards-grid", "modern"),
+                ("section-cards-grid", "creative"),
+                ("section-cards-grid", "elegant"),
+                ("modern-sidebar", "modern"),
+                ("modern-sidebar", "professional"),
+                ("modern-sidebar", "minimal"),
+                ("career-timeline", "modern"),
+                ("career-timeline", "creative"),
+                ("project-case-studies", "modern"),
+                ("project-case-studies", "professional"),
+                ("portfolio-spa", "modern"),
+                ("portfolio-spa", "creative"),
+                ("interactive-skills-matrix", "modern"),
+                ("interactive-skills-matrix", "tech"),
+                ("dark-mode-tech", "modern"),
+                ("dark-mode-tech", "tech"),
+                # Print-friendly layouts
+                ("classic-two-column", "professional"),
+                ("classic-two-column", "elegant"),
+                ("ats-single-column", "minimal"),
+                ("academic-cv", "professional"),
+            ]
 
-            # Generate the featured CV
-            featured_path = Path(__file__).parent.parent.parent / "frontend" / "public" / "cv.html"
-            featured_path.parent.mkdir(parents=True, exist_ok=True)
+            templates_dir = Path(__file__).parent.parent.parent / "frontend" / "public" / "templates"
+            templates_dir.mkdir(parents=True, exist_ok=True)
 
-            html_content = render_print_html(cv_dict)
-            featured_path.write_text(html_content, encoding="utf-8")
+            templates = []
+            for layout_name, theme_name in template_combinations:
+                try:
+                    # Prepare CV data for this layout and theme
+                    cv_dict = self.prepare_cv_dict(profile)
+                    cv_dict["layout"] = layout_name
+                    cv_dict["theme"] = theme_name
 
-            logger.info("Generated featured CV at %s", featured_path)
-            return str(featured_path)
+                    # Generate filename and path
+                    filename = f"{layout_name}-{theme_name}.html"
+                    filepath = templates_dir / filename
+
+                    # Generate HTML content
+                    html_content = render_print_html(cv_dict)
+                    filepath.write_text(html_content, encoding="utf-8")
+
+                    # Get layout metadata
+                    layout_info = LAYOUTS.get(layout_name, {})
+
+                    templates.append({
+                        "layout": layout_name,
+                        "theme": theme_name,
+                        "file": filename,
+                        "name": f"{layout_info.get('name', layout_name)} ({theme_name})",
+                        "description": layout_info.get('description', ''),
+                        "print_friendly": layout_info.get('print_friendly', False),
+                        "web_optimized": layout_info.get('web_optimized', False)
+                    })
+
+                    logger.debug("Generated template: %s", filename)
+
+                except Exception as e:
+                    logger.warning("Failed to generate template %s-%s: %s", layout_name, theme_name, e)
+                    continue
+
+            # Generate index.json with template metadata
+            index_data = {
+                "generated_at": datetime.now(timezone.utc).isoformat(),
+                "profile_name": profile.get("personal_info", {}).get("name", "CV"),
+                "templates": templates
+            }
+
+            index_path = templates_dir / "index.json"
+            index_path.write_text(json.dumps(index_data, indent=2, sort_keys=True), encoding="utf-8")
+
+            logger.info("Generated %d featured templates in %s", len(templates), templates_dir)
+            return index_data
 
         except Exception as e:
-            logger.exception("Failed to generate featured CV: %s", e)
+            logger.exception("Failed to generate featured templates: %s", e)
             return None
 
     def prepare_cv_dict(self, cv: Dict[str, Any]) -> Dict[str, Any]:
