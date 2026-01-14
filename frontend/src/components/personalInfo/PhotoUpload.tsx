@@ -18,6 +18,13 @@ export default function PhotoUpload({ control }: PhotoUploadProps) {
     setPhotoPreview(photoController.field.value || null)
   }, [photoController.field.value])
 
+  // Clear file input when photo value changes to prevent stale file selections
+  useEffect(() => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }, [photoController.field.value])
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
