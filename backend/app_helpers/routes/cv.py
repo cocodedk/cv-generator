@@ -142,7 +142,7 @@ def create_cv_router(  # noqa: C901
     async def generate_templates():
         """Generate featured CV templates from the latest profile."""
         try:
-            result = cv_file_service.generate_featured_templates()
+            result = await cv_file_service.generate_featured_templates()
             if result:
                 return {
                     "status": "success",

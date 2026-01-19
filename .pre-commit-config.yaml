@@ -9,6 +9,11 @@ repos:
       - id: check-json
       - id: check-added-large-files
         args: ['--maxkb=1000']
+        exclude: |
+          (?x)^(
+            frontend/public/templates/.*\.pdf$
+            | frontend/public/templates/.*\.html$
+          )$
 
   # Run all tests and linting
   - repo: local

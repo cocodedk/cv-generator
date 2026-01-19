@@ -4,13 +4,18 @@ import copy
 import json
 import logging
 import os
+import re
+import unicodedata
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, TYPE_CHECKING
 from backend.cv_generator.generator import DocxCVGenerator
 from backend.cv_generator.layouts import LAYOUTS
 from backend.cv_generator.print_html_renderer import render_print_html
 from backend.database import queries
+
+if TYPE_CHECKING:
+    from backend.services.pdf_service import PDFService
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +30,7 @@ class CVFileService:
         showcase_keys_dir: Path,
         showcase_enabled: bool = True,
         scramble_key: Optional[str] = None,
+        pdf_service: Optional["PDFService"] = None,
     ):
         """Initialize service with output directory."""
         self.output_dir = output_dir
@@ -32,6 +38,7 @@ class CVFileService:
         self.showcase_keys_dir = showcase_keys_dir
         self.showcase_enabled = showcase_enabled
         self.scramble_key = scramble_key
+        self.pdf_service = pdf_service
         self.docx_generator = DocxCVGenerator()
 
     def _build_output_path(
@@ -143,7 +150,7 @@ class CVFileService:
         self._write_showcase_index()
         return manifest
 
-    def generate_featured_templates(self) -> Optional[Dict[str, Any]]:
+    async def generate_featured_templates(self) -> Optional[Dict[str, Any]]:
         """Generate multiple featured CV templates from the latest profile."""
         try:
             # Get the latest profile
@@ -151,6 +158,8 @@ class CVFileService:
             if not profile:
                 logger.warning("No profile found for featured templates generation")
                 return None
+            if not self.pdf_service:
+                raise RuntimeError("PDF service is not configured for template generation")
 
             # Curated template combinations (layout + theme pairs)
             template_combinations = [
@@ -180,6 +189,11 @@ class CVFileService:
 
             templates_dir = Path(__file__).parent.parent.parent / "frontend" / "public" / "templates"
             templates_dir.mkdir(parents=True, exist_ok=True)
+            pdfs_dir = templates_dir / "pdfs"
+            pdfs_dir.mkdir(parents=True, exist_ok=True)
+
+            profile_name = profile.get("personal_info", {}).get("name") or "Profile"
+            owner_slug = self._slugify_owner(profile_name)
 
             templates = []
             for layout_name, theme_name in template_combinations:
@@ -190,12 +204,18 @@ class CVFileService:
                     cv_dict["theme"] = theme_name
 
                     # Generate filename and path
-                    filename = f"{layout_name}-{theme_name}.html"
+                    filename = f"{owner_slug}-{layout_name}-{theme_name}.html"
                     filepath = templates_dir / filename
 
                     # Generate HTML content
                     html_content = render_print_html(cv_dict)
                     filepath.write_text(html_content, encoding="utf-8")
+
+                    # Generate PDF content
+                    pdf_filename = f"{owner_slug}-{layout_name}-{theme_name}.pdf"
+                    pdf_path = pdfs_dir / pdf_filename
+                    pdf_bytes = await self.pdf_service.generate_long_pdf(html_content)
+                    pdf_path.write_bytes(pdf_bytes)
 
                     # Get layout metadata
                     layout_info = LAYOUTS.get(layout_name, {})
@@ -204,6 +224,7 @@ class CVFileService:
                         "layout": layout_name,
                         "theme": theme_name,
                         "file": filename,
+                        "pdf_file": f"pdfs/{pdf_filename}",
                         "name": f"{layout_info.get('name', layout_name)} ({theme_name})",
                         "description": layout_info.get('description', ''),
                         "print_friendly": layout_info.get('print_friendly', False),
@@ -219,7 +240,7 @@ class CVFileService:
             # Generate index.json with template metadata
             index_data = {
                 "generated_at": datetime.now(timezone.utc).isoformat(),
-                "profile_name": profile.get("personal_info", {}).get("name", "CV"),
+                "profile_name": profile_name,
                 "templates": templates
             }
 
@@ -232,6 +253,13 @@ class CVFileService:
         except Exception as e:
             logger.exception("Failed to generate featured templates: %s", e)
             return None
+
+    @staticmethod
+    def _slugify_owner(name: str) -> str:
+        normalized = unicodedata.normalize("NFKD", name)
+        ascii_name = normalized.encode("ascii", "ignore").decode("ascii")
+        cleaned = re.sub(r"[^a-zA-Z0-9]+", "-", ascii_name).strip("-").lower()
+        return cleaned or "profile"
 
     def prepare_cv_dict(self, cv: Dict[str, Any]) -> Dict[str, Any]:
         """Prepare CV data dict for generator from database result."""

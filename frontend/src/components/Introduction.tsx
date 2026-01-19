@@ -5,6 +5,7 @@ type CVTemplate = {
   layout: string
   theme: string
   file: string
+  pdf_file?: string
   name: string
   description: string
   print_friendly: boolean
@@ -19,7 +20,14 @@ type TemplateIndex = {
 
 type FilterType = 'all' | 'web' | 'print'
 
-export default function Introduction() {
+type IntroductionProps = {
+  onError?: (message: string | string[]) => void
+}
+
+const sanitizeDownloadName = (value: string) =>
+  value.replace(/[\\/:*?"<>|]+/g, '').trim() || 'cv-template'
+
+export default function Introduction({ onError }: IntroductionProps) {
   const [templateData, setTemplateData] = useState<TemplateIndex | null>(null)
   const [selectedFilter, setSelectedFilter] = useState<FilterType>('all')
   const [previewTemplate, setPreviewTemplate] = useState<CVTemplate | null>(null)
@@ -51,6 +59,7 @@ export default function Introduction() {
     }) || []
 
   const templatesBase = `${import.meta.env.BASE_URL || '/'}templates/`
+  const profileName = templateData?.profile_name || 'Profile'
 
   return (
     <div className="space-y-12">
@@ -167,7 +176,7 @@ export default function Introduction() {
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <button
                       onClick={() => setPreviewTemplate(template)}
                       className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
@@ -182,6 +191,26 @@ export default function Introduction() {
                     >
                       View Full
                     </a>
+                    {template.pdf_file ? (
+                      <a
+                        href={`${templatesBase}${template.pdf_file}`}
+                        download={`${sanitizeDownloadName(profileName)} - ${sanitizeDownloadName(
+                          template.name
+                        )}.pdf`}
+                        className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium transition-colors text-center text-sm"
+                      >
+                        Download PDF
+                      </a>
+                    ) : (
+                      <button
+                        type="button"
+                        aria-disabled="true"
+                        onClick={() => onError?.('PDF not available yet. Please try again later.')}
+                        className="flex-1 bg-gray-300 text-gray-600 px-4 py-2 rounded-lg font-medium text-sm cursor-not-allowed"
+                      >
+                        PDF Unavailable
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -267,6 +296,26 @@ export default function Introduction() {
                 >
                   Open in New Tab
                 </a>
+                {previewTemplate.pdf_file ? (
+                  <a
+                    href={`${templatesBase}${previewTemplate.pdf_file}`}
+                    download={`${sanitizeDownloadName(profileName)} - ${sanitizeDownloadName(
+                      previewTemplate.name
+                    )}.pdf`}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                  >
+                    Download PDF
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    aria-disabled="true"
+                    onClick={() => onError?.('PDF not available yet. Please try again later.')}
+                    className="bg-gray-300 text-gray-600 px-6 py-2 rounded-lg font-medium cursor-not-allowed"
+                  >
+                    PDF Unavailable
+                  </button>
+                )}
                 <button
                   onClick={() => setPreviewTemplate(null)}
                   className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"

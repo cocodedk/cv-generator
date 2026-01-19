@@ -1,6 +1,6 @@
 """Tests for profile endpoints."""
 import pytest
-from unittest.mock import patch
+from unittest.mock import patch, AsyncMock
 
 
 @pytest.mark.asyncio
@@ -20,7 +20,10 @@ class TestSaveProfile:
         }
         with patch(
             "backend.database.queries.save_profile", return_value=True
-        ) as mock_save:
+        ) as mock_save, patch(
+            "backend.services.cv_file_service.CVFileService.generate_featured_templates",
+            new_callable=AsyncMock,
+        ):
             response = await client.post("/api/profile", json=profile_data)
             assert response.status_code == 200
             data = response.json()
