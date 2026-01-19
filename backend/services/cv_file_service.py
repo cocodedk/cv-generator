@@ -31,6 +31,7 @@ class CVFileService:
         showcase_enabled: bool = True,
         scramble_key: Optional[str] = None,
         pdf_service: Optional["PDFService"] = None,
+        featured_templates_dir: Optional[Path] = None,
     ):
         """Initialize service with output directory."""
         self.output_dir = output_dir
@@ -39,6 +40,7 @@ class CVFileService:
         self.showcase_enabled = showcase_enabled
         self.scramble_key = scramble_key
         self.pdf_service = pdf_service
+        self.featured_templates_dir = featured_templates_dir
         self.docx_generator = DocxCVGenerator()
 
     def _build_output_path(
@@ -187,7 +189,9 @@ class CVFileService:
                 ("academic-cv", "professional"),
             ]
 
-            templates_dir = Path(__file__).parent.parent.parent / "frontend" / "public" / "templates"
+            templates_dir = self.featured_templates_dir or (
+                Path(__file__).parent.parent.parent / "frontend" / "public" / "templates"
+            )
             templates_dir.mkdir(parents=True, exist_ok=True)
             pdfs_dir = templates_dir / "pdfs"
             pdfs_dir.mkdir(parents=True, exist_ok=True)

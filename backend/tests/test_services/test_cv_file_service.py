@@ -1,15 +1,24 @@
 """Tests for CVFileService."""
 import json
+import pytest
+from unittest.mock import AsyncMock, Mock, patch
 from backend.services.cv_file_service import CVFileService
 from backend.cv_generator.layouts import LAYOUTS
 
 
-def build_service(temp_output_dir, showcase_enabled=False):
+def build_service(
+    temp_output_dir,
+    showcase_enabled=False,
+    pdf_service=None,
+    featured_templates_dir=None,
+):
     return CVFileService(
         temp_output_dir,
         temp_output_dir / "showcase",
         temp_output_dir / "showcase_keys",
         showcase_enabled=showcase_enabled,
+        pdf_service=pdf_service,
+        featured_templates_dir=featured_templates_dir,
     )
 
 
@@ -239,3 +248,40 @@ class TestGenerateShowcaseForCV:
             assert "unlockWithKey" in html_content
             # Verify personal info is scrambled (original name should not be in HTML)
             assert sample_cv_data["personal_info"]["name"] not in html_content
+
+
+class TestGenerateFeaturedTemplates:
+    """Test generate_featured_templates method."""
+
+    @pytest.mark.asyncio
+    async def test_generate_featured_templates_writes_pdf_files(
+        self, temp_output_dir, sample_cv_data
+    ):
+        """Test that featured templates include owner-named HTML and PDF files."""
+        templates_dir = temp_output_dir / "templates"
+        pdf_service = Mock()
+        pdf_service.generate_long_pdf = AsyncMock(return_value=b"%PDF-1.4 test")
+        service = build_service(
+            temp_output_dir,
+            showcase_enabled=False,
+            pdf_service=pdf_service,
+            featured_templates_dir=templates_dir,
+        )
+        with patch("backend.database.queries.get_profile", return_value=sample_cv_data):
+            result = await service.generate_featured_templates()
+
+        assert result is not None
+        assert result["profile_name"] == "John Doe"
+        assert result["templates"]
+        expected_slug = service._slugify_owner(sample_cv_data["personal_info"]["name"])
+        for template in result["templates"]:
+            assert template["file"].startswith(f"{expected_slug}-")
+            assert template["pdf_file"].startswith(f"pdfs/{expected_slug}-")
+            assert (templates_dir / template["file"]).exists()
+            assert (templates_dir / template["pdf_file"]).exists()
+        assert pdf_service.generate_long_pdf.await_count == len(result["templates"])
+
+    def test_slugify_owner_fallback(self, temp_output_dir):
+        """Test slugify fallback when name is empty or invalid."""
+        service = build_service(temp_output_dir, showcase_enabled=False)
+        assert service._slugify_owner("") == "profile"
