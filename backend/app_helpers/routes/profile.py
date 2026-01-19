@@ -52,7 +52,7 @@ def create_profile_router(limiter: Limiter, cv_file_service=None) -> APIRouter: 
             # Generate featured templates after profile save
             if cv_file_service:
                 try:
-                    cv_file_service.generate_featured_templates()
+                    await cv_file_service.generate_featured_templates()
                     logger.info("Generated featured templates after profile save")
                 except Exception as e:
                     logger.warning("Failed to generate featured templates after profile save", exc_info=e)

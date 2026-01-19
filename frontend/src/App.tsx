@@ -45,7 +45,7 @@ function App() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {viewMode === 'introduction' ? (
-          <Introduction />
+          <Introduction onError={handleError} />
         ) : viewMode === 'form' || viewMode === 'edit' ? (
           <CVForm
             onSuccess={handleSuccess}

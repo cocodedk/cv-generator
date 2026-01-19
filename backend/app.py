@@ -42,6 +42,9 @@ output_dir.mkdir(exist_ok=True)
 # Store in app.state for router/test access
 app.state.output_dir = output_dir
 
+# Initialize PDF service
+pdf_service = PDFService()
+
 # Initialize CV file service
 showcase_dir_env = os.getenv("CV_SHOWCASE_OUTPUT_DIR")
 showcase_keys_dir_env = os.getenv("CV_SHOWCASE_KEYS_DIR")
@@ -63,6 +66,7 @@ cv_file_service = CVFileService(
     showcase_keys_dir=showcase_keys_dir,
     showcase_enabled=showcase_enabled,
     scramble_key=scramble_key,
+    pdf_service=pdf_service,
 )
 
 # Clean up old download files on startup
@@ -72,9 +76,6 @@ try:
         print(f"Cleaned up {cleaned_count} old download files on startup")
 except Exception as e:
     print(f"Warning: Failed to clean up old download files: {e}")
-
-# Initialize PDF service
-pdf_service = PDFService()
 
 # Register routes
 app.include_router(health.create_health_router(cv_file_service))
