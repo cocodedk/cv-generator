@@ -155,8 +155,8 @@ class TestListProfiles:
     async def test_list_profiles_success(self, client, mock_neo4j_connection):
         """Test successful profile list retrieval."""
         profiles_data = [
-            {"name": "John Doe", "updated_at": "2024-01-01T00:00:00"},
-            {"name": "Jane Smith", "updated_at": "2024-01-02T00:00:00"},
+            {"name": "John Doe", "updated_at": "2024-01-01T00:00:00", "language": "en"},
+            {"name": "Jane Smith", "updated_at": "2024-01-02T00:00:00", "language": "es"},
         ]
         with patch(
             "backend.database.queries.list_profiles", return_value=profiles_data
@@ -168,6 +168,10 @@ class TestListProfiles:
             assert len(data["profiles"]) == 2
             assert data["profiles"][0]["name"] == "John Doe"
             assert data["profiles"][0]["updated_at"] == "2024-01-01T00:00:00"
+            assert data["profiles"][0]["language"] == "en"
+            assert data["profiles"][1]["name"] == "Jane Smith"
+            assert data["profiles"][1]["updated_at"] == "2024-01-02T00:00:00"
+            assert data["profiles"][1]["language"] == "es"
 
     async def test_list_profiles_empty(self, client, mock_neo4j_connection):
         """Test profile list when no profiles exist."""

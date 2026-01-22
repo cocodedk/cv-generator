@@ -122,6 +122,7 @@ export interface ProfileResponse {
 export interface ProfileListItem {
   name: string
   updated_at: string
+  language: string
 }
 
 export interface ProfileListResponse {

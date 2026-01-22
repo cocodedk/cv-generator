@@ -87,6 +87,28 @@ export default function ProfileList({ onError }: ProfileListProps) {
     }
   }
 
+  const formatLanguage = (languageCode: string) => {
+    if (!languageCode) return 'Unknown'
+    const languageNames: { [key: string]: string } = {
+      en: 'English',
+      es: 'Spanish',
+      fr: 'French',
+      de: 'German',
+      it: 'Italian',
+      pt: 'Portuguese',
+      nl: 'Dutch',
+      ru: 'Russian',
+      zh: 'Chinese',
+      ja: 'Japanese',
+      ko: 'Korean',
+      ar: 'Arabic',
+      da: 'Danish',
+      sv: 'Swedish',
+      no: 'Norwegian',
+    }
+    return languageNames[languageCode] || languageCode.toUpperCase()
+  }
+
   return (
     <div className="bg-white shadow rounded-lg dark:bg-gray-900 dark:border dark:border-gray-800">
       <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
@@ -137,7 +159,8 @@ export default function ProfileList({ onError }: ProfileListProps) {
                       {profile.name}
                     </h3>
                     <p className="text-sm text-gray-500 mt-1 dark:text-gray-400">
-                      Updated: {formatDate(profile.updated_at)}
+                      Updated: {formatDate(profile.updated_at)} • Language:{' '}
+                      {formatLanguage(profile.language)}
                     </p>
                   </div>
                   <div className="flex space-x-2">

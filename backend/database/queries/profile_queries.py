@@ -145,7 +145,7 @@ LIMIT 1
 LIST_PROFILES_QUERY = """
 MATCH (profile:Profile)
 OPTIONAL MATCH (person:Person)-[:BELONGS_TO_PROFILE]->(profile)
-RETURN profile.updated_at AS updated_at, COALESCE(person.name, 'Unknown') AS name
+RETURN profile.updated_at AS updated_at, COALESCE(person.name, 'Unknown') AS name, profile.language AS language
 ORDER BY profile.updated_at DESC
 """
 

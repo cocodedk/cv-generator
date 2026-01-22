@@ -90,7 +90,7 @@ def create_profile_router(limiter: Limiter, cv_file_service=None) -> APIRouter: 
         try:
             profiles = queries.list_profiles()
             profile_items = [
-                ProfileListItem(name=p["name"], updated_at=p["updated_at"])
+                ProfileListItem(name=p["name"], updated_at=p["updated_at"], language=p["language"])
                 for p in profiles
             ]
             return ProfileListResponse(profiles=profile_items)

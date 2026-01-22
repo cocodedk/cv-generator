@@ -33,6 +33,7 @@ class ProfileListItem(BaseModel):
 
     name: str
     updated_at: str
+    language: str = "en"
 
 
 class ProfileListResponse(BaseModel):
