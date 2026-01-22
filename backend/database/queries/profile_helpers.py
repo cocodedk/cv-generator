@@ -25,6 +25,7 @@ def build_save_params(profile_data: Dict[str, Any], updated_at: str) -> Dict[str
         "experiences": profile_data.get("experience", []),
         "educations": profile_data.get("education", []),
         "skills": profile_data.get("skills", []),
+        "language": profile_data.get("language", "en"),
     }
 
 
@@ -47,6 +48,12 @@ def process_profile_record(record: Any) -> Optional[Dict[str, Any]]:
     if not record or not record["person"]:
         return None
     person = record["person"]
+    # Debug: print record structure
+    # print(f"Record keys: {list(record.keys()) if record else None}")
+    # print(f"Language in record: {record.get('language')}")
+    # print(f"Profile object: {record.get('profile')}")
+    # if record.get('profile'):
+    #     print(f"Profile language: {record['profile'].get('language')}")
     return {
         "updated_at": record["profile"].get("updated_at"),
         "personal_info": {
@@ -64,4 +71,5 @@ def process_profile_record(record: Any) -> Optional[Dict[str, Any]]:
         "experience": [dict(exp) for exp in record["experiences"] if exp],
         "education": [dict(edu) for edu in record["educations"] if edu],
         "skills": [dict(skill) for skill in record["skills"] if skill],
+        "language": record["profile"].get("language", "en"),
     }

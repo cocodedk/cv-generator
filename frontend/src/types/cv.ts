@@ -110,6 +110,7 @@ export interface ProfileData {
   experience: Experience[]
   education: Education[]
   skills: Skill[]
+  language?: string // ISO 639-1 language code, default 'en'
   updated_at?: string
 }
 

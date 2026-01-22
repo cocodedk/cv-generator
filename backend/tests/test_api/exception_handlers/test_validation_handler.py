@@ -256,3 +256,32 @@ class TestValidationExceptionHandler:
         data = response.body
         # This is a basic check - the field_path should be "experience.0.title"
         assert b"errors" in data
+
+    async def test_non_serializable_error_context(self, mock_request):
+        """Test handling of non-JSON-serializable objects in error context."""
+        # Create a ValueError object to simulate what happens with field validators
+        value_error = ValueError("Unsupported target language 'xyz'. Supported languages are: en, es, fr")
+
+        errors = [
+            {
+                "loc": ("body", "target_language"),
+                "msg": "the value is not a valid enumeration member",
+                "type": "value_error.const",
+                "ctx": {
+                    "given": "xyz",
+                    "enum_values": ["en", "es", "fr"],
+                    "error": value_error  # This is the non-serializable object
+                }
+            }
+        ]
+        exc = RequestValidationError(errors=errors)
+
+        # This should not raise a TypeError about non-serializable objects
+        response = await validation_exception_handler(mock_request, exc)
+
+        assert isinstance(response, JSONResponse)
+        assert response.status_code == 422
+
+        # The response should be successfully created without JSON serialization errors
+        data = response.body
+        assert b"errors" in data

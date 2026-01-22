@@ -25,8 +25,8 @@ def update_profile(profile_data: Dict[str, Any]) -> bool:
     with driver.session(database=database) as session:
 
         def work(tx):
-            # Update Profile timestamp
-            update_profile_timestamp(tx, updated_at)
+            # Update Profile timestamp and language
+            update_profile_timestamp(tx, updated_at, params.get("language", "en"))
 
             # Delete old nodes
             delete_profile_nodes(tx, updated_at)

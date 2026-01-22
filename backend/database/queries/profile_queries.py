@@ -1,7 +1,7 @@
 """Cypher queries for profile operations."""
 
 CREATE_QUERY = """
-CREATE (newProfile:Profile { updated_at: $updated_at })
+CREATE (newProfile:Profile { updated_at: $updated_at, language: $language })
 CREATE (newPerson:Person { name: $name, title: $title, email: $email, phone: $phone,
     address_street: $address_street, address_city: $address_city,
     address_state: $address_state, address_zip: $address_zip,
@@ -48,7 +48,7 @@ MATCH (profile:Profile)
 WITH profile
 ORDER BY profile.updated_at DESC
 LIMIT 1
-SET profile.updated_at = $updated_at
+SET profile.updated_at = $updated_at, profile.language = $language
 WITH profile
 // Delete Projects first (leaf nodes, no dependencies)
 MATCH (profile)<-[:BELONGS_TO_PROFILE]-(proj:Project)
@@ -137,7 +137,7 @@ CALL {
     OPTIONAL MATCH (person)-[:HAS_SKILL]->(skill:Skill)-[:BELONGS_TO_PROFILE]->(profile)
     RETURN collect(DISTINCT skill) AS skills
 }
-RETURN profile, person, experiences, educations, skills
+RETURN profile, person, experiences, educations, skills, profile.language AS language
 ORDER BY profile.updated_at DESC
 LIMIT 1
 """

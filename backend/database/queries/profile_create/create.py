@@ -21,7 +21,7 @@ def create_profile(profile_data: Dict[str, Any]) -> bool:
 
         def work(tx):
             # Create Profile node
-            create_profile_node(tx, updated_at)
+            create_profile_node(tx, updated_at, params.get("language", "en"))
 
             # Create Person node
             create_person_node(tx, updated_at, params)

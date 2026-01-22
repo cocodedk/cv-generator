@@ -21,4 +21,5 @@ export const defaultProfileData: ProfileData = {
   experience: [],
   education: [],
   skills: [],
+  language: 'en',
 }

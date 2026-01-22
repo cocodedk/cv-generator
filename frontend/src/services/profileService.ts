@@ -1,6 +1,18 @@
 /** Profile API service for managing profile operations. */
 import axios from 'axios'
 import { ProfileData, ProfileResponse, ProfileListResponse } from '../types/cv'
+
+interface TranslateProfileRequest {
+  profile_data: ProfileData
+  target_language: string
+}
+
+interface TranslateProfileResponse {
+  status: string
+  translated_profile: ProfileData
+  message?: string
+  existing_profile_updated_at?: string
+}
 import { normalizeProfileDataForApi } from '../app_helpers/cvForm/normalizeCvData'
 
 /**
@@ -26,10 +38,15 @@ export async function getProfile(): Promise<ProfileData | null> {
  * @returns Success response
  * @throws Error if save fails
  */
-export async function saveProfile(profileData: ProfileData): Promise<ProfileResponse> {
+export async function saveProfile(
+  profileData: ProfileData,
+  createNew: boolean = false
+): Promise<ProfileResponse> {
   try {
     const payload = normalizeProfileDataForApi(profileData)
-    const response = await axios.post<ProfileResponse>('/api/profile', payload)
+    const response = await axios.post<ProfileResponse>('/api/profile', payload, {
+      params: createNew ? { create_new: true } : undefined,
+    })
     return response.data
   } catch (error: any) {
     throw new Error(error.response?.data?.detail || 'Failed to save profile')
@@ -99,5 +116,28 @@ export async function deleteProfileByUpdatedAt(updatedAt: string): Promise<Profi
     return response.data
   } catch (error: any) {
     throw new Error(error.response?.data?.detail || 'Failed to delete profile')
+  }
+}
+
+/**
+ * Translate a profile to another language using AI.
+ * @param profileData - Profile data to translate
+ * @param targetLanguage - ISO 639-1 language code for target language
+ * @returns Translated profile data
+ * @throws Error if translation fails
+ */
+export async function translateProfile(
+  profileData: ProfileData,
+  targetLanguage: string
+): Promise<TranslateProfileResponse> {
+  try {
+    const payload: TranslateProfileRequest = {
+      profile_data: profileData,
+      target_language: targetLanguage,
+    }
+    const response = await axios.post<TranslateProfileResponse>('/api/profile/translate', payload)
+    return response.data
+  } catch (error: any) {
+    throw new Error(error.response?.data?.detail || 'Failed to translate profile')
   }
 }

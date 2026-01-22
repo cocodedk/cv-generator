@@ -103,5 +103,6 @@ export function normalizeProfileDataForApi(data: ProfileData): ProfileData {
     experience: normalizeExperience(data.experience),
     education: normalizeEducation(data.education),
     skills: normalizeSkills(data.skills),
+    language: data.language || 'en',
   }
 }
