@@ -63,12 +63,13 @@ export default function CVFormModals({
           setLoading={setLoading}
         />
       )}
-      <CVProfileSelectionModal
-        isOpen={showProfileSelection}
-        onClose={onCloseProfileSelection}
-        onSelectProfile={onProfileSelected}
-        onError={onError}
-      />
+      {showProfileSelection && (
+        <CVProfileSelectionModal
+          onClose={onCloseProfileSelection}
+          onSelectProfile={onProfileSelected}
+          onError={onError}
+        />
+      )}
       {showProfileLoader && profileData && (
         <ProfileLoaderModal
           profileData={profileData}

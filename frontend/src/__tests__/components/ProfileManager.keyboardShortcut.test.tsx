@@ -128,9 +128,6 @@ describe('ProfileManager - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
       { timeout: 3000 }
     )
 
-    await waitFor(() => {
-    })
-
     // Focus on name input
     const nameInput = within(container).getByLabelText(/full name/i) as HTMLInputElement
     await act(async () => {
@@ -218,9 +215,6 @@ describe('ProfileManager - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
       { timeout: 3000 }
     )
 
-    await waitFor(() => {
-    })
-
     // Fill in required name field
     const nameInput = within(container).getByLabelText(/full name/i)
     await act(async () => {
@@ -229,9 +223,12 @@ describe('ProfileManager - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
     })
 
     // Start a save operation by clicking submit button
-    const submitButton = within(container).getAllByRole('button').find(btn =>
-      btn.textContent?.includes('Save Profile') || btn.textContent?.includes('Update Profile')
-    )
+    const submitButton = within(container)
+      .getAllByRole('button')
+      .find(
+        btn =>
+          btn.textContent?.includes('Save Profile') || btn.textContent?.includes('Update Profile')
+      )
     await act(async () => {
       await user.click(submitButton!)
     })
@@ -272,9 +269,6 @@ describe('ProfileManager - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
       },
       { timeout: 3000 }
     )
-
-    await waitFor(() => {
-    })
 
     // Create event and check if preventDefault is called
     const ctrlSEvent = createKeyboardEvent('s', { ctrlKey: true })

@@ -8,6 +8,7 @@ import {
   fillNameField,
   clickLoadProfileButton,
   clickSaveToProfileButton,
+  waitForFormToLoad,
 } from '../helpers/cvForm/testHelpers'
 
 const mockedAxios = setupAxiosMock()
@@ -156,7 +157,7 @@ describe('CVForm - Profile', () => {
 
   it('handles profile selection modal loading error', async () => {
     mockedAxios.get.mockRejectedValue({
-      response: { status: 500, data: { detail: 'Server error' } }
+      response: { status: 500, data: { detail: 'Server error' } },
     })
 
     renderCVForm({
@@ -345,11 +346,10 @@ describe('CVForm - Profile', () => {
       expect(screen.getByText('Select Items to Include')).toBeInTheDocument()
     })
 
-    // Click cancel button in profile loader modal (should be the last cancel button)
-    const cancelButtons = screen.getAllByRole('button', { name: /cancel/i })
-    const lastCancelButton = cancelButtons[cancelButtons.length - 1]
+    // Click cancel button in profile loader modal
+    const cancelButton = screen.getByTestId('profile-loader-cancel')
     await act(async () => {
-      await user.click(lastCancelButton)
+      await user.click(cancelButton)
     })
 
     // Check that success was not called (modal was cancelled)
@@ -377,7 +377,7 @@ describe('CVForm - Profile', () => {
       })
       // Mock profile by ID API failure
       .mockRejectedValueOnce({
-        response: { status: 404, data: { detail: 'Profile not found' } }
+        response: { status: 404, data: { detail: 'Profile not found' } },
       })
 
     renderCVForm({
@@ -433,6 +433,8 @@ describe('CVForm - Profile', () => {
       setLoading: mockSetLoading,
     })
 
+    await waitForFormToLoad()
+
     await clickLoadProfileButton()
 
     // Profile selection modal should appear
@@ -462,11 +464,14 @@ describe('CVForm - Profile', () => {
       expect(mockOnSuccess).toHaveBeenCalledWith('Profile data loaded successfully!')
     })
 
-    // Check that form was populated (this is a bit tricky to test directly,
-    // but we can verify the success callback was called)
+    // Verify that a concrete form field was populated
+    await waitFor(() => {
+      const nameInput = screen.getByLabelText(/full name/i)
+      expect(nameInput).toHaveValue('John Doe')
+    })
   })
 
-  it('handles multiple profiles selection', async () => {
+  it('displays multiple profiles in selection modal', async () => {
     const user = userEvent.setup()
 
     mockedAxios.get.mockResolvedValue({

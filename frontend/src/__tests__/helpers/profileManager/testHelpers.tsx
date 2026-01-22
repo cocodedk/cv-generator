@@ -17,6 +17,5 @@ export const renderProfileManager = (props: ProfileManagerProps) => {
   )
   return {
     ...result,
-    container: result.container,
   }
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { screen, waitFor, act } from '@testing-library/react'
+import { waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import * as profileService from '../../services/profileService'
 import { renderProfileManager } from '../helpers/profileManager/testHelpers'
@@ -27,7 +27,7 @@ describe('ProfileManager - Delete and Validation', () => {
     mockedProfileService.getProfile.mockResolvedValue(profileData)
     mockedProfileService.deleteProfile.mockResolvedValue({ status: 'success' })
 
-    renderProfileManager({
+    const { container } = renderProfileManager({
       onSuccess: mockOnSuccess,
       onError: mockOnError,
       setLoading: mockSetLoading,
@@ -36,16 +36,16 @@ describe('ProfileManager - Delete and Validation', () => {
     // Wait for loading to complete
     await waitFor(
       () => {
-        expect(screen.queryByText('Loading profile...')).not.toBeInTheDocument()
+        expect(within(container).queryByText('Loading profile...')).not.toBeInTheDocument()
       },
       { timeout: 3000 }
     )
 
     await waitFor(() => {
-      expect(screen.getByText('Delete Profile')).toBeInTheDocument()
+      expect(within(container).getByText('Delete Profile')).toBeInTheDocument()
     })
 
-    const deleteButton = screen.getByRole('button', { name: /delete profile/i })
+    const deleteButton = within(container).getByRole('button', { name: /delete profile/i })
     await act(async () => {
       await user.click(deleteButton)
     })
@@ -75,11 +75,15 @@ describe('ProfileManager - Delete and Validation', () => {
       { timeout: 3000 }
     )
 
-    const submitButton = within(container).getAllByRole('button').find(btn =>
-      btn.textContent?.includes('Save Profile') || btn.textContent?.includes('Update Profile')
-    )
+    const submitButton = within(container)
+      .getAllByRole('button')
+      .find(
+        btn =>
+          btn.textContent?.includes('Save Profile') || btn.textContent?.includes('Update Profile')
+      )
+    expect(submitButton).toBeTruthy()
     await act(async () => {
-      await user.click(submitButton)
+      await user.click(submitButton!)
     })
 
     await waitFor(() => {

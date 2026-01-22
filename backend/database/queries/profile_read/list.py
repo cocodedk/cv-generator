@@ -15,7 +15,7 @@ def list_profiles() -> list[Dict[str, Any]]:
     MATCH (profile:Profile)
     OPTIONAL MATCH (person:Person)-[:BELONGS_TO_PROFILE]->(profile)
     WITH profile, collect(DISTINCT person.name)[0] AS person_name
-    RETURN profile.updated_at AS updated_at, COALESCE(person_name, 'Unknown') AS name, profile.language AS language
+    RETURN profile.updated_at AS updated_at, COALESCE(person_name, 'Unknown') AS name, COALESCE(profile.language, 'en') AS language
     ORDER BY profile.updated_at DESC
     """
 

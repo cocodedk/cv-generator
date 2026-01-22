@@ -1,24 +1,30 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { listProfiles, getProfileByUpdatedAt } from '../../services/profileService'
 import { ProfileListItem, ProfileData } from '../../types/cv'
 import { formatLanguage } from '../../utils/languageUtils'
 
 interface CVProfileSelectionModalProps {
-  isOpen: boolean
   onClose: () => void
   onSelectProfile: (profile: ProfileData) => void
   onError: (message: string) => void
 }
 
 export default function CVProfileSelectionModal({
-  isOpen,
   onClose,
   onSelectProfile,
   onError,
 }: CVProfileSelectionModalProps) {
   const [profiles, setProfiles] = useState<ProfileListItem[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [isLoadingProfile, setIsLoadingProfile] = useState(false)
+  const [loadingProfileId, setLoadingProfileId] = useState<string | null>(null)
+
+  const onErrorRef = useRef(onError)
+  const onCloseRef = useRef(onClose)
+
+  useEffect(() => {
+    onErrorRef.current = onError
+    onCloseRef.current = onClose
+  }, [onError, onClose])
 
   const loadProfiles = useCallback(async () => {
     setIsLoading(true)
@@ -26,21 +32,19 @@ export default function CVProfileSelectionModal({
       const response = await listProfiles()
       setProfiles(response.profiles)
     } catch (error: any) {
-      onError(error.message || 'Failed to load profiles')
-      onClose()
+      onErrorRef.current(error.message || 'Failed to load profiles')
+      onCloseRef.current()
     } finally {
       setIsLoading(false)
     }
-  }, [onError, onClose])
+  }, [])
 
   useEffect(() => {
-    if (isOpen) {
-      loadProfiles()
-    }
-  }, [isOpen, loadProfiles])
+    loadProfiles()
+  }, [loadProfiles])
 
   const handleSelectProfile = async (updatedAt: string) => {
-    setIsLoadingProfile(true)
+    setLoadingProfileId(updatedAt)
     try {
       const profile = await getProfileByUpdatedAt(updatedAt)
       if (profile) {
@@ -52,7 +56,7 @@ export default function CVProfileSelectionModal({
     } catch (error: any) {
       onError(error.message || 'Failed to load profile')
     } finally {
-      setIsLoadingProfile(false)
+      setLoadingProfileId(null)
     }
   }
 
@@ -67,10 +71,6 @@ export default function CVProfileSelectionModal({
     } catch {
       return dateString
     }
-  }
-
-  if (!isOpen) {
-    return null
   }
 
   return (
@@ -116,12 +116,12 @@ export default function CVProfileSelectionModal({
           </div>
         ) : (
           <div className="space-y-2">
-            {profiles.map(profile => (
+            {profiles.map((profile, index) => (
               <button
-                key={profile.updated_at}
+                key={index}
                 type="button"
                 onClick={() => handleSelectProfile(profile.updated_at)}
-                disabled={isLoadingProfile}
+                disabled={loadingProfileId !== null}
                 className="w-full text-left p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <div className="flex items-center justify-between">
@@ -134,7 +134,7 @@ export default function CVProfileSelectionModal({
                       {formatDate(profile.updated_at)}
                     </div>
                   </div>
-                  {isLoadingProfile && (
+                  {loadingProfileId === profile.updated_at && (
                     <svg
                       className="animate-spin h-5 w-5 text-gray-600 dark:text-gray-400"
                       fill="none"

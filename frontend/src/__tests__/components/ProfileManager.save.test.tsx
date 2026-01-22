@@ -45,12 +45,12 @@ describe('ProfileManager - Save and Update', () => {
       await user.type(nameInput, 'John Doe')
     })
 
-    const submitButton = within(container).getAllByRole('button').find(btn =>
-      btn.textContent?.includes('Save Profile') || btn.textContent?.includes('Update Profile')
-    )
-    expect(submitButton).toBeTruthy()
+    const submitButtons = within(container).getAllByRole('button', {
+      name: /Save Profile|Update Profile/i,
+    })
+    const submitButton = submitButtons[0] // Use the top save button
     await act(async () => {
-      await user.click(submitButton!)
+      await user.click(submitButton)
     })
 
     await waitFor(() => {
@@ -83,17 +83,19 @@ describe('ProfileManager - Save and Update', () => {
       { timeout: 3000 }
     )
 
-    // Wait for profile to load
+    // Wait for profile to load and button to show "Update Profile"
     await waitFor(
       () => {
-        expect(mockedProfileService.getProfile).toHaveBeenCalled()
+        const submitButtons = within(container).getAllByRole('button', { name: /Update Profile/i })
+        expect(submitButtons[0]).toBeInTheDocument()
       },
       { timeout: 3000 }
     )
 
-    const submitButton = within(container).getAllByRole('button').find(btn =>
-      btn.textContent?.includes('Save Profile') || btn.textContent?.includes('Update Profile')
-    )
+    const submitButtons = within(container).getAllByRole('button', {
+      name: /Save Profile|Update Profile/i,
+    })
+    const submitButton = submitButtons[0] // Use the top save button
     await act(async () => {
       await user.click(submitButton)
     })
