@@ -61,4 +61,4 @@ class TranslateProfileResponse(BaseModel):
     status: str
     translated_profile: ProfileData
     message: Optional[str] = None
-    existing_profile_updated_at: Optional[str] = None
+    saved_profile_updated_at: Optional[str] = None

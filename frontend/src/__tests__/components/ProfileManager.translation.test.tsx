@@ -4,7 +4,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import ProfileManager from '../../components/ProfileManager'
+import ProfileManager, { LANGUAGE_OPTIONS } from '../../components/ProfileManager'
 import { createProfileData } from '../helpers/profileManager/mocks'
 import * as profileService from '../../services/profileService'
 
@@ -149,7 +149,7 @@ describe('ProfileManager Translation', () => {
 
       // Check that all languages are available in the native select options
       const options = screen.getAllByRole('option')
-      expect(options).toHaveLength(14) // Total number of language options
+      expect(options).toHaveLength(LANGUAGE_OPTIONS.length)
 
       // Verify specific languages are present
       expect(options).toContain(screen.getByRole('option', { name: 'Spanish' }))

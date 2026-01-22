@@ -201,7 +201,7 @@ def create_profile_router(limiter: Limiter, cv_file_service=None) -> APIRouter: 
                 status="success",
                 translated_profile=translated_profile,
                 message=message,
-                existing_profile_updated_at=saved_profile_updated_at
+                saved_profile_updated_at=saved_profile_updated_at
             )
         except ValueError as e:
             logger.error("Translation service not configured", exc_info=e)

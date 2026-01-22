@@ -47,46 +47,7 @@ class TestProfileTranslationService:
             "language": "en",
         }
 
-        translated_profile = {
-            **profile_data,
-            "language": "es",
-            "personal_info": {
-                **profile_data["personal_info"],
-                "title": "Ingeniero de Software",
-                "summary": "Ingeniero de software experimentado con 5 años de experiencia",
-            },
-            "experience": [
-                {
-                    **profile_data["experience"][0],
-                    "title": "Desarrollador Senior",
-                    "company": "Tech Corp",
-                    "description": "Desarrolló aplicaciones web",
-                    "location": "Nueva York",
-                    "projects": [
-                        {
-                            **profile_data["experience"][0]["projects"][0],
-                            "name": "Plataforma de Comercio Electrónico",
-                            "description": "Construyó una plataforma de comercio electrónico escalable",
-                            "highlights": [
-                                "Aumentó el rendimiento en un 40%",
-                                "Manejó 10k usuarios"
-                            ],
-                        }
-                    ],
-                }
-            ],
-            "education": [
-                {
-                    **profile_data["education"][0],
-                    "degree": "Licenciatura en Ciencias",
-                    "institution": "State University",  # Institution unchanged
-                    "field": "Ciencias de la Computación",
-                }
-            ],
-        }
-
-        with patch.object(self.service, '_translate_text', side_effect=translated_profile["personal_info"]["title"]) as mock_translate:
-            mock_translate.side_effect = lambda text, target, source, text_type: {
+        with patch.object(self.service, '_translate_text', side_effect=lambda text, target, source, text_type: {
                 "Software Engineer": "Ingeniero de Software",
                 "Experienced software engineer with 5 years of experience": "Ingeniero de software experimentado con 5 años de experiencia",
                 "Senior Developer": "Desarrollador Senior",
@@ -98,7 +59,7 @@ class TestProfileTranslationService:
                 "Handled 10k users": "Manejó 10k usuarios",
                 "Bachelor of Science": "Licenciatura en Ciencias",
                 "Computer Science": "Ciencias de la Computación",
-            }.get(text, text)
+        }.get(text, text)):
 
             result = await self.service.translate_profile(profile_data, "es", "en")
 

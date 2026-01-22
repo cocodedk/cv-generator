@@ -11,7 +11,7 @@ interface TranslateProfileResponse {
   status: string
   translated_profile: ProfileData
   message?: string
-  existing_profile_updated_at?: string
+  saved_profile_updated_at?: string
 }
 import { normalizeProfileDataForApi } from '../app_helpers/cvForm/normalizeCvData'
 

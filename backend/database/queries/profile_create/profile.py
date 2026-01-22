@@ -10,9 +10,8 @@ def create_profile_node(tx, updated_at: str, language: str = "en"):
     result.consume()
     # Return value is not used, but return for consistency
     if record:
-        # Handle both dict-like records and direct access
         if hasattr(record, "get"):
-            return record.get("newProfile") or record.get("profile")
+            return record.get("newProfile")
         else:
             try:
                 return record["newProfile"]

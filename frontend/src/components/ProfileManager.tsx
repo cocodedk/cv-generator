@@ -17,6 +17,23 @@ import {
 import { defaultProfileData } from '../constants/profileDefaults'
 import { useHashRouting } from '../app_helpers/useHashRouting'
 
+export const LANGUAGE_OPTIONS = [
+  { value: 'es', label: 'Spanish' },
+  { value: 'fr', label: 'French' },
+  { value: 'de', label: 'German' },
+  { value: 'it', label: 'Italian' },
+  { value: 'pt', label: 'Portuguese' },
+  { value: 'nl', label: 'Dutch' },
+  { value: 'da', label: 'Danish' },
+  { value: 'sv', label: 'Swedish' },
+  { value: 'no', label: 'Norwegian' },
+  { value: 'ru', label: 'Russian' },
+  { value: 'zh', label: 'Chinese' },
+  { value: 'ja', label: 'Japanese' },
+  { value: 'ko', label: 'Korean' },
+  { value: 'ar', label: 'Arabic' },
+] as const
+
 interface ProfileManagerProps {
   onSuccess: (message: string) => void
   onError: (message: string) => void
@@ -189,9 +206,9 @@ export default function ProfileManager({ onSuccess, onError, setLoading }: Profi
       const response = await translateProfile(currentValues, targetLanguage)
 
       // Check if a profile already exists with the target language
-      if (response.existing_profile_updated_at) {
+      if (response.saved_profile_updated_at) {
         // Load the existing profile and update it
-        const existingProfile = await getProfileByUpdatedAt(response.existing_profile_updated_at)
+        const existingProfile = await getProfileByUpdatedAt(response.saved_profile_updated_at)
         if (existingProfile) {
           // Update the existing profile with translated data
           const updatedProfile = {
@@ -257,20 +274,11 @@ export default function ProfileManager({ onSuccess, onError, setLoading }: Profi
                   className="block w-32 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
                   disabled={isTranslating}
                 >
-                  <option value="es">Spanish</option>
-                  <option value="fr">French</option>
-                  <option value="de">German</option>
-                  <option value="it">Italian</option>
-                  <option value="pt">Portuguese</option>
-                  <option value="nl">Dutch</option>
-                  <option value="da">Danish</option>
-                  <option value="sv">Swedish</option>
-                  <option value="no">Norwegian</option>
-                  <option value="ru">Russian</option>
-                  <option value="zh">Chinese</option>
-                  <option value="ja">Japanese</option>
-                  <option value="ko">Korean</option>
-                  <option value="ar">Arabic</option>
+                  {LANGUAGE_OPTIONS.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
                 </select>
                 <button
                   type="button"
