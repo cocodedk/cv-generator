@@ -42,13 +42,16 @@ export default function CVForm({ onSuccess, onError, setLoading, cvId }: CVFormP
   const { isLoadingCv } = useCvLoader({ cvId, reset, onError, setLoading })
 
   const {
+    showProfileSelection,
     showProfileLoader,
     profileData,
     selectedExperiences,
     selectedEducations,
     loadProfile,
+    handleProfileSelected,
     applySelectedProfile,
     saveToProfile,
+    closeProfileSelection,
     closeProfileLoader,
     handleExperienceToggle,
     handleEducationToggle,
@@ -70,7 +73,7 @@ export default function CVForm({ onSuccess, onError, setLoading, cvId }: CVFormP
     isLoadingCv,
     isSubmitting,
     showAiModal,
-    showProfileLoader,
+    showProfileLoader: showProfileLoader || showProfileSelection,
   })
 
   const handleDownloadPdf = async () => {
@@ -100,6 +103,7 @@ export default function CVForm({ onSuccess, onError, setLoading, cvId }: CVFormP
     <>
       <CVFormModals
         showAiModal={showAiModal}
+        showProfileSelection={showProfileSelection}
         showProfileLoader={showProfileLoader}
         profileData={profileData}
         selectedExperiences={selectedExperiences}
@@ -107,6 +111,8 @@ export default function CVForm({ onSuccess, onError, setLoading, cvId }: CVFormP
         getValues={getValues}
         reset={reset}
         onCloseAiModal={() => setShowAiModal(false)}
+        onCloseProfileSelection={closeProfileSelection}
+        onProfileSelected={handleProfileSelected}
         onError={onError}
         setLoading={setLoading}
         onExperienceToggle={handleExperienceToggle}
