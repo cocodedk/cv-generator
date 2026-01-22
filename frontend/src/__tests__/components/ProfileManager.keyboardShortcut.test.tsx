@@ -3,6 +3,7 @@ import { screen, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import * as profileService from '../../services/profileService'
 import { renderProfileManager } from '../helpers/profileManager/testHelpers'
+import { within } from '@testing-library/react'
 import {
   createMockCallbacks,
   setupWindowMocks,
@@ -37,7 +38,7 @@ describe('ProfileManager - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
     mockedProfileService.getProfile.mockResolvedValue(null)
     mockedProfileService.saveProfile.mockResolvedValue({ status: 'success' })
 
-    renderProfileManager({
+    const { container } = renderProfileManager({
       onSuccess: mockOnSuccess,
       onError: mockOnError,
       setLoading: mockSetLoading,
@@ -46,17 +47,17 @@ describe('ProfileManager - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
     // Wait for loading to complete
     await waitFor(
       () => {
-        expect(screen.queryByText('Loading profile...')).not.toBeInTheDocument()
+        expect(within(container).queryByText('Loading profile...')).not.toBeInTheDocument()
       },
       { timeout: 3000 }
     )
 
     await waitFor(() => {
-      expect(screen.getByText('Save Profile')).toBeInTheDocument()
+      expect(within(container).getByRole('button', { name: 'Save Profile' })).toBeInTheDocument()
     })
 
     // Type in name field
-    const nameInput = screen.getByLabelText(/full name/i)
+    const nameInput = within(container).getByLabelText(/full name/i)
     await act(async () => {
       await userEvent.type(nameInput, 'John Doe')
       // Blur the input to simulate user clicking elsewhere
@@ -81,7 +82,7 @@ describe('ProfileManager - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
     mockedProfileService.getProfile.mockResolvedValue(null)
     mockedProfileService.saveProfile.mockResolvedValue({ status: 'success' })
 
-    renderProfileManager({
+    const { container } = renderProfileManager({
       onSuccess: mockOnSuccess,
       onError: mockOnError,
       setLoading: mockSetLoading,
@@ -89,17 +90,17 @@ describe('ProfileManager - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
 
     await waitFor(
       () => {
-        expect(screen.queryByText('Loading profile...')).not.toBeInTheDocument()
+        expect(within(container).queryByText('Loading profile...')).not.toBeInTheDocument()
       },
       { timeout: 3000 }
     )
 
     await waitFor(() => {
-      expect(screen.getByText('Save Profile')).toBeInTheDocument()
+      expect(within(container).getByRole('button', { name: 'Save Profile' })).toBeInTheDocument()
     })
 
     // Type in name field and blur
-    const nameInput = screen.getByLabelText(/full name/i)
+    const nameInput = within(container).getByLabelText(/full name/i)
     await act(async () => {
       await userEvent.type(nameInput, 'Jane Doe')
       nameInput.blur()
@@ -122,7 +123,7 @@ describe('ProfileManager - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
     mockedProfileService.getProfile.mockResolvedValue(null)
     mockedProfileService.saveProfile.mockResolvedValue({ status: 'success' })
 
-    renderProfileManager({
+    const { container } = renderProfileManager({
       onSuccess: mockOnSuccess,
       onError: mockOnError,
       setLoading: mockSetLoading,
@@ -130,17 +131,17 @@ describe('ProfileManager - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
 
     await waitFor(
       () => {
-        expect(screen.queryByText('Loading profile...')).not.toBeInTheDocument()
+        expect(within(container).queryByText('Loading profile...')).not.toBeInTheDocument()
       },
       { timeout: 3000 }
     )
 
     await waitFor(() => {
-      expect(screen.getByText('Save Profile')).toBeInTheDocument()
+      expect(within(container).getByRole('button', { name: 'Save Profile' })).toBeInTheDocument()
     })
 
     // Focus on name input
-    const nameInput = screen.getByLabelText(/full name/i) as HTMLInputElement
+    const nameInput = within(container).getByLabelText(/full name/i) as HTMLInputElement
     await act(async () => {
       nameInput.focus()
     })
@@ -165,7 +166,7 @@ describe('ProfileManager - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
     mockedProfileService.getProfile.mockResolvedValue(null)
     mockedProfileService.saveProfile.mockResolvedValue({ status: 'success' })
 
-    renderProfileManager({
+    const { container } = renderProfileManager({
       onSuccess: mockOnSuccess,
       onError: mockOnError,
       setLoading: mockSetLoading,
@@ -173,7 +174,7 @@ describe('ProfileManager - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
 
     await waitFor(
       () => {
-        expect(screen.queryByText('Loading profile...')).not.toBeInTheDocument()
+        expect(within(container).queryByText('Loading profile...')).not.toBeInTheDocument()
       },
       { timeout: 3000 }
     )
@@ -213,7 +214,7 @@ describe('ProfileManager - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
       () => new Promise(resolve => setTimeout(resolve, 1000))
     )
 
-    renderProfileManager({
+    const { container } = renderProfileManager({
       onSuccess: mockOnSuccess,
       onError: mockOnError,
       setLoading: mockSetLoading,
@@ -221,31 +222,31 @@ describe('ProfileManager - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
 
     await waitFor(
       () => {
-        expect(screen.queryByText('Loading profile...')).not.toBeInTheDocument()
+        expect(within(container).queryByText('Loading profile...')).not.toBeInTheDocument()
       },
       { timeout: 3000 }
     )
 
     await waitFor(() => {
-      expect(screen.getByText('Save Profile')).toBeInTheDocument()
+      expect(within(container).getByRole('button', { name: 'Save Profile' })).toBeInTheDocument()
     })
 
     // Fill in required name field
-    const nameInput = screen.getByLabelText(/full name/i)
+    const nameInput = within(container).getByLabelText(/full name/i)
     await act(async () => {
       await user.type(nameInput, 'John Doe')
       nameInput.blur()
     })
 
     // Start a save operation by clicking submit button
-    const submitButton = screen.getByRole('button', { name: /save profile/i })
+    const submitButton = within(container).getByRole('button', { name: /save profile/i })
     await act(async () => {
       await user.click(submitButton)
     })
 
     // Wait for button to show "Saving..." state
     await waitFor(() => {
-      expect(screen.getByText('Saving...')).toBeInTheDocument()
+      expect(within(container).getByText('Saving...')).toBeInTheDocument()
     })
 
     // Try Ctrl+S while submitting
@@ -267,7 +268,7 @@ describe('ProfileManager - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
     mockedProfileService.getProfile.mockResolvedValue(null)
     mockedProfileService.saveProfile.mockResolvedValue({ status: 'success' })
 
-    renderProfileManager({
+    const { container } = renderProfileManager({
       onSuccess: mockOnSuccess,
       onError: mockOnError,
       setLoading: mockSetLoading,
@@ -275,13 +276,13 @@ describe('ProfileManager - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
 
     await waitFor(
       () => {
-        expect(screen.queryByText('Loading profile...')).not.toBeInTheDocument()
+        expect(within(container).queryByText('Loading profile...')).not.toBeInTheDocument()
       },
       { timeout: 3000 }
     )
 
     await waitFor(() => {
-      expect(screen.getByText('Save Profile')).toBeInTheDocument()
+      expect(within(container).getByRole('button', { name: 'Save Profile' })).toBeInTheDocument()
     })
 
     // Create event and check if preventDefault is called
@@ -301,7 +302,7 @@ describe('ProfileManager - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
     mockedProfileService.getProfile.mockResolvedValue(profileData)
     mockedProfileService.saveProfile.mockResolvedValue({ status: 'success' })
 
-    renderProfileManager({
+    const { container } = renderProfileManager({
       onSuccess: mockOnSuccess,
       onError: mockOnError,
       setLoading: mockSetLoading,
@@ -309,17 +310,17 @@ describe('ProfileManager - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
 
     await waitFor(
       () => {
-        expect(screen.queryByText('Loading profile...')).not.toBeInTheDocument()
+        expect(within(container).queryByText('Loading profile...')).not.toBeInTheDocument()
       },
       { timeout: 3000 }
     )
 
     await waitFor(() => {
-      expect(screen.getByText('Update Profile')).toBeInTheDocument()
+      expect(within(container).getByRole('button', { name: 'Update Profile' })).toBeInTheDocument()
     })
 
     // Modify a field
-    const nameInput = screen.getByLabelText(/full name/i)
+    const nameInput = within(container).getByLabelText(/full name/i)
     await act(async () => {
       await userEvent.clear(nameInput)
       await userEvent.type(nameInput, 'Updated Name')
@@ -349,7 +350,7 @@ describe('ProfileManager - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
     mockedProfileService.getProfile.mockResolvedValue(null)
     mockedProfileService.saveProfile.mockResolvedValue({ status: 'success' })
 
-    renderProfileManager({
+    const { container } = renderProfileManager({
       onSuccess: mockOnSuccess,
       onError: mockOnError,
       setLoading: mockSetLoading,
@@ -357,7 +358,7 @@ describe('ProfileManager - Keyboard Shortcut (Ctrl+S / Cmd+S)', () => {
 
     await waitFor(
       () => {
-        expect(screen.queryByText('Loading profile...')).not.toBeInTheDocument()
+        expect(within(container).queryByText('Loading profile...')).not.toBeInTheDocument()
       },
       { timeout: 3000 }
     )

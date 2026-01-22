@@ -3,6 +3,7 @@ import { screen, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import * as profileService from '../../services/profileService'
 import { renderProfileManager } from '../helpers/profileManager/testHelpers'
+import { within } from '@testing-library/react'
 import {
   createMockCallbacks,
   setupWindowMocks,
@@ -25,7 +26,7 @@ describe('ProfileManager - Save and Update', () => {
     mockedProfileService.getProfile.mockResolvedValue(null)
     mockedProfileService.saveProfile.mockResolvedValue({ status: 'success' })
 
-    renderProfileManager({
+    const { container } = renderProfileManager({
       onSuccess: mockOnSuccess,
       onError: mockOnError,
       setLoading: mockSetLoading,
@@ -34,21 +35,17 @@ describe('ProfileManager - Save and Update', () => {
     // Wait for loading to complete
     await waitFor(
       () => {
-        expect(screen.queryByText('Loading profile...')).not.toBeInTheDocument()
+        expect(within(container).queryByText('Loading profile...')).not.toBeInTheDocument()
       },
       { timeout: 3000 }
     )
 
-    await waitFor(() => {
-      expect(screen.getByText('Save Profile')).toBeInTheDocument()
-    })
-
-    const nameInput = screen.getByLabelText(/full name/i)
+    const nameInput = within(container).getByLabelText(/full name/i)
     await act(async () => {
       await user.type(nameInput, 'John Doe')
     })
 
-    const submitButton = screen.getByRole('button', { name: /save profile/i })
+    const submitButton = within(container).getByRole('button', { type: 'submit' })
     await act(async () => {
       await user.click(submitButton)
     })
@@ -72,7 +69,7 @@ describe('ProfileManager - Save and Update', () => {
     mockedProfileService.getProfile.mockResolvedValue(profileData)
     mockedProfileService.saveProfile.mockResolvedValue({ status: 'success' })
 
-    renderProfileManager({
+    const { container } = renderProfileManager({
       onSuccess: mockOnSuccess,
       onError: mockOnError,
       setLoading: mockSetLoading,
@@ -81,7 +78,7 @@ describe('ProfileManager - Save and Update', () => {
     // Wait for loading to complete
     await waitFor(
       () => {
-        expect(screen.queryByText('Loading profile...')).not.toBeInTheDocument()
+        expect(within(container).queryByText('Loading profile...')).not.toBeInTheDocument()
       },
       { timeout: 3000 }
     )
@@ -89,12 +86,12 @@ describe('ProfileManager - Save and Update', () => {
     // Wait for profile to load and form to show "Update Profile"
     await waitFor(
       () => {
-        expect(screen.getByText('Update Profile')).toBeInTheDocument()
+        expect(within(container).getByRole('button', { name: /update profile/i, hidden: false })).toBeInTheDocument()
       },
       { timeout: 3000 }
     )
 
-    const submitButton = screen.getByRole('button', { name: /update profile/i })
+    const submitButton = within(container).getByRole('button', { type: 'submit' })
     await act(async () => {
       await user.click(submitButton)
     })

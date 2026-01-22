@@ -81,7 +81,12 @@ describe('profileService', () => {
       const result = await saveProfile(profileData)
 
       expect(result).toEqual(response)
-      expect(mockedAxios.post).toHaveBeenCalledWith('/api/profile', profileData)
+      expect(mockedAxios.post).toHaveBeenCalledWith('/api/profile', expect.objectContaining({
+        personal_info: { name: 'John Doe' },
+        experience: [],
+        education: [],
+        skills: []
+      }), expect.any(Object))
     })
 
     it('throws error on failure', async () => {

@@ -3,6 +3,7 @@ import { screen, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import * as profileService from '../../services/profileService'
 import { renderProfileManager } from '../helpers/profileManager/testHelpers'
+import { within } from '@testing-library/react'
 import {
   createMockCallbacks,
   setupWindowMocks,
@@ -60,7 +61,7 @@ describe('ProfileManager - Delete and Validation', () => {
     const user = userEvent.setup()
     mockedProfileService.getProfile.mockResolvedValue(null)
 
-    renderProfileManager({
+    const { container } = renderProfileManager({
       onSuccess: mockOnSuccess,
       onError: mockOnError,
       setLoading: mockSetLoading,
@@ -69,22 +70,22 @@ describe('ProfileManager - Delete and Validation', () => {
     // Wait for loading to complete
     await waitFor(
       () => {
-        expect(screen.queryByText('Loading profile...')).not.toBeInTheDocument()
+        expect(within(container).queryByText('Loading profile...')).not.toBeInTheDocument()
       },
       { timeout: 3000 }
     )
 
     await waitFor(() => {
-      expect(screen.getByText('Save Profile')).toBeInTheDocument()
+      expect(within(container).getByRole('button', { name: 'Save Profile' })).toBeInTheDocument()
     })
 
-    const submitButton = screen.getByRole('button', { name: /save profile/i })
+    const submitButton = within(container).getByRole('button', { name: /save profile/i })
     await act(async () => {
       await user.click(submitButton)
     })
 
     await waitFor(() => {
-      expect(screen.getByText(/name is required/i)).toBeInTheDocument()
+      expect(within(container).getByText(/name is required/i)).toBeInTheDocument()
     })
 
     expect(mockedProfileService.saveProfile).not.toHaveBeenCalled()
