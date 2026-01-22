@@ -99,7 +99,7 @@ def list_profiles() -> list[Dict[str, Any]]:
                     {
                         "name": record.get("name", "Unknown"),
                         "updated_at": record.get("updated_at"),
-                        "language": record.get("language") or "en",
+                        "language": record.get("language", "en"),
                     }
                 )
             return profiles

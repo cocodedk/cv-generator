@@ -16,23 +16,11 @@ import {
 } from '../services/profileService'
 import { defaultProfileData } from '../constants/profileDefaults'
 import { useHashRouting } from '../app_helpers/useHashRouting'
+import { LANGUAGE_NAMES } from '../utils/languageUtils'
 
-export const LANGUAGE_OPTIONS = [
-  { value: 'es', label: 'Spanish' },
-  { value: 'fr', label: 'French' },
-  { value: 'de', label: 'German' },
-  { value: 'it', label: 'Italian' },
-  { value: 'pt', label: 'Portuguese' },
-  { value: 'nl', label: 'Dutch' },
-  { value: 'da', label: 'Danish' },
-  { value: 'sv', label: 'Swedish' },
-  { value: 'no', label: 'Norwegian' },
-  { value: 'ru', label: 'Russian' },
-  { value: 'zh', label: 'Chinese' },
-  { value: 'ja', label: 'Japanese' },
-  { value: 'ko', label: 'Korean' },
-  { value: 'ar', label: 'Arabic' },
-] as const
+export const LANGUAGE_OPTIONS = Object.entries(LANGUAGE_NAMES)
+  .filter(([code]) => code !== 'en') // Exclude English as it's not a translation target
+  .map(([value, label]) => ({ value, label }))
 
 interface ProfileManagerProps {
   onSuccess: (message: string) => void

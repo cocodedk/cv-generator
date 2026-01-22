@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { listProfiles, deleteProfileByUpdatedAt } from '../services/profileService'
 import { ProfileListItem } from '../types/cv'
+import { formatLanguage } from '../utils/languageUtils'
 
 interface ProfileListProps {
   onError: (message: string) => void
@@ -85,28 +86,6 @@ export default function ProfileList({ onError }: ProfileListProps) {
     } catch {
       return dateString
     }
-  }
-
-  const formatLanguage = (languageCode: string) => {
-    if (!languageCode) return 'Unknown'
-    const languageNames: { [key: string]: string } = {
-      en: 'English',
-      es: 'Spanish',
-      fr: 'French',
-      de: 'German',
-      it: 'Italian',
-      pt: 'Portuguese',
-      nl: 'Dutch',
-      ru: 'Russian',
-      zh: 'Chinese',
-      ja: 'Japanese',
-      ko: 'Korean',
-      ar: 'Arabic',
-      da: 'Danish',
-      sv: 'Swedish',
-      no: 'Norwegian',
-    }
-    return languageNames[languageCode] || languageCode.toUpperCase()
   }
 
   return (
