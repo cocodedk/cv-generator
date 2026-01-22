@@ -7,7 +7,7 @@ from backend.models.education import Education, Skill
 
 # Supported languages for profile translation (ISO 639-1 codes)
 SUPPORTED_LANGUAGES = {
-    "en", "es", "fr", "de", "it", "pt", "nl", "ru", "zh", "ja", "ko", "ar", "da"
+    "en", "es", "fr", "de", "it", "pt", "nl", "ru", "zh", "ja", "ko", "ar", "da", "sv", "no"
 }
 
 
