@@ -100,7 +100,7 @@ run_flake8() {
         sleep 5
     fi
 
-    if docker-compose exec -T app flake8 backend --config=.flake8 || docker-compose run --rm app flake8 backend --config=.flake8; then
+    if docker-compose exec -T app flake8 backend --config=.flake8; then
         echo -e "${GREEN}✅ flake8 passed!${NC}"
         return 0
     else
@@ -186,7 +186,7 @@ run_backend_tests() {
     fi
 
     # Run backend tests
-    if docker-compose exec -T app $PYTEST_CMD || docker-compose run --rm app $PYTEST_CMD; then
+    if docker-compose exec -T app $PYTEST_CMD; then
         echo -e "${GREEN}✅ Backend tests passed!${NC}"
         return 0
     else
