@@ -137,7 +137,7 @@ CALL {
     OPTIONAL MATCH (person)-[:HAS_SKILL]->(skill:Skill)-[:BELONGS_TO_PROFILE]->(profile)
     RETURN collect(DISTINCT skill) AS skills
 }
-RETURN profile, person, experiences, educations, skills, profile.language AS language
+RETURN profile, person, experiences, educations, skills, COALESCE(profile.language, 'en') AS language
 ORDER BY profile.updated_at DESC
 LIMIT 1
 """
@@ -145,7 +145,7 @@ LIMIT 1
 LIST_PROFILES_QUERY = """
 MATCH (profile:Profile)
 OPTIONAL MATCH (person:Person)-[:BELONGS_TO_PROFILE]->(profile)
-RETURN profile.updated_at AS updated_at, COALESCE(person.name, 'Unknown') AS name, profile.language AS language
+RETURN profile.updated_at AS updated_at, COALESCE(person.name, 'Unknown') AS name, COALESCE(profile.language, 'en') AS language
 ORDER BY profile.updated_at DESC
 """
 

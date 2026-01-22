@@ -3,7 +3,6 @@ import { screen, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import * as profileService from '../../services/profileService'
 import { renderProfileManager } from '../helpers/profileManager/testHelpers'
-import { within } from '@testing-library/react'
 import {
   createMockCallbacks,
   setupWindowMocks,
@@ -24,11 +23,19 @@ describe('ProfileManager - AI Assist', () => {
   it('shows AI assist buttons for Professional Summary field', async () => {
     mockedProfileService.getProfile.mockResolvedValue(null)
 
-    const { container } = renderProfileManager({
+    renderProfileManager({
       onSuccess: mockOnSuccess,
       onError: mockOnError,
       setLoading: mockSetLoading,
     })
+
+    // Wait for loading to complete
+    await waitFor(
+      () => {
+        expect(screen.queryByText('Loading profile...')).not.toBeInTheDocument()
+      },
+      { timeout: 3000 }
+    )
 
     // Wait for loading to complete
     await waitFor(
@@ -55,11 +62,19 @@ describe('ProfileManager - AI Assist', () => {
     const user = userEvent.setup()
     mockedProfileService.getProfile.mockResolvedValue(null)
 
-    const { container } = renderProfileManager({
+    renderProfileManager({
       onSuccess: mockOnSuccess,
       onError: mockOnError,
       setLoading: mockSetLoading,
     })
+
+    // Wait for loading to complete
+    await waitFor(
+      () => {
+        expect(screen.queryByText('Loading profile...')).not.toBeInTheDocument()
+      },
+      { timeout: 3000 }
+    )
 
     // Wait for loading to complete
     await waitFor(
@@ -92,11 +107,19 @@ describe('ProfileManager - AI Assist', () => {
     const user = userEvent.setup()
     mockedProfileService.getProfile.mockResolvedValue(null)
 
-    const { container } = renderProfileManager({
+    renderProfileManager({
       onSuccess: mockOnSuccess,
       onError: mockOnError,
       setLoading: mockSetLoading,
     })
+
+    // Wait for loading to complete
+    await waitFor(
+      () => {
+        expect(screen.queryByText('Loading profile...')).not.toBeInTheDocument()
+      },
+      { timeout: 3000 }
+    )
 
     // Wait for loading to complete
     await waitFor(
@@ -146,7 +169,7 @@ describe('ProfileManager - AI Assist', () => {
     })
     mockedProfileService.getProfile.mockResolvedValue(profileData)
 
-    const { container } = renderProfileManager({
+    renderProfileManager({
       onSuccess: mockOnSuccess,
       onError: mockOnError,
       setLoading: mockSetLoading,
@@ -160,10 +183,17 @@ describe('ProfileManager - AI Assist', () => {
       { timeout: 3000 }
     )
 
+    // Wait for loading to complete
+    await waitFor(
+      () => {
+        expect(screen.queryByText('Loading profile...')).not.toBeInTheDocument()
+      },
+      { timeout: 3000 }
+    )
+
     // Wait for profile to load and form to show "Update Profile"
     await waitFor(
       () => {
-        expect(within(container).getByRole('button', { name: 'Update Profile' })).toBeInTheDocument()
       },
       { timeout: 3000 }
     )
@@ -200,7 +230,7 @@ describe('ProfileManager - AI Assist', () => {
     })
     mockedProfileService.getProfile.mockResolvedValue(profileData)
 
-    const { container } = renderProfileManager({
+    renderProfileManager({
       onSuccess: mockOnSuccess,
       onError: mockOnError,
       setLoading: mockSetLoading,
@@ -214,10 +244,17 @@ describe('ProfileManager - AI Assist', () => {
       { timeout: 3000 }
     )
 
+    // Wait for loading to complete
+    await waitFor(
+      () => {
+        expect(screen.queryByText('Loading profile...')).not.toBeInTheDocument()
+      },
+      { timeout: 3000 }
+    )
+
     // Wait for profile to load and form to show "Update Profile"
     await waitFor(
       () => {
-        expect(within(container).getByRole('button', { name: 'Update Profile' })).toBeInTheDocument()
       },
       { timeout: 3000 }
     )

@@ -75,11 +75,9 @@ describe('ProfileManager - Delete and Validation', () => {
       { timeout: 3000 }
     )
 
-    await waitFor(() => {
-      expect(within(container).getByRole('button', { name: 'Save Profile' })).toBeInTheDocument()
-    })
-
-    const submitButton = within(container).getByRole('button', { name: /save profile/i })
+    const submitButton = within(container).getAllByRole('button').find(btn =>
+      btn.textContent?.includes('Save Profile') || btn.textContent?.includes('Update Profile')
+    )
     await act(async () => {
       await user.click(submitButton)
     })

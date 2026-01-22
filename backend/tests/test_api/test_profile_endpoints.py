@@ -182,6 +182,27 @@ class TestListProfiles:
             assert "profiles" in data
             assert len(data["profiles"]) == 0
 
+    async def test_list_profiles_with_null_language(self, client, mock_neo4j_connection):
+        """Test profile list with null language values (should fallback to 'en')."""
+        profiles_data = [
+            {"name": "John Doe", "updated_at": "2024-01-01T00:00:00", "language": None},
+            {"name": "Jane Smith", "updated_at": "2024-01-02T00:00:00", "language": "es"},
+            {"name": "Bob Wilson", "updated_at": "2024-01-03T00:00:00", "language": None},
+        ]
+        with patch(
+            "backend.database.queries.list_profiles", return_value=profiles_data
+        ):
+            response = await client.get("/api/profiles")
+            assert response.status_code == 200
+            data = response.json()
+            assert "profiles" in data
+            assert len(data["profiles"]) == 3
+
+            # Check that null languages are converted to 'en'
+            assert data["profiles"][0]["language"] == "en"  # None -> 'en'
+            assert data["profiles"][1]["language"] == "es"  # Kept as 'es'
+            assert data["profiles"][2]["language"] == "en"  # None -> 'en'
+
     async def test_list_profiles_server_error(self, client, mock_neo4j_connection):
         """Test list profiles with server error."""
         with patch(
