@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { UseFormReset } from 'react-hook-form'
 import axios from 'axios'
-import { CVData, ProfileData, Experience, Education } from '../../types/cv'
+import { CVData, ProfileData } from '../../types/cv'
 
 interface UseProfileManagerProps {
   reset: UseFormReset<CVData>
@@ -31,8 +31,8 @@ export function useProfileManager({
     setShowProfileSelection(false)
     setShowProfileLoader(true)
     // Pre-select all experiences and education by default
-    const expIndices = new Set<number>(profile.experience.map((_: Experience, i: number) => i))
-    const eduIndices = new Set<number>(profile.education.map((_: Education, i: number) => i))
+    const expIndices = new Set<number>(profile.experience.map((_, i) => i))
+    const eduIndices = new Set<number>(profile.education.map((_, i) => i))
     setSelectedExperiences(expIndices)
     setSelectedEducations(eduIndices)
   }

@@ -44,6 +44,9 @@ def create_cv_router(  # noqa: C901
         cv = queries.get_cv_by_id(cv_id)
         if not cv:
             raise HTTPException(status_code=404, detail="CV not found")
+        # Ensure theme is always present
+        if "theme" not in cv or cv["theme"] is None:
+            cv["theme"] = "classic"
         return cv
 
     @router.get("/api/cvs", response_model=CVListResponse)

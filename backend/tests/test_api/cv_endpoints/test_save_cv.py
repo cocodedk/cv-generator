@@ -25,7 +25,7 @@ class TestSaveCV:
                 == "Internal Platform"
             )
 
-    async def test_save_cv_validation_error(self, client):
+    async def test_save_cv_validation_error(self, client, mock_neo4j_connection):
         """Test CV save with invalid data."""
         invalid_data = {"personal_info": {}}  # Missing required name
         response = await client.post("/api/save-cv", json=invalid_data)

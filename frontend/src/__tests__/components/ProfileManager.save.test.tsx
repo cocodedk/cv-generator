@@ -86,8 +86,7 @@ describe('ProfileManager - Save and Update', () => {
     // Wait for profile to load and button to show "Update Profile"
     await waitFor(
       () => {
-        const submitButtons = within(container).getAllByRole('button', { name: /Update Profile/i })
-        expect(submitButtons[0]).toBeInTheDocument()
+        within(container).getAllByRole('button', { name: /Update Profile/i })
       },
       { timeout: 3000 }
     )

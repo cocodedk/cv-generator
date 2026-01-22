@@ -99,6 +99,7 @@ export default function ProfileLoaderModal({
           <button
             type="button"
             onClick={onApply}
+            data-testid="profile-loader-apply"
             className="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-500"
           >
             Load Selected

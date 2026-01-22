@@ -8,24 +8,24 @@ from unittest.mock import patch
 class TestGenerateCV:
     """Test POST /api/generate-cv-docx endpoint."""
 
+    @patch(
+        "backend.services.cv_file_service.CVFileService.generate_docx_for_cv",
+        return_value="cv_test.docx",
+    )
+    @patch("backend.database.queries.set_cv_filename", return_value=True)
+    @patch("backend.database.queries.create_cv", return_value="test-cv-id")
     async def test_generate_cv_success(
-        self, client, sample_cv_data, mock_neo4j_connection
+        self, mock_create_cv, mock_set_filename, mock_generate_docx, client, sample_cv_data, mock_neo4j_connection
     ):
         """Test successful DOCX CV generation."""
-        with patch("backend.database.queries.create_cv", return_value="test-cv-id"):
-            with patch("backend.database.queries.set_cv_filename", return_value=True):
-                with patch(
-                    "backend.services.cv_file_service.CVFileService.generate_docx_for_cv",
-                    return_value="cv_test.docx",
-                ):
-                    response = await client.post(
-                        "/api/generate-cv-docx", json=sample_cv_data
-                    )
-                    assert response.status_code == 200
-                    data = response.json()
-                    assert data["cv_id"] == "test-cv-id"
-                    assert data["status"] == "success"
-                    assert data["filename"].endswith(".docx")
+        response = await client.post(
+            "/api/generate-cv-docx", json=sample_cv_data
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["cv_id"] == "test-cv-id"
+        assert data["status"] == "success"
+        assert data["filename"].endswith(".docx")
 
     async def test_generate_cv_validation_error(self, client):
         """Test CV generation with invalid data."""
@@ -44,23 +44,24 @@ class TestGenerateCV:
             response = await client.post("/api/generate-cv-docx", json=sample_cv_data)
             assert response.status_code == 500
 
+    @patch(
+        "backend.services.cv_file_service.CVFileService.generate_docx_for_cv",
+        return_value="cv_test.docx",
+    )
+    @patch("backend.database.queries.set_cv_filename", return_value=True)
+    @patch("backend.database.queries.create_cv")
     async def test_generate_cv_saves_theme(
-        self, client, sample_cv_data, mock_neo4j_connection
+        self, mock_create_cv, mock_set_filename, mock_generate_docx, client, sample_cv_data, mock_neo4j_connection
     ):
         """Test that theme is saved when generating CV."""
-        sample_cv_data["theme"] = "elegant"
-        with patch("backend.database.queries.create_cv") as mock_create:
-            mock_create.return_value = "test-cv-id"
-            with patch("backend.database.queries.set_cv_filename", return_value=True):
-                with patch(
-                    "backend.services.cv_file_service.CVFileService.generate_docx_for_cv",
-                    return_value="cv_test.docx",
-                ):
-                    response = await client.post(
-                        "/api/generate-cv-docx", json=sample_cv_data
-                    )
-                    assert response.status_code == 200
-                    # Verify theme was passed to create_cv
-                    call_args = mock_create.call_args
-                    assert call_args is not None
-                    assert call_args[0][0]["theme"] == "elegant"
+        cv_data_with_theme = sample_cv_data.copy()
+        cv_data_with_theme["theme"] = "elegant"
+        mock_create_cv.return_value = "test-cv-id"
+        response = await client.post(
+            "/api/generate-cv-docx", json=cv_data_with_theme
+        )
+        assert response.status_code == 200
+        # Verify theme was passed to create_cv
+        call_args = mock_create_cv.call_args
+        assert call_args is not None
+        assert call_args[0][0]["theme"] == "elegant"

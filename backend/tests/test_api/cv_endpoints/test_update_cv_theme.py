@@ -24,7 +24,7 @@ class TestUpdateCVTheme:
     async def test_update_cv_preserves_theme(
         self, client, sample_cv_data, mock_neo4j_connection
     ):
-        """Test that theme persists after update."""
+        """Test that theme is preserved in update/get flow with mocked persistence."""
         sample_cv_data["theme"] = "elegant"
         updated_cv = {
             "cv_id": "test-id",
@@ -48,11 +48,16 @@ class TestUpdateCVTheme:
     async def test_update_cv_regenerates_file_on_theme_change(
         self, client, sample_cv_data, mock_neo4j_connection
     ):
-        """Test that updating CV with new theme persists the theme."""
+        """Test that updating CV with new theme regenerates files."""
         sample_cv_data["theme"] = "modern"
-        with patch("backend.database.queries.update_cv", return_value=True):
+        with patch("backend.database.queries.update_cv", return_value=True), \
+             patch("backend.services.cv_file_service.CVFileService.generate_showcase_for_cv") as mock_generate_showcase:
             response = await client.put("/api/cv/test-id", json=sample_cv_data)
             assert response.status_code == 200
+            mock_generate_showcase.assert_called_once()
+            args, kwargs = mock_generate_showcase.call_args
+            assert args[0] == "test-id"  # cv_id
+            assert args[1]["theme"] == "modern"  # cv_dict should have the updated theme
             updated_cv_modern = {
                 "cv_id": "test-id",
                 "personal_info": {"name": "John Doe"},

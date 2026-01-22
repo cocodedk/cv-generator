@@ -61,16 +61,15 @@ export default function CVProfileSelectionModal({
   }
 
   const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString)
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      })
-    } catch {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) {
       return dateString
     }
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    })
   }
 
   return (
@@ -116,9 +115,9 @@ export default function CVProfileSelectionModal({
           </div>
         ) : (
           <div className="space-y-2">
-            {profiles.map((profile, index) => (
+            {profiles.map((profile, _index) => (
               <button
-                key={index}
+                key={profile.updated_at}
                 type="button"
                 onClick={() => handleSelectProfile(profile.updated_at)}
                 disabled={loadingProfileId !== null}

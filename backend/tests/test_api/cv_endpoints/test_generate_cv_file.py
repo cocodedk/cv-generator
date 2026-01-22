@@ -1,4 +1,5 @@
 """Tests for POST /api/cv/{cv_id}/generate-docx endpoint."""
+import contextlib
 import pytest
 from unittest.mock import patch
 
@@ -20,18 +21,21 @@ class TestGenerateCVFile:
             "skills": [],
             "theme": "minimal",
         }
-        with patch("backend.database.queries.get_cv_by_id", return_value=cv_data):
-            with patch("backend.database.queries.set_cv_filename", return_value=True):
-                with patch(
+        with contextlib.ExitStack() as stack:
+            stack.enter_context(patch("backend.database.queries.get_cv_by_id", return_value=cv_data))
+            stack.enter_context(patch("backend.database.queries.set_cv_filename", return_value=True))
+            mock_generate = stack.enter_context(
+                patch(
                     "backend.services.cv_file_service.CVFileService.generate_docx_for_cv",
                     return_value="cv_test.docx",
-                ) as mock_generate:
-                    response = await client.post("/api/cv/test-cv-id/generate-docx")
-                    assert response.status_code == 200
-                    call_args = mock_generate.call_args
-                    assert call_args is not None
-                    cv_dict = call_args[0][1]
-                    assert cv_dict["theme"] == "minimal"
+                )
+            )
+            response = await client.post("/api/cv/test-cv-id/generate-docx")
+            assert response.status_code == 200
+            call_args = mock_generate.call_args
+            assert call_args is not None
+            cv_dict = call_args[0][1]
+            assert cv_dict["theme"] == "minimal"
 
     async def test_generate_cv_file_defaults_theme_when_missing(
         self, client, mock_neo4j_connection
@@ -45,15 +49,18 @@ class TestGenerateCVFile:
             "skills": [],
             # No theme field
         }
-        with patch("backend.database.queries.get_cv_by_id", return_value=cv_data):
-            with patch("backend.database.queries.set_cv_filename", return_value=True):
-                with patch(
+        with contextlib.ExitStack() as stack:
+            stack.enter_context(patch("backend.database.queries.get_cv_by_id", return_value=cv_data))
+            stack.enter_context(patch("backend.database.queries.set_cv_filename", return_value=True))
+            mock_generate = stack.enter_context(
+                patch(
                     "backend.services.cv_file_service.CVFileService.generate_docx_for_cv",
                     return_value="cv_test.docx",
-                ) as mock_generate:
-                    response = await client.post("/api/cv/test-cv-id/generate-docx")
-                    assert response.status_code == 200
-                    call_args = mock_generate.call_args
-                    assert call_args is not None
-                    cv_dict = call_args[0][1]
-                    assert cv_dict["theme"] == "classic"
+                )
+            )
+            response = await client.post("/api/cv/test-cv-id/generate-docx")
+            assert response.status_code == 200
+            call_args = mock_generate.call_args
+            assert call_args is not None
+            cv_dict = call_args[0][1]
+            assert cv_dict["theme"] == "classic"

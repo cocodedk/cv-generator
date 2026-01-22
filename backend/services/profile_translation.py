@@ -9,7 +9,8 @@ logger = logging.getLogger(__name__)
 # Fields that should NOT be translated
 NON_TRANSLATABLE_FIELDS = {
     "name", "email", "phone", "address", "linkedin", "github", "website",
-    "start_date", "end_date", "year", "gpa", "technologies", "url", "company"
+    "start_date", "end_date", "year", "gpa", "technologies", "url", "company",
+    "highlights"
 }
 
 # Skills should not be translated
