@@ -178,9 +178,9 @@ run_backend_tests() {
 
     # Build pytest command with optional integration marker
     # Default pytest.ini excludes integration tests with -m "not integration"
-    # When --integration flag is provided, run ONLY integration tests
+    # When --integration flag is provided, run ONLY integration tests without coverage requirements
     if [ $RUN_INTEGRATION -eq 1 ]; then
-        PYTEST_CMD="python -m pytest -c backend/pytest.ini -m integration"
+        PYTEST_CMD="python -m pytest -c backend/pytest.ini -m integration --no-cov"
     else
         PYTEST_CMD="python -m pytest -c backend/pytest.ini"
     fi
