@@ -38,5 +38,4 @@ def build_full_profile_query(match_clause: str) -> str:
         OPTIONAL MATCH (person)-[:HAS_SKILL]->(skill:Skill)-[:BELONGS_TO_PROFILE]->(profile)
         RETURN collect(DISTINCT skill) AS skills
     }}
-    RETURN profile, person, experiences, educations, skills
-    """
+    """ + "RETURN profile{.*}, person, experiences, educations, skills"

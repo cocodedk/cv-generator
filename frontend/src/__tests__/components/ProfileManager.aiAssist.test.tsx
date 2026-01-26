@@ -20,6 +20,15 @@ describe('ProfileManager - AI Assist', () => {
     setupWindowMocks()
   })
 
+  const waitForProfileLoad = async () => {
+    await waitFor(
+      () => {
+        expect(screen.queryByText('Loading profile...')).not.toBeInTheDocument()
+      },
+      { timeout: 3000 }
+    )
+  }
+
   it('shows AI assist buttons for Professional Summary field', async () => {
     mockedProfileService.getProfile.mockResolvedValue(null)
 
@@ -29,13 +38,7 @@ describe('ProfileManager - AI Assist', () => {
       setLoading: mockSetLoading,
     })
 
-    // Wait for loading to complete
-    await waitFor(
-      () => {
-        expect(screen.queryByText('Loading profile...')).not.toBeInTheDocument()
-      },
-      { timeout: 3000 }
-    )
+    await waitForProfileLoad()
 
     await waitFor(() => {
       expect(screen.getByText('Master Profile')).toBeInTheDocument()
@@ -60,13 +63,7 @@ describe('ProfileManager - AI Assist', () => {
       setLoading: mockSetLoading,
     })
 
-    // Wait for loading to complete
-    await waitFor(
-      () => {
-        expect(screen.queryByText('Loading profile...')).not.toBeInTheDocument()
-      },
-      { timeout: 3000 }
-    )
+    await waitForProfileLoad()
 
     await waitFor(() => {
       expect(screen.getByText('Work Experience')).toBeInTheDocument()
@@ -97,13 +94,7 @@ describe('ProfileManager - AI Assist', () => {
       setLoading: mockSetLoading,
     })
 
-    // Wait for loading to complete
-    await waitFor(
-      () => {
-        expect(screen.queryByText('Loading profile...')).not.toBeInTheDocument()
-      },
-      { timeout: 3000 }
-    )
+    await waitForProfileLoad()
 
     await waitFor(() => {
       expect(screen.getByText('Work Experience')).toBeInTheDocument()
@@ -151,18 +142,12 @@ describe('ProfileManager - AI Assist', () => {
       setLoading: mockSetLoading,
     })
 
-    // Wait for loading to complete
-    await waitFor(
-      () => {
-        expect(screen.queryByText('Loading profile...')).not.toBeInTheDocument()
-      },
-      { timeout: 3000 }
-    )
+    await waitForProfileLoad()
 
     // Wait for profile to load and form to show "Update Profile"
     await waitFor(
       () => {
-        expect(screen.getByText('Update Profile')).toBeInTheDocument()
+        expect(screen.getAllByRole('button', { name: /update profile/i }).length).toBeGreaterThan(0)
       },
       { timeout: 3000 }
     )
@@ -205,18 +190,12 @@ describe('ProfileManager - AI Assist', () => {
       setLoading: mockSetLoading,
     })
 
-    // Wait for loading to complete
-    await waitFor(
-      () => {
-        expect(screen.queryByText('Loading profile...')).not.toBeInTheDocument()
-      },
-      { timeout: 3000 }
-    )
+    await waitForProfileLoad()
 
     // Wait for profile to load and form to show "Update Profile"
     await waitFor(
       () => {
-        expect(screen.getByText('Update Profile')).toBeInTheDocument()
+        expect(screen.getAllByRole('button', { name: /update profile/i }).length).toBeGreaterThan(0)
       },
       { timeout: 3000 }
     )

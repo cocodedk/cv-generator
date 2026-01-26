@@ -2,9 +2,11 @@ import { CVData, ProfileData } from '../../types/cv'
 import { UseFormGetValues, UseFormReset } from 'react-hook-form'
 import AiGenerateModal from '../../components/ai/AiGenerateModal'
 import ProfileLoaderModal from './ProfileLoaderModal'
+import CVProfileSelectionModal from './CVProfileSelectionModal'
 
 interface CVFormModalsProps {
   showAiModal: boolean
+  showProfileSelection: boolean
   showProfileLoader: boolean
   profileData: ProfileData | null
   selectedExperiences: Set<number>
@@ -12,6 +14,8 @@ interface CVFormModalsProps {
   getValues: UseFormGetValues<CVData>
   reset: UseFormReset<CVData>
   onCloseAiModal: () => void
+  onCloseProfileSelection: () => void
+  onProfileSelected: (profile: ProfileData) => void
   onError: (message: string | string[]) => void
   setLoading: (loading: boolean) => void
   onExperienceToggle: (index: number, checked: boolean) => void
@@ -23,10 +27,11 @@ interface CVFormModalsProps {
 
 /**
  * Component that renders all modals for the CV form.
- * Handles AI generation modal and profile loader modal.
+ * Handles AI generation modal, profile selection modal, and profile loader modal.
  */
 export default function CVFormModals({
   showAiModal,
+  showProfileSelection,
   showProfileLoader,
   profileData,
   selectedExperiences,
@@ -34,6 +39,8 @@ export default function CVFormModals({
   getValues,
   reset,
   onCloseAiModal,
+  onCloseProfileSelection,
+  onProfileSelected,
   onError,
   setLoading,
   onExperienceToggle,
@@ -54,6 +61,13 @@ export default function CVFormModals({
           }}
           onError={onError}
           setLoading={setLoading}
+        />
+      )}
+      {showProfileSelection && (
+        <CVProfileSelectionModal
+          onClose={onCloseProfileSelection}
+          onSelectProfile={onProfileSelected}
+          onError={onError}
         />
       )}
       {showProfileLoader && profileData && (

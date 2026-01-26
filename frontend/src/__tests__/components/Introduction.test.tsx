@@ -39,9 +39,6 @@ describe('Introduction', () => {
       'href',
       '/templates/pdfs/jane-doe-modern-sidebar-professional.pdf'
     )
-    expect(downloadLink).toHaveAttribute(
-      'download',
-      'Jane Doe - Modern Sidebar (professional).pdf'
-    )
+    expect(downloadLink).toHaveAttribute('download', 'Jane Doe - Modern Sidebar (professional).pdf')
   })
 })

@@ -17,14 +17,31 @@ describe('useProfileManager', () => {
     vi.clearAllMocks()
   })
 
-  it('loads profile successfully', async () => {
+  it('shows profile selection modal', async () => {
+    const { result } = renderHook(() =>
+      useProfileManager({
+        reset: mockReset,
+        onSuccess: mockOnSuccess,
+        onError: mockOnError,
+        setLoading: mockSetLoading,
+      })
+    )
+
+    act(() => {
+      result.current.loadProfile()
+    })
+
+    expect(result.current.showProfileSelection).toBe(true)
+    expect(result.current.showProfileLoader).toBe(false)
+  })
+
+  it('handles profile selected from modal', async () => {
     const profileData = {
       personal_info: { name: 'John Doe' },
       experience: [{ title: 'Dev' }],
       education: [{ degree: 'BS' }],
       skills: [],
     }
-    mockedAxios.get.mockResolvedValue({ data: profileData })
 
     const { result } = renderHook(() =>
       useProfileManager({
@@ -35,20 +52,18 @@ describe('useProfileManager', () => {
       })
     )
 
-    await act(async () => {
-      result.current.loadProfile()
+    act(() => {
+      result.current.handleProfileSelected(profileData)
     })
 
-    await waitFor(() => {
-      expect(result.current.profileData).toEqual(profileData)
-      expect(result.current.showProfileLoader).toBe(true)
-    })
+    expect(result.current.showProfileSelection).toBe(false)
+    expect(result.current.showProfileLoader).toBe(true)
+    expect(result.current.profileData).toEqual(profileData)
+    expect(result.current.selectedExperiences.has(0)).toBe(true)
+    expect(result.current.selectedEducations.has(0)).toBe(true)
   })
 
-  it('handles profile not found', async () => {
-    const error = { response: { status: 404 } }
-    mockedAxios.get.mockRejectedValue(error)
-
+  it('closes profile selection modal', async () => {
     const { result } = renderHook(() =>
       useProfileManager({
         reset: mockReset,
@@ -58,55 +73,17 @@ describe('useProfileManager', () => {
       })
     )
 
-    await act(async () => {
-      result.current.loadProfile()
+    act(() => {
+      result.current.loadProfile() // Opens selection modal
     })
 
-    await waitFor(() => {
-      expect(mockOnError).toHaveBeenCalledWith('No profile found. Please save a profile first.')
-    })
-  })
+    expect(result.current.showProfileSelection).toBe(true)
 
-  it('handles empty profile response', async () => {
-    mockedAxios.get.mockResolvedValue({ data: null })
-
-    const { result } = renderHook(() =>
-      useProfileManager({
-        reset: mockReset,
-        onSuccess: mockOnSuccess,
-        onError: mockOnError,
-        setLoading: mockSetLoading,
-      })
-    )
-
-    await act(async () => {
-      result.current.loadProfile()
+    act(() => {
+      result.current.closeProfileSelection()
     })
 
-    await waitFor(() => {
-      expect(mockOnError).toHaveBeenCalledWith('No profile found. Please save a profile first.')
-    })
-  })
-
-  it('handles unexpected load error', async () => {
-    mockedAxios.get.mockRejectedValue(new Error('Boom'))
-
-    const { result } = renderHook(() =>
-      useProfileManager({
-        reset: mockReset,
-        onSuccess: mockOnSuccess,
-        onError: mockOnError,
-        setLoading: mockSetLoading,
-      })
-    )
-
-    await act(async () => {
-      result.current.loadProfile()
-    })
-
-    await waitFor(() => {
-      expect(mockOnError).toHaveBeenCalledWith('Failed to load profile')
-    })
+    expect(result.current.showProfileSelection).toBe(false)
   })
 
   it('applies selected profile', async () => {
@@ -124,7 +101,6 @@ describe('useProfileManager', () => {
       education: [{ degree: 'BS' }],
       skills: [],
     }
-    mockedAxios.get.mockResolvedValue({ data: profileData })
 
     const { result } = renderHook(() =>
       useProfileManager({
@@ -135,26 +111,22 @@ describe('useProfileManager', () => {
       })
     )
 
-    await act(async () => {
-      result.current.loadProfile()
+    // Simulate profile selection
+    act(() => {
+      result.current.handleProfileSelected(profileData)
     })
 
-    await waitFor(() => {
-      expect(result.current.profileData).toBeTruthy()
-      expect(result.current.selectedExperiences.has(0)).toBe(true)
-      expect(result.current.selectedExperiences.has(1)).toBe(true)
-    })
+    expect(result.current.selectedExperiences.has(0)).toBe(true)
+    expect(result.current.selectedExperiences.has(1)).toBe(true)
 
-    await act(async () => {
+    act(() => {
       result.current.handleExperienceToggle(0, false)
     })
 
-    await waitFor(() => {
-      expect(result.current.selectedExperiences.has(0)).toBe(false)
-      expect(result.current.selectedExperiences.has(1)).toBe(true)
-    })
+    expect(result.current.selectedExperiences.has(0)).toBe(false)
+    expect(result.current.selectedExperiences.has(1)).toBe(true)
 
-    await act(async () => {
+    act(() => {
       result.current.applySelectedProfile()
     })
 
@@ -173,7 +145,6 @@ describe('useProfileManager', () => {
       education: [{ degree: 'BS' }],
       skills: [],
     }
-    mockedAxios.get.mockResolvedValue({ data: profileData })
 
     const { result } = renderHook(() =>
       useProfileManager({
@@ -184,11 +155,15 @@ describe('useProfileManager', () => {
       })
     )
 
-    await act(async () => {
-      result.current.loadProfile()
+    // Simulate profile selection to set up the state
+    act(() => {
+      result.current.handleProfileSelected(profileData)
     })
 
-    await act(async () => {
+    expect(result.current.showProfileLoader).toBe(true)
+    expect(result.current.profileData).toBeTruthy()
+
+    act(() => {
       result.current.closeProfileLoader()
     })
 

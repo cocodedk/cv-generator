@@ -100,7 +100,7 @@ run_flake8() {
         sleep 5
     fi
 
-    if docker-compose exec -T app flake8 backend --config=.flake8 || docker-compose run --rm app flake8 backend --config=.flake8; then
+    if docker-compose exec -T app flake8 backend --config=.flake8; then
         echo -e "${GREEN}✅ flake8 passed!${NC}"
         return 0
     else
@@ -178,15 +178,15 @@ run_backend_tests() {
 
     # Build pytest command with optional integration marker
     # Default pytest.ini excludes integration tests with -m "not integration"
-    # When --integration flag is provided, run ONLY integration tests
+    # When --integration flag is provided, run ONLY integration tests without coverage requirements
     if [ $RUN_INTEGRATION -eq 1 ]; then
-        PYTEST_CMD="python -m pytest -c backend/pytest.ini -m integration"
+        PYTEST_CMD="python -m pytest -c backend/pytest.ini -m integration --no-cov"
     else
         PYTEST_CMD="python -m pytest -c backend/pytest.ini"
     fi
 
     # Run backend tests
-    if docker-compose exec -T app $PYTEST_CMD || docker-compose run --rm app $PYTEST_CMD; then
+    if docker-compose exec -T app $PYTEST_CMD; then
         echo -e "${GREEN}✅ Backend tests passed!${NC}"
         return 0
     else

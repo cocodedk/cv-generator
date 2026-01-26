@@ -40,14 +40,22 @@ def update_profile(profile_data: Dict[str, Any]) -> bool:
     return update_profile_fixed(profile_data)
 
 
-def save_profile(profile_data: Dict[str, Any]) -> bool:
+def save_profile(profile_data: Dict[str, Any], create_new: bool = False) -> bool:
     """Save or update master profile in Neo4j.
 
     Checks if profile exists and calls update_profile() or create_profile() accordingly.
     This ensures the Profile node is never deleted during save operations.
+
+    Args:
+        profile_data: Profile data to save
+        create_new: If True, always create a new profile instead of updating existing
     """
     driver = Neo4jConnection.get_driver()
     database = Neo4jConnection.get_database()
+
+    # If create_new is True, always create a new profile
+    if create_new:
+        return create_profile(profile_data)
 
     with driver.session(database=database) as session:
         # Check if profile exists in a read transaction
@@ -91,6 +99,7 @@ def list_profiles() -> list[Dict[str, Any]]:
                     {
                         "name": record.get("name", "Unknown"),
                         "updated_at": record.get("updated_at"),
+                        "language": record.get("language", "en"),
                     }
                 )
             return profiles

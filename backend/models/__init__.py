@@ -9,6 +9,8 @@ from backend.models.profile import (
     ProfileResponse,
     ProfileListItem,
     ProfileListResponse,
+    TranslateProfileRequest,
+    TranslateProfileResponse,
 )
 
 __all__ = [
@@ -26,4 +28,6 @@ __all__ = [
     "ProfileResponse",
     "ProfileListItem",
     "ProfileListResponse",
+    "TranslateProfileRequest",
+    "TranslateProfileResponse",
 ]

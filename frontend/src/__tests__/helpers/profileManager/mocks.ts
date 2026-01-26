@@ -58,4 +58,5 @@ export const createProfileData = (overrides: any = {}) => ({
   experience: overrides.experience || [],
   education: overrides.education || [],
   skills: overrides.skills || [],
+  language: overrides.language || 'en',
 })

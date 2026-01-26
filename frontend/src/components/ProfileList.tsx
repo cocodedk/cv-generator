@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { listProfiles, deleteProfileByUpdatedAt } from '../services/profileService'
 import { ProfileListItem } from '../types/cv'
+import { formatLanguage } from '../utils/languageUtils'
 
 interface ProfileListProps {
   onError: (message: string) => void
@@ -137,7 +138,8 @@ export default function ProfileList({ onError }: ProfileListProps) {
                       {profile.name}
                     </h3>
                     <p className="text-sm text-gray-500 mt-1 dark:text-gray-400">
-                      Updated: {formatDate(profile.updated_at)}
+                      Updated: {formatDate(profile.updated_at)} • Language:{' '}
+                      {formatLanguage(profile.language)}
                     </p>
                   </div>
                   <div className="flex space-x-2">

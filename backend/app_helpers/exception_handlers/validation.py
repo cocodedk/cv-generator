@@ -5,8 +5,23 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from backend.app_helpers.exception_handlers.field_names import build_friendly_field_name
 from backend.app_helpers.exception_handlers.field_paths import build_field_path
+import json
 
 logger = logging.getLogger(__name__)
+
+
+def _make_json_serializable(obj):
+    """Convert non-JSON-serializable objects to strings for error serialization."""
+    try:
+        json.dumps(obj)
+        return obj
+    except (TypeError, ValueError):
+        if isinstance(obj, dict):
+            return {k: _make_json_serializable(v) for k, v in obj.items()}
+        elif isinstance(obj, (list, tuple)):
+            return [_make_json_serializable(item) for item in obj]
+        else:
+            return str(obj)
 
 
 async def validation_exception_handler(
@@ -54,7 +69,7 @@ async def validation_exception_handler(
         error_messages.append(f"{field_name}: {friendly_msg}")
 
         # Store field path in error for frontend mapping
-        error_copy = error.copy()
+        error_copy = _make_json_serializable(error.copy())
         error_copy["field_path"] = field_path
         modified_errors.append(error_copy)
 

@@ -8,11 +8,14 @@ export interface ProfileManagerProps {
 }
 
 export const renderProfileManager = (props: ProfileManagerProps) => {
-  return render(
+  const result = render(
     <ProfileManager
       onSuccess={props.onSuccess}
       onError={props.onError}
       setLoading={props.setLoading}
     />
   )
+  return {
+    ...result,
+  }
 }

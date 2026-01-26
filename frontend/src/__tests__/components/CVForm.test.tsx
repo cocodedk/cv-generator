@@ -2,11 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { setupAxiosMock, setupWindowMocks, createMockCallbacks } from '../helpers/cvForm/mocks'
-import {
-  mockProfileData,
-  mockProfileDataWithMultipleExperiences,
-  mockCvResponse,
-} from '../helpers/cvForm/testData'
+import { mockProfileDataWithMultipleExperiences, mockCvResponse } from '../helpers/cvForm/testData'
 import {
   renderCVForm,
   fillNameField,
@@ -145,8 +141,18 @@ describe('CVForm', () => {
     expect(options.length).toBe(expectedThemes.length)
   })
 
-  it('loads profile data when Load from Profile is clicked', async () => {
-    mockedAxios.get.mockResolvedValue({ data: mockProfileData })
+  it('shows profile selection modal when Load from Profile is clicked', async () => {
+    mockedAxios.get.mockResolvedValue({
+      data: {
+        profiles: [
+          {
+            name: 'John Doe',
+            updated_at: '2024-01-01T00:00:00Z',
+            language: 'en',
+          },
+        ],
+      },
+    })
 
     renderCVForm({
       onSuccess: mockOnSuccess,
@@ -157,17 +163,17 @@ describe('CVForm', () => {
     await clickLoadProfileButton()
 
     await waitFor(() => {
-      expect(mockedAxios.get).toHaveBeenCalledWith('/api/profile')
+      expect(mockedAxios.get).toHaveBeenCalledWith('/api/profiles')
     })
 
     await waitFor(() => {
-      expect(screen.getByText('Select Items to Include')).toBeInTheDocument()
+      expect(screen.getByText('Select Profile to Load')).toBeInTheDocument()
     })
   })
 
-  it('handles profile load error when no profile exists', async () => {
-    mockedAxios.get.mockRejectedValue({
-      response: { status: 404 },
+  it('handles profile load error when no profiles exist', async () => {
+    mockedAxios.get.mockResolvedValue({
+      data: { profiles: [] },
     })
 
     renderCVForm({
@@ -179,7 +185,9 @@ describe('CVForm', () => {
     await clickLoadProfileButton()
 
     await waitFor(() => {
-      expect(mockOnError).toHaveBeenCalledWith('No profile found. Please save a profile first.')
+      expect(
+        screen.getByText('No profiles found. Please create a profile first.')
+      ).toBeInTheDocument()
     })
   })
 
@@ -211,7 +219,22 @@ describe('CVForm', () => {
 
   it('allows selecting experiences and educations from profile', async () => {
     const user = userEvent.setup()
-    mockedAxios.get.mockResolvedValue({ data: mockProfileDataWithMultipleExperiences })
+
+    // Mock profile list API
+    mockedAxios.get
+      .mockResolvedValueOnce({
+        data: {
+          profiles: [
+            {
+              name: 'John Doe',
+              updated_at: '2024-01-01T00:00:00Z',
+              language: 'en',
+            },
+          ],
+        },
+      })
+      // Mock profile by ID API
+      .mockResolvedValueOnce({ data: mockProfileDataWithMultipleExperiences })
 
     renderCVForm({
       onSuccess: mockOnSuccess,
@@ -221,6 +244,18 @@ describe('CVForm', () => {
 
     await clickLoadProfileButton()
 
+    // Profile selection modal should appear
+    await waitFor(() => {
+      expect(screen.getByText('Select Profile to Load')).toBeInTheDocument()
+    })
+
+    // Click on the profile to select it
+    const profileButton = screen.getByText('John Doe')
+    await act(async () => {
+      await user.click(profileButton)
+    })
+
+    // Profile loader modal should appear
     await waitFor(() => {
       expect(screen.getByText('Select Items to Include')).toBeInTheDocument()
     })

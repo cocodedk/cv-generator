@@ -16,34 +16,25 @@ export function useProfileManager({
   onError,
   setLoading,
 }: UseProfileManagerProps) {
+  const [showProfileSelection, setShowProfileSelection] = useState(false)
   const [showProfileLoader, setShowProfileLoader] = useState(false)
   const [profileData, setProfileData] = useState<ProfileData | null>(null)
   const [selectedExperiences, setSelectedExperiences] = useState<Set<number>>(new Set())
   const [selectedEducations, setSelectedEducations] = useState<Set<number>>(new Set())
 
-  const loadProfile = async () => {
-    setLoading(true)
-    try {
-      const response = await axios.get('/api/profile')
-      if (response.data) {
-        setProfileData(response.data)
-        setShowProfileLoader(true)
-        const expIndices = new Set<number>(response.data.experience.map((_: any, i: number) => i))
-        const eduIndices = new Set<number>(response.data.education.map((_: any, i: number) => i))
-        setSelectedExperiences(expIndices)
-        setSelectedEducations(eduIndices)
-      } else {
-        onError('No profile found. Please save a profile first.')
-      }
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        onError('No profile found. Please save a profile first.')
-      } else {
-        onError('Failed to load profile')
-      }
-    } finally {
-      setLoading(false)
-    }
+  const loadProfile = () => {
+    setShowProfileSelection(true)
+  }
+
+  const handleProfileSelected = (profile: ProfileData) => {
+    setProfileData(profile)
+    setShowProfileSelection(false)
+    setShowProfileLoader(true)
+    // Pre-select all experiences and education by default
+    const expIndices = new Set<number>(profile.experience.map((_, i) => i))
+    const eduIndices = new Set<number>(profile.education.map((_, i) => i))
+    setSelectedExperiences(expIndices)
+    setSelectedEducations(eduIndices)
   }
 
   const applySelectedProfile = () => {
@@ -85,6 +76,10 @@ export function useProfileManager({
     }
   }
 
+  const closeProfileSelection = () => {
+    setShowProfileSelection(false)
+  }
+
   const closeProfileLoader = () => {
     setShowProfileLoader(false)
     setProfileData(null)
@@ -113,13 +108,16 @@ export function useProfileManager({
   }
 
   return {
+    showProfileSelection,
     showProfileLoader,
     profileData,
     selectedExperiences,
     selectedEducations,
     loadProfile,
+    handleProfileSelected,
     applySelectedProfile,
     saveToProfile,
+    closeProfileSelection,
     closeProfileLoader,
     handleExperienceToggle,
     handleEducationToggle,

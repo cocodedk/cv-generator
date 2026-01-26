@@ -63,7 +63,6 @@ class TestGetCV:
             "experience": [],
             "education": [],
             "skills": [],
-            "theme": "classic",
         }
         with patch("backend.database.queries.get_cv_by_id", return_value=cv_data):
             response = await client.get("/api/cv/test-id")

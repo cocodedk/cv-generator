@@ -38,8 +38,8 @@ describe('ProfileList', () => {
   it('renders profile list with Edit and Delete buttons', async () => {
     mockedProfileService.listProfiles.mockResolvedValueOnce({
       profiles: [
-        { name: 'John Doe', updated_at: '2024-01-01T00:00:00' },
-        { name: 'Jane Smith', updated_at: '2024-01-02T00:00:00' },
+        { name: 'John Doe', updated_at: '2024-01-01T00:00:00', language: 'en' },
+        { name: 'Jane Smith', updated_at: '2024-01-02T00:00:00', language: 'es' },
       ],
     })
 
@@ -83,8 +83,8 @@ describe('ProfileList', () => {
     const user = userEvent.setup()
     mockedProfileService.listProfiles.mockResolvedValue({
       profiles: [
-        { name: 'John Doe', updated_at: '2024-01-01T00:00:00' },
-        { name: 'Jane Smith', updated_at: '2024-01-02T00:00:00' },
+        { name: 'John Doe', updated_at: '2024-01-01T00:00:00', language: 'en' },
+        { name: 'Jane Smith', updated_at: '2024-01-02T00:00:00', language: 'es' },
       ],
     })
 
@@ -146,7 +146,7 @@ describe('ProfileList', () => {
   it('handles edit profile navigation', async () => {
     const user = userEvent.setup()
     mockedProfileService.listProfiles.mockResolvedValueOnce({
-      profiles: [{ name: 'John Doe', updated_at: '2024-01-01T00:00:00' }],
+      profiles: [{ name: 'John Doe', updated_at: '2024-01-01T00:00:00', language: 'en' }],
     })
 
     render(<ProfileList onError={mockOnError} />)
@@ -180,7 +180,7 @@ describe('ProfileList', () => {
     const user = userEvent.setup()
     window.confirm = vi.fn(() => true)
     mockedProfileService.listProfiles.mockResolvedValueOnce({
-      profiles: [{ name: 'John Doe', updated_at: '2024-01-01T00:00:00' }],
+      profiles: [{ name: 'John Doe', updated_at: '2024-01-01T00:00:00', language: 'en' }],
     })
     mockedProfileService.deleteProfileByUpdatedAt.mockRejectedValueOnce({
       response: { data: { detail: 'Failed to delete' } },
@@ -204,7 +204,7 @@ describe('ProfileList', () => {
 
   it('refreshes list when navigating back', async () => {
     mockedProfileService.listProfiles.mockResolvedValue({
-      profiles: [{ name: 'John Doe', updated_at: '2024-01-01T00:00:00' }],
+      profiles: [{ name: 'John Doe', updated_at: '2024-01-01T00:00:00', language: 'en' }],
     })
 
     render(<ProfileList onError={mockOnError} />)

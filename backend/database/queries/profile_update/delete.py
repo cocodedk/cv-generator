@@ -29,17 +29,17 @@ def verify_single_person(tx, updated_at: str) -> None:
         )
 
 
-def update_profile_timestamp(tx, updated_at: str):
-    """Update Profile timestamp."""
+def update_profile_timestamp(tx, updated_at: str, language: str = "en"):
+    """Update Profile timestamp and language."""
     query = """
     MATCH (profile:Profile)
     WITH profile
     ORDER BY profile.updated_at DESC
     LIMIT 1
-    SET profile.updated_at = $updated_at
+    SET profile.updated_at = $updated_at, profile.language = $language
     RETURN profile
     """
-    result = tx.run(query, updated_at=updated_at)
+    result = tx.run(query, updated_at=updated_at, language=language)
     return result.single() is not None
 
 

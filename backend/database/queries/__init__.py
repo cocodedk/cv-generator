@@ -17,6 +17,7 @@ from backend.database.queries.profile import (
     list_profiles,
     get_profile_by_updated_at,
 )
+from backend.database.queries.profile_read.get import get_profile_by_language
 
 __all__ = [
     "create_cv",
@@ -39,4 +40,5 @@ __all__ = [
     "delete_profile_by_updated_at",
     "list_profiles",
     "get_profile_by_updated_at",
+    "get_profile_by_language",
 ]
