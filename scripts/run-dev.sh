@@ -71,8 +71,8 @@ if [ $attempt -eq $max_attempts ]; then
     echo -e "${YELLOW}⚠️  Backend health check timeout, but continuing anyway...${NC}"
 fi
 
-# Check if node_modules exists
-if [ ! -d "node_modules" ]; then
+# Ensure frontend dependencies are installed
+if [ ! -d "node_modules" ] || [ ! -e "node_modules/.bin/cross-env" ]; then
     echo -e "${BLUE}📦 Installing frontend dependencies...${NC}"
     npm install
 fi
