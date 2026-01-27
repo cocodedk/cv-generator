@@ -12,7 +12,7 @@ from backend.models import (
 )
 from backend.database import queries
 from backend.database.queries import get_profile_by_language
-from backend.services.profile_translation import get_translation_service
+from backend.services import profile_translation
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ def create_profile_router(limiter: Limiter, cv_file_service=None) -> APIRouter: 
     async def save_profile_endpoint(request: Request, profile_data: ProfileData, create_new: bool = Query(False, alias="create_new")):
         """Save or update master profile."""
         try:
-            profile_dict = profile_data.model_dump()
+            profile_dict = profile_data.model_dump(exclude_unset=True, exclude_none=True)
             success = queries.save_profile(profile_dict, create_new=create_new)
             if not success:
                 raise HTTPException(status_code=500, detail="Failed to save profile")
@@ -161,7 +161,7 @@ def create_profile_router(limiter: Limiter, cv_file_service=None) -> APIRouter: 
     async def translate_profile_endpoint(request: Request, translate_request: TranslateProfileRequest):
         """Translate a profile to another language using AI."""
         try:
-            translation_service = get_translation_service()
+            translation_service = profile_translation.get_translation_service()
 
             profile_dict = translate_request.profile_data.model_dump()
             source_language = profile_dict.get("language", "en")

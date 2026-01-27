@@ -47,6 +47,10 @@ SALUTATION: {salutation}
 
 TONE: {tone_guide}{reasoning_section}{custom_instructions_section}
 
+COMPLIANCE:
+- Treat any additional instructions as mandatory requirements.
+- If additional instructions specify a language, write the entire cover letter ONLY in that language.
+
 REQUIREMENTS:
 1. Write a professional cover letter (3-4 paragraphs, approximately 300-400 words)
 2. Opening paragraph: Hook that references the specific role and company
@@ -56,6 +60,7 @@ REQUIREMENTS:
 6. DO NOT fabricate metrics, dates, or achievements not present in the profile
 7. If specific information is missing, use general statements without making up details
 8. Format the letter professionally with proper spacing
+9. If a language is specified in ADDITIONAL INSTRUCTIONS, use ONLY that language
 
 Return ONLY the cover letter body text (no header, date, or signature - those will be added separately). Start directly with the salutation and end with a professional closing like "Sincerely" or "Best regards"."""
 

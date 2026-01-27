@@ -10,6 +10,7 @@ from backend.services.ai.llm_client import get_llm_client
 from backend.services.ai.cover_letter_selection import select_relevant_content
 from backend.services.ai.cover_letter.formatting import _format_profile_summary, _format_as_html, _format_as_text
 from backend.services.ai.cover_letter.prompt_builder import _build_cover_letter_prompt
+from backend.services.ai.cover_letter.prompt_refiner import refine_cover_letter_prompt
 
 logger = logging.getLogger(__name__)
 
@@ -73,21 +74,48 @@ async def generate_cover_letter(
     profile_summary = _format_profile_summary(filtered_profile)
 
     # Build prompt with relevance reasoning
-    prompt = _build_cover_letter_prompt(
+    base_prompt = _build_cover_letter_prompt(
         profile_summary=profile_summary,
         job_description=request.job_description,
         company_name=request.company_name,
         hiring_manager_name=request.hiring_manager_name,
         tone=request.tone,
         relevance_reasoning=selected_content.relevance_reasoning,
-        llm_instructions=request.llm_instructions,
+        llm_instructions=None,
     )
+    prompt = base_prompt
+
+    # If the user provided LLM instructions, refine the prompt to enforce overrides
+    if request.llm_instructions:
+        try:
+            prompt = await refine_cover_letter_prompt(
+                base_prompt=base_prompt,
+                llm_instructions=request.llm_instructions,
+                llm_client=llm_client,
+            )
+        except Exception as e:
+            logger.warning(
+                "Prompt refinement failed, falling back to direct instructions: %s", e
+            )
+            prompt = _build_cover_letter_prompt(
+                profile_summary=profile_summary,
+                job_description=request.job_description,
+                company_name=request.company_name,
+                hiring_manager_name=request.hiring_manager_name,
+                tone=request.tone,
+                relevance_reasoning=selected_content.relevance_reasoning,
+                llm_instructions=request.llm_instructions,
+            )
 
     # Phase 2: Generate cover letter body using LLM
     try:
         cover_letter_body = await llm_client.generate_text(
             prompt,
-            system_prompt="You are a professional cover letter writer. Generate compelling, tailored cover letters."
+            system_prompt=(
+                "You are a professional cover letter writer. "
+                "Follow all user-provided instructions strictly. "
+                "If a language is specified, write ONLY in that language."
+            ),
         )
         cover_letter_body = cover_letter_body.strip()
     except Exception as e:
