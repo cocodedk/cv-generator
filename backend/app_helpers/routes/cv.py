@@ -51,13 +51,20 @@ def create_cv_router(  # noqa: C901
 
     @router.get("/api/cvs", response_model=CVListResponse)
     async def list_cvs(
-        limit: int = Query(50, ge=1, le=100),
-        offset: int = Query(0, ge=0),
+        limit: int | None = Query(None, ge=1, le=100),
+        offset: int | None = Query(None, ge=0),
         search: Optional[str] = None,
     ):
         """List all saved CVs with pagination."""
         try:
-            result = queries.list_cvs(limit=limit, offset=offset, search=search)
+            kwargs: dict[str, object] = {}
+            if limit is not None:
+                kwargs["limit"] = limit
+            if offset is not None:
+                kwargs["offset"] = offset
+            if search is not None:
+                kwargs["search"] = search
+            result = queries.list_cvs(**kwargs)
             return CVListResponse(**result)
         except HTTPException:
             raise

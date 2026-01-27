@@ -2,6 +2,47 @@
 from typing import Optional, Dict, Any
 
 
+def safe_get(obj: Any, key: str, default: Any = None) -> Any:
+    """Safely get value from object, handling dict-like and indexable objects."""
+    if hasattr(obj, "get"):
+        try:
+            return obj.get(key, default)
+        except TypeError:
+            return obj.get(key)
+    try:
+        return obj[key]
+    except Exception:
+        return default
+
+
+def ensure_list(value: Any) -> list:
+    """Ensure value is a list, converting if necessary."""
+    if not value:
+        return []
+    if isinstance(value, list):
+        return value
+    try:
+        return list(value)
+    except TypeError:
+        return []
+
+
+def build_personal_info(person: Dict[str, Any]) -> Dict[str, Any]:
+    """Build personal_info dict from person node."""
+    return {
+        "name": safe_get(person, "name"),
+        "title": safe_get(person, "title"),
+        "email": safe_get(person, "email"),
+        "phone": safe_get(person, "phone"),
+        "address": build_address(person),
+        "linkedin": safe_get(person, "linkedin"),
+        "github": safe_get(person, "github"),
+        "website": safe_get(person, "website"),
+        "summary": safe_get(person, "summary"),
+        "photo": safe_get(person, "photo"),
+    }
+
+
 def build_save_params(profile_data: Dict[str, Any], updated_at: str) -> Dict[str, Any]:
     """Build parameters for save_profile query."""
     personal_info = profile_data.get("personal_info", {})
@@ -45,31 +86,23 @@ def build_address(person: Dict[str, Any]) -> Optional[Dict[str, Any]]:
 
 def process_profile_record(record: Any) -> Optional[Dict[str, Any]]:
     """Process Neo4j record into profile dict."""
-    if not record or not record["person"]:
+    if not record:
         return None
-    person = record["person"]
-    # Debug: print record structure
-    # print(f"Record keys: {list(record.keys()) if record else None}")
-    # print(f"Language in record: {record.get('language')}")
-    # print(f"Profile object: {record.get('profile')}")
-    # if record.get('profile'):
-    #     print(f"Profile language: {record['profile'].get('language')}")
+
+    person = safe_get(record, "person")
+    profile = safe_get(record, "profile")
+    if not person or not profile:
+        return None
+
+    experiences = ensure_list(safe_get(record, "experiences"))
+    educations = ensure_list(safe_get(record, "educations"))
+    skills = ensure_list(safe_get(record, "skills"))
+
     return {
-        "updated_at": record["profile"].get("updated_at"),
-        "personal_info": {
-            "name": person.get("name"),
-            "title": person.get("title"),
-            "email": person.get("email"),
-            "phone": person.get("phone"),
-            "address": build_address(person),
-            "linkedin": person.get("linkedin"),
-            "github": person.get("github"),
-            "website": person.get("website"),
-            "summary": person.get("summary"),
-            "photo": person.get("photo"),
-        },
-        "experience": [dict(exp) for exp in record["experiences"] if exp],
-        "education": [dict(edu) for edu in record["educations"] if edu],
-        "skills": [dict(skill) for skill in record["skills"] if skill],
-        "language": record["profile"].get("language", "en"),
+        "updated_at": safe_get(profile, "updated_at"),
+        "personal_info": build_personal_info(person),
+        "experience": [dict(exp) for exp in experiences if exp],
+        "education": [dict(edu) for edu in educations if edu],
+        "skills": [dict(skill) for skill in skills if skill],
+        "language": safe_get(profile, "language") or "en",
     }

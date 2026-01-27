@@ -10,6 +10,7 @@ import httpx
 
 from backend.models import ProfileData
 from backend.services.ai.llm_client import LLMClient
+from backend.services.ai.llm_client.request_builder import _is_reasoning_model
 
 logger = logging.getLogger(__name__)
 
@@ -139,7 +140,7 @@ async def select_relevant_content(  # noqa: C901
         }
 
         # Only include temperature for models that support it
-        if not llm_client._is_reasoning_model():
+        if not _is_reasoning_model(llm_client):
             payload["temperature"] = 0.3  # Lower temperature for consistent selection
 
         headers = {

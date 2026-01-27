@@ -202,7 +202,10 @@ class TestGenerateCoverLetter:
         mock_llm_client.base_url = "https://api.test.com"
         mock_llm_client.timeout = 30
         mock_llm_client.generate_text = AsyncMock(
-            return_value="Estimado John Doe,\n\nMe complace expresar mi interés..."
+            side_effect=[
+                "REFINED PROMPT: Write in Spanish and keep it under 200 words",
+                "Estimado John Doe,\n\nMe complace expresar mi interés...",
+            ]
         )
 
         selected_content = SelectedContent(
@@ -220,10 +223,14 @@ class TestGenerateCoverLetter:
                 "backend.services.ai.cover_letter.generation.select_relevant_content",
                 return_value=selected_content,
             ):
-                await generate_cover_letter(sample_profile, sample_request_with_llm_instructions)
+                await generate_cover_letter(
+                    sample_profile, sample_request_with_llm_instructions
+                )
 
-                # Verify LLM instructions are included in the prompt
-                call_args = mock_llm_client.generate_text.call_args
-                prompt = call_args[0][0]
-                assert "ADDITIONAL INSTRUCTIONS:" in prompt
-                assert "Write in Spanish and keep it under 200 words" in prompt
+                # Verify prompt refinement occurs and then generation uses refined prompt
+                assert mock_llm_client.generate_text.call_count == 2
+                refiner_args = mock_llm_client.generate_text.call_args_list[0][0][0]
+                assert "USER INSTRUCTIONS:" in refiner_args
+                assert "Write in Spanish and keep it under 200 words" in refiner_args
+                generation_prompt = mock_llm_client.generate_text.call_args_list[1][0][0]
+                assert "REFINED PROMPT" in generation_prompt
