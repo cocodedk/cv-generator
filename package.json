@@ -24,7 +24,7 @@
     "format:frontend": "prettier --write \"frontend/src/**/*.{ts,tsx,css}\""
   },
   "dependencies": {
-    "@tiptap/extension-link": "^2.27.1",
+    "@tiptap/extension-link": "^3.22.3",
     "@tiptap/extension-placeholder": "^2.27.1",
     "@tiptap/extension-underline": "^2.27.1",
     "@tiptap/react": "^2.27.1",
