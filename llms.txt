@@ -1,0 +1,33 @@
+# CV Generator
+
+> Full-stack application for generating professional CV documents with AI-powered assistance — React + TypeScript frontend, Python FastAPI backend, and Neo4j graph database.
+
+CV Generator provides a web interface for creating tailored CVs, AI-powered drafting from job descriptions, multiple professional themes, and DOCX/HTML export. Built by Babak Bandpey at [Cocode](https://cocode.dk).
+
+## Application
+
+- [GitHub Repository](https://github.com/cocodedk/cv-generator): Full source code
+- [GitHub Pages Demo](https://cocodedk.github.io/cv-generator/): Live frontend demo
+
+## Documentation
+
+- [README](https://github.com/cocodedk/cv-generator/blob/main/README.md): Setup, architecture, and API reference
+- [CONTRIBUTING](https://github.com/cocodedk/cv-generator/blob/main/CONTRIBUTING.md): How to contribute, build, and test
+- [CLAUDE.md](https://github.com/cocodedk/cv-generator/blob/main/CLAUDE.md): Claude Code session startup and conventions
+- [Architecture Docs](https://github.com/cocodedk/cv-generator/tree/main/docs/architecture): System design and data flow
+
+## CI/CD
+
+- [CI workflow](https://github.com/cocodedk/cv-generator/actions/workflows/ci.yml): Automated lint, type check, and tests
+- [Pages workflow](https://github.com/cocodedk/cv-generator/actions/workflows/pages.yml): Frontend deployment
+
+## Author
+
+- [Babak Bandpey](https://cocode.dk): Creator and maintainer
+- [LinkedIn](https://linkedin.com/in/babakbandpey): Professional profile
+- [GitHub](https://github.com/cocodedk): GitHub profile
+
+## Optional
+
+- [SECURITY.md](https://github.com/cocodedk/cv-generator/blob/main/SECURITY.md): Vulnerability reporting policy
+- [License (MIT)](https://github.com/cocodedk/cv-generator/blob/main/LICENSE): Full license text

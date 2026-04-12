@@ -2,6 +2,11 @@
 
 A full-stack application for generating professional CV documents with AI-powered assistance. Built with React + TypeScript frontend, Python FastAPI backend, and Neo4j graph database for CV storage and management.
 
+[![CI](https://github.com/cocodedk/cv-generator/actions/workflows/ci.yml/badge.svg)](https://github.com/cocodedk/cv-generator/actions/workflows/ci.yml)
+
+## Website
+- [English](https://cocodedk.github.io/cv-generator/)
+
 ## Overview
 
 The CV Generator simplifies the CV creation process by providing:
@@ -571,6 +576,10 @@ When contributing to this project:
 5. Run linting and formatting before committing
 6. Ensure all tests pass: `npm test`
 
+## Author
+
+**Babak Bandpey** — [cocode.dk](https://cocode.dk) | [LinkedIn](https://linkedin.com/in/babakbandpey) | [GitHub](https://github.com/cocodedk)
+
 ## License
 
-MIT
+MIT | © 2026 [Cocode](https://cocode.dk) | Created by [Babak Bandpey](https://linkedin.com/in/babakbandpey)
