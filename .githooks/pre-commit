@@ -1,0 +1,11 @@
+#!/bin/sh
+set -eu
+
+# Run frontend lint and tests
+npm run lint:frontend
+npm run test:frontend
+
+# Run backend lint (local) if Python available
+if command -v flake8 >/dev/null 2>&1; then
+  flake8 backend
+fi
