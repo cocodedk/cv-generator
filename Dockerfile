@@ -16,7 +16,7 @@ COPY frontend/ ./frontend/
 COPY tsconfig.json ./
 COPY tsconfig.node.json ./
 COPY tailwind.config.js ./
-COPY postcss.config.js ./
+COPY postcss.config.cjs ./
 COPY vite.config.ts ./
 
 # Build frontend (Vite handles TypeScript compilation internally)
