@@ -3,4 +3,4 @@ Allow: /
 Disallow: /api/
 Disallow: /showcase/*/manifest.json
 
-Sitemap: https://yourusername.github.io/cv-generator/sitemap.xml
+Sitemap: https://cv.cocode.dk/sitemap.xml

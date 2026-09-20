@@ -7,7 +7,7 @@ CV Generator provides a web interface for creating tailored CVs, AI-powered draf
 ## Application
 
 - [GitHub Repository](https://github.com/cocodedk/cv-generator): Full source code
-- [GitHub Pages Demo](https://cocodedk.github.io/cv-generator/): Live frontend demo
+- [GitHub Pages Demo](https://cv.cocode.dk/): Live frontend demo
 
 ## Documentation
 
