@@ -5,7 +5,7 @@ A full-stack application for generating professional CV documents with AI-powere
 [![CI](https://github.com/cocodedk/cv-generator/actions/workflows/ci.yml/badge.svg)](https://github.com/cocodedk/cv-generator/actions/workflows/ci.yml)
 
 ## Website
-- [English](https://cocodedk.github.io/cv-generator/)
+- [English](https://cv.cocode.dk/)
 
 ## Overview
 
