@@ -21,7 +21,13 @@ export default function CvFormHeader({
     <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{title}</h2>
-        <div className="flex space-x-2">
+        {/* min-w-0 lets this row shrink below its buttons' combined natural width (flex
+            items default to min-width:auto, which otherwise floors it there and widens
+            the page on phones - same fix as Navigation.tsx's nav row); overflow-x-auto
+            then scrolls the row inside the header instead. whitespace-nowrap keeps each
+            button's multi-word label on one line, since these are longer than
+            Navigation.tsx's and would otherwise wrap into a cramped 3-line button. */}
+        <div className="flex space-x-2 min-w-0 overflow-x-auto whitespace-nowrap">
           <button
             type="button"
             onClick={onLoadProfile}
