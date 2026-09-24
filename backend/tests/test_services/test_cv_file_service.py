@@ -80,7 +80,9 @@ class TestPrepareCVDict:
         assert result["skills"] == []
         assert result["theme"] == "classic"
 
-    def test_generate_file_for_cv_includes_theme(self, temp_output_dir, sample_cv_data):
+    def test_generate_file_for_cv_includes_theme(
+        self, temp_output_dir, sample_cv_data, mock_neo4j_connection
+    ):
         """Test that generate_file_for_cv passes theme to generator."""
         service = build_service(temp_output_dir, showcase_enabled=False)
         cv_id = "test-cv-123"
@@ -95,7 +97,7 @@ class TestPrepareCVDict:
         assert output_path.exists()
 
     def test_generate_file_for_cv_defaults_theme_when_missing(
-        self, temp_output_dir, sample_cv_data
+        self, temp_output_dir, sample_cv_data, mock_neo4j_connection
     ):
         """Test that generate_file_for_cv defaults theme when missing."""
         service = build_service(temp_output_dir, showcase_enabled=False)
@@ -112,7 +114,9 @@ class TestPrepareCVDict:
         output_path = temp_output_dir / filename
         assert output_path.exists()
 
-    def test_generate_file_for_cv_all_themes(self, temp_output_dir, sample_cv_data):
+    def test_generate_file_for_cv_all_themes(
+        self, temp_output_dir, sample_cv_data, mock_neo4j_connection
+    ):
         """Test generate_file_for_cv with all supported themes."""
         service = build_service(temp_output_dir, showcase_enabled=False)
         themes = [

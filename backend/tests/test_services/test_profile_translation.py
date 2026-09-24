@@ -2,6 +2,7 @@
 import pytest
 from unittest.mock import AsyncMock, patch
 from backend.services.profile_translation import ProfileTranslationService
+import backend.services.ai.llm_client.client as _llm_client_module
 
 
 @pytest.mark.asyncio
@@ -9,8 +10,26 @@ class TestProfileTranslationService:
     """Test ProfileTranslationService."""
 
     def setup_method(self):
-        """Set up test instance."""
+        """Set up test instance.
+
+        ProfileTranslationService.__init__ calls get_llm_client(), which
+        returns a process-wide singleton constructed from AI_ENABLED /
+        AI_BASE_URL / AI_API_KEY. CI sets none of those (AI_ENABLED
+        defaults to false), so is_configured() would be False and every
+        test below - which mocks llm_client.generate_text/is_configured
+        directly - would never reach its mock. Reset the singleton and
+        configure this test's own instance directly, instead of relying
+        on ambient env vars, so this stays isolated to this test class.
+        """
+        _llm_client_module._llm_client = None
         self.service = ProfileTranslationService()
+        self.service.llm_client.enabled = True
+        self.service.llm_client.base_url = "https://example.invalid/v1"
+        self.service.llm_client.api_key = "test-key-not-real"
+
+    def teardown_method(self):
+        """Reset the singleton so later tests build a fresh, unconfigured client."""
+        _llm_client_module._llm_client = None
 
     async def test_translate_profile_success(self):
         """Test successful profile translation."""

@@ -3,6 +3,31 @@
 import pytest
 from unittest.mock import patch, AsyncMock, Mock
 
+# sample_cv_data's skills ("Python", "React") don't all appear literally in
+# these tests' job descriptions ("FastAPI", "React"), so the skill relevance
+# evaluator's LAYER 3 (see evaluate_all_skills in
+# backend/services/ai/pipeline/skill_relevance_evaluator/evaluation.py) needs
+# an LLM to semantically link "Python" to "FastAPI" - there is no heuristic
+# fallback for that layer. Every test below mocks that injection point the
+# same way the pipeline's later stages (e.g. content_adapter) are already
+# mocked, so no test here makes a real network call.
+SKILL_RELEVANCE_LLM_PATH = (
+    "backend.services.ai.pipeline.skill_relevance_evaluator.evaluation.get_llm_client"
+)
+
+
+def _mock_skill_relevance_llm_client():
+    mock_llm_client = Mock()
+    mock_llm_client.is_configured.return_value = True
+    mock_llm_client.generate_text = AsyncMock(
+        return_value=(
+            '{"relevant": true, "type": "foundation", '
+            '"why": "Python is the language FastAPI is built on", '
+            '"match": "FastAPI"}'
+        )
+    )
+    return mock_llm_client
+
 
 @pytest.mark.asyncio
 @pytest.mark.api
@@ -23,23 +48,27 @@ class TestGenerateCvDraft:
             "backend.app_helpers.routes.ai.queries.get_profile",
             return_value=profile_data,
         ):
-            response = await client.post(
-                "/api/ai/generate-cv",
-                json={
-                    "job_description": "We require FastAPI and React. You will build and improve web features.",
-                    "target_role": "Full-stack Engineer",
-                    "seniority": "Senior",
-                    "style": "select_and_reorder",
-                    "max_experiences": 4,
-                },
-            )
-            assert response.status_code == 200
-            data = response.json()
-            assert "draft_cv" in data
-            assert data["draft_cv"]["personal_info"]["name"] == "John Doe"
-            assert data["draft_cv"]["experience"]
-            skill_names = {skill["name"] for skill in data["draft_cv"]["skills"]}
-            assert "React" in skill_names
+            with patch(
+                SKILL_RELEVANCE_LLM_PATH,
+                return_value=_mock_skill_relevance_llm_client(),
+            ):
+                response = await client.post(
+                    "/api/ai/generate-cv",
+                    json={
+                        "job_description": "We require FastAPI and React. You will build and improve web features.",
+                        "target_role": "Full-stack Engineer",
+                        "seniority": "Senior",
+                        "style": "select_and_reorder",
+                        "max_experiences": 4,
+                    },
+                )
+                assert response.status_code == 200
+                data = response.json()
+                assert "draft_cv" in data
+                assert data["draft_cv"]["personal_info"]["name"] == "John Doe"
+                assert data["draft_cv"]["experience"]
+                skill_names = {skill["name"] for skill in data["draft_cv"]["skills"]}
+                assert "React" in skill_names
 
     async def test_generate_cv_draft_profile_missing(
         self, client, mock_neo4j_connection
@@ -77,6 +106,9 @@ class TestGenerateCvDraft:
             with patch(
                 "backend.services.ai.pipeline.content_adapter.adaptation.get_llm_client",
                 return_value=mock_llm_client,
+            ), patch(
+                SKILL_RELEVANCE_LLM_PATH,
+                return_value=_mock_skill_relevance_llm_client(),
             ):
                 response = await client.post(
                     "/api/ai/generate-cv",
@@ -116,6 +148,9 @@ class TestGenerateCvDraft:
             with patch(
                 "backend.services.ai.pipeline.content_adapter.adaptation.get_llm_client",
                 return_value=mock_llm_client,
+            ), patch(
+                SKILL_RELEVANCE_LLM_PATH,
+                return_value=_mock_skill_relevance_llm_client(),
             ):
                 response = await client.post(
                     "/api/ai/generate-cv",
@@ -145,6 +180,9 @@ class TestGenerateCvDraft:
         with patch(
             "backend.app_helpers.routes.ai.queries.get_profile",
             return_value=profile_data,
+        ), patch(
+            SKILL_RELEVANCE_LLM_PATH,
+            return_value=_mock_skill_relevance_llm_client(),
         ):
             response = await client.post(
                 "/api/ai/generate-cv",
@@ -188,6 +226,9 @@ class TestGenerateCvDraft:
             with patch(
                 "backend.services.ai.pipeline.content_adapter.adaptation.get_llm_client",
                 return_value=mock_llm_client,
+            ), patch(
+                SKILL_RELEVANCE_LLM_PATH,
+                return_value=_mock_skill_relevance_llm_client(),
             ):
                 response = await client.post(
                     "/api/ai/generate-cv",
