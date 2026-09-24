@@ -11,7 +11,11 @@ export default function Navigation({ viewMode, isDark, onThemeToggle }: Navigati
     <nav className="bg-white shadow-sm dark:bg-gray-900 dark:border-b dark:border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16">
-          <div className="flex items-center space-x-4">
+          {/* min-w-0 lets this row shrink below its buttons' combined natural width (the
+              default flex-item min-width is "auto", which otherwise floors it there and
+              pushes the whole page wider on phones); overflow-x-auto then scrolls the row
+              inside the nav instead. */}
+          <div className="flex items-center space-x-4 min-w-0 overflow-x-auto">
             <button
               onClick={() => {
                 window.location.hash = 'introduction'
