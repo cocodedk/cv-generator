@@ -134,7 +134,9 @@ class TestDownloadDocx:
         finally:
             app.state.output_dir = original_output_dir
 
-    async def test_download_docx_path_traversal_attempt(self, client, temp_output_dir):
+    async def test_download_docx_path_traversal_attempt(
+        self, client, temp_output_dir, mock_neo4j_connection
+    ):
         """Test path traversal prevention for DOCX downloads."""
         original_output_dir = getattr(app.state, "output_dir", None)
         app.state.output_dir = temp_output_dir

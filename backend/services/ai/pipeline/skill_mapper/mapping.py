@@ -30,9 +30,8 @@ async def map_skills(
     llm_client = get_llm_client()
 
     if not llm_client.is_configured():
-        raise ValueError(
-            "LLM is not configured. Set AI_ENABLED=true and configure API credentials."
-        )
+        logger.info("LLM not configured, falling back to heuristic skill mapping")
+        return _map_with_heuristics(profile_skills, jd_analysis)
 
     return await _map_with_llm(llm_client, profile_skills, jd_analysis)
 

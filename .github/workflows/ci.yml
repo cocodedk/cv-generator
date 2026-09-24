@@ -38,6 +38,13 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
+      - name: Install Playwright browser
+        # playwright is a pinned Python dependency (used by pdf_service to
+        # render PDFs), but pip installing it does not download a browser
+        # binary - without this, every PDF-generating test fails with
+        # "Executable doesn't exist at .../chromium.../chrome".
+        run: python -m playwright install chromium
+
       - name: Lint backend
         run: npm run lint:backend:local || flake8 backend
 
