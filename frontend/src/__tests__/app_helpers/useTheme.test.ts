@@ -79,4 +79,25 @@ describe('useTheme', () => {
 
     expect(localStorage.getItem('theme')).toBe('dark')
   })
+
+  it('syncs the cocode.dk frame dark attribute with the theme', () => {
+    document.body.innerHTML = '<cocode-head></cocode-head><cocode-foot></cocode-foot>'
+    const head = document.querySelector('cocode-head')!
+    const foot = document.querySelector('cocode-foot')!
+
+    const { result } = renderHook(() => useTheme())
+    act(() => {
+      result.current.setIsDark(true)
+    })
+    expect(head.hasAttribute('dark')).toBe(true)
+    expect(foot.hasAttribute('dark')).toBe(true)
+
+    act(() => {
+      result.current.setIsDark(false)
+    })
+    expect(head.hasAttribute('dark')).toBe(false)
+    expect(foot.hasAttribute('dark')).toBe(false)
+
+    document.body.innerHTML = ''
+  })
 })

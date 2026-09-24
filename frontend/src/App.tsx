@@ -6,7 +6,6 @@ import ProfileManager from './components/ProfileManager'
 import Introduction from './components/Introduction'
 import Navigation from './components/Navigation'
 import NotificationModal from './components/NotificationModal'
-import Footer from './components/Footer'
 import { useHashRouting } from './app_helpers/useHashRouting'
 import { useTheme } from './app_helpers/useTheme'
 import { useMessage } from './app_helpers/useMessage'
@@ -61,7 +60,6 @@ function App() {
           <ProfileManager onSuccess={handleSuccess} onError={handleError} setLoading={setLoading} />
         )}
       </main>
-      <Footer />
     </div>
   )
 }

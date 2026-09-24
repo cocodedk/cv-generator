@@ -9,10 +9,46 @@ body {
     'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Matches the app's own light/dark canvas (bg-gray-50 / dark:bg-gray-950 in App.tsx),
+     so cocode-head/cocode-foot never sit on a mismatched white strip above/below it. */
+  background-color: #f9fafb;
+}
+
+html.dark body {
+  background-color: #030712;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+/* The cocode.dk frame lines up with the app's max-w-7xl column; keep gutters in step.
+   The frame's own background is transparent (shadow DOM), so it needs an explicit
+   background-color here too — see the body rule above for why. */
+cocode-head,
+cocode-foot {
+  --cocode-max: 1280px;
+  --cocode-gutter: 16px;
+  background-color: #f9fafb;
+}
+
+html.dark cocode-head,
+html.dark cocode-foot {
+  background-color: #030712;
+}
+
+@media (min-width: 640px) {
+  cocode-head,
+  cocode-foot {
+    --cocode-gutter: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  cocode-head,
+  cocode-foot {
+    --cocode-gutter: 32px;
+  }
 }
 
 /* Rich text editor content (TipTap). */
