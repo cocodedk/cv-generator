@@ -18,6 +18,11 @@ export const useTheme = () => {
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark)
     window.localStorage.setItem('theme', isDark ? 'dark' : 'light')
+    // The cocode.dk frame's own background is transparent, so it must be told
+    // the app's current theme to keep its text readable against ours.
+    document.querySelectorAll('cocode-head, cocode-foot').forEach(el => {
+      el.toggleAttribute('dark', isDark)
+    })
   }, [isDark])
 
   return { isDark, setIsDark }

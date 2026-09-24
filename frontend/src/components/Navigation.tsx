@@ -1,5 +1,4 @@
 import { ViewMode } from '../app_helpers/types'
-import { BRANDING } from '../app_helpers/branding'
 
 interface NavigationProps {
   viewMode: ViewMode
@@ -11,19 +10,7 @@ export default function Navigation({ viewMode, isDark, onThemeToggle }: Navigati
   return (
     <nav className="bg-white shadow-sm dark:bg-gray-900 dark:border-b dark:border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex">
-            <div className="flex-shrink-0 flex items-center">
-              <div className="flex items-baseline gap-2">
-                <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                  {BRANDING.appName}
-                </h1>
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  {BRANDING.ownerName} · {BRANDING.companyName}
-                </span>
-              </div>
-            </div>
-          </div>
+        <div className="flex h-16">
           <div className="flex items-center space-x-4">
             <button
               onClick={() => {
