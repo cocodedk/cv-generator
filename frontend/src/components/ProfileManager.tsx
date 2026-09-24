@@ -245,7 +245,7 @@ export default function ProfileManager({ onSuccess, onError, setLoading }: Profi
 
         {/* Top Action Bar */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-y-2">
             <div className="flex items-center space-x-4">
               {/* Language Selector */}
               <div className="flex items-center space-x-2">

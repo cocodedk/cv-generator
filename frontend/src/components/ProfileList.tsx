@@ -91,7 +91,7 @@ export default function ProfileList({ onError }: ProfileListProps) {
   return (
     <div className="bg-white shadow rounded-lg dark:bg-gray-900 dark:border dark:border-gray-800">
       <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-wrap items-center justify-between gap-y-2">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
             My Profiles ({profiles.length})
           </h2>
