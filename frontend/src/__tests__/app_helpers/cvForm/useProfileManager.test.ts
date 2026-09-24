@@ -38,8 +38,8 @@ describe('useProfileManager', () => {
   it('handles profile selected from modal', async () => {
     const profileData = {
       personal_info: { name: 'John Doe' },
-      experience: [{ title: 'Dev' }],
-      education: [{ degree: 'BS' }],
+      experience: [{ title: 'Dev', company: 'ACME', start_date: '2020-01' }],
+      education: [{ degree: 'BS', institution: 'State University' }],
       skills: [],
     }
 
@@ -96,9 +96,9 @@ describe('useProfileManager', () => {
           start_date: '2020-01',
           projects: [{ name: 'Portal', highlights: ['Launched v2'] }],
         },
-        { title: 'Lead' },
+        { title: 'Lead', company: 'Globex', start_date: '2019-03' },
       ],
-      education: [{ degree: 'BS' }],
+      education: [{ degree: 'BS', institution: 'State University' }],
       skills: [],
     }
 
@@ -132,7 +132,7 @@ describe('useProfileManager', () => {
 
     expect(mockReset).toHaveBeenCalledWith(
       expect.objectContaining({
-        experience: [{ title: 'Lead' }],
+        experience: [{ title: 'Lead', company: 'Globex', start_date: '2019-03' }],
       })
     )
     expect(mockOnSuccess).toHaveBeenCalledWith('Profile data loaded successfully!')
@@ -141,8 +141,8 @@ describe('useProfileManager', () => {
   it('closes profile loader and resets selections', async () => {
     const profileData = {
       personal_info: { name: 'John Doe' },
-      experience: [{ title: 'Dev' }],
-      education: [{ degree: 'BS' }],
+      experience: [{ title: 'Dev', company: 'ACME', start_date: '2020-01' }],
+      education: [{ degree: 'BS', institution: 'State University' }],
       skills: [],
     }
 
